@@ -676,6 +676,99 @@
             padding: var(--space-6);
         }
 
+        /* Profile Modal Specific Styles */
+        .profile-picture-section {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        .current-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--radius-full);
+            background: var(--primary-100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto var(--space-4);
+            border: 3px solid var(--primary-200);
+        }
+
+        .avatar-options h4 {
+            margin: 0 0 var(--space-3) 0;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--neutral-700);
+        }
+
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+            gap: var(--space-2);
+            max-height: 200px;
+            overflow-y: auto;
+            padding: var(--space-3);
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-md);
+            background: var(--neutral-50);
+        }
+
+        .emoji-option {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-fast);
+            border: 2px solid transparent;
+        }
+
+        .emoji-option:hover {
+            background: var(--primary-100);
+            border-color: var(--primary-300);
+            transform: scale(1.05);
+        }
+
+        .emoji-option.selected {
+            background: var(--primary-200);
+            border-color: var(--primary-500);
+            transform: scale(1.1);
+        }
+
+        /* Notification animations */
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
         .form-group {
             margin-bottom: var(--space-5);
         }
@@ -1097,6 +1190,72 @@
         </div>
     </main>
 
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Profile</h2>
+                <button class="close-btn" onclick="closeProfileModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="profileForm">
+                    <div class="form-group">
+                        <label for="profileName">Name</label>
+                        <input type="text" id="profileName" name="profileName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="profileEmail">Email</label>
+                        <input type="email" id="profileEmail" name="profileEmail" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Profile Picture</label>
+                        <div class="profile-picture-section">
+                            <div class="current-avatar" id="currentProfileAvatar">👨‍🏫</div>
+                            <div class="avatar-options">
+                                <h4>Choose an Avatar:</h4>
+                                <div class="emoji-grid">
+                                    <div class="emoji-option" data-emoji="👨‍🏫">👨‍🏫</div>
+                                    <div class="emoji-option" data-emoji="👩‍🏫">👩‍🏫</div>
+                                    <div class="emoji-option" data-emoji="🧑‍🏫">🧑‍🏫</div>
+                                    <div class="emoji-option" data-emoji="👨‍💼">👨‍💼</div>
+                                    <div class="emoji-option" data-emoji="👩‍💼">👩‍💼</div>
+                                    <div class="emoji-option" data-emoji="🧑‍💼">🧑‍💼</div>
+                                    <div class="emoji-option" data-emoji="👨‍🎓">👨‍🎓</div>
+                                    <div class="emoji-option" data-emoji="👩‍🎓">👩‍🎓</div>
+                                    <div class="emoji-option" data-emoji="🧑‍🎓">🧑‍🎓</div>
+                                    <div class="emoji-option" data-emoji="👨‍🔬">👨‍🔬</div>
+                                    <div class="emoji-option" data-emoji="👩‍🔬">👩‍🔬</div>
+                                    <div class="emoji-option" data-emoji="🧑‍🔬">🧑‍🔬</div>
+                                    <div class="emoji-option" data-emoji="👨‍🏭">👨‍🏭</div>
+                                    <div class="emoji-option" data-emoji="👩‍🏭">👩‍🏭</div>
+                                    <div class="emoji-option" data-emoji="🧑‍🏭">🧑‍🏭</div>
+                                    <div class="emoji-option" data-emoji="👨‍💻">👨‍💻</div>
+                                    <div class="emoji-option" data-emoji="👩‍💻">👩‍💻</div>
+                                    <div class="emoji-option" data-emoji="🧑‍💻">🧑‍💻</div>
+                                    <div class="emoji-option" data-emoji="🎯">🎯</div>
+                                    <div class="emoji-option" data-emoji="📚">📚</div>
+                                    <div class="emoji-option" data-emoji="🎓">🎓</div>
+                                    <div class="emoji-option" data-emoji="📝">📝</div>
+                                    <div class="emoji-option" data-emoji="🏆">🏆</div>
+                                    <div class="emoji-option" data-emoji="⭐">⭐</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" onclick="closeProfileModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Class Management Modal -->
     <div id="classModal" class="modal">
         <div class="modal-content">
@@ -1261,9 +1420,15 @@
                 document.getElementById('welcomeText').textContent = `Welcome back, ${currentUser.name}!`;
                 document.getElementById('userName').textContent = currentUser.name;
                 
-                // Update user avatar with initials
-                const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
-                document.getElementById('userAvatar').textContent = initials;
+                // Update user avatar
+                const userAvatar = document.getElementById('userAvatar');
+                if (currentUser.avatar) {
+                    userAvatar.textContent = currentUser.avatar;
+                } else {
+                    // Fallback to initials
+                    const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                    userAvatar.textContent = initials;
+                }
             }
             
             // Check if user is logged in
@@ -1455,8 +1620,139 @@
         }
 
         function openProfileModal() {
-            // Profile modal functionality (simplified for this example)
-            alert('Profile editing feature available in the full version!');
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            
+            // Populate form with current user data
+            document.getElementById('profileName').value = currentUser.name || '';
+            document.getElementById('profileEmail').value = currentUser.email || '';
+            
+            // Set current avatar
+            const currentAvatar = currentUser.avatar || '👨‍🏫';
+            document.getElementById('currentProfileAvatar').textContent = currentAvatar;
+            
+            // Highlight selected emoji
+            document.querySelectorAll('.emoji-option').forEach(option => {
+                option.classList.remove('selected');
+                if (option.dataset.emoji === currentAvatar) {
+                    option.classList.add('selected');
+                }
+            });
+            
+            // Show modal
+            document.getElementById('profileModal').classList.add('active');
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profileModal').classList.remove('active');
+            document.getElementById('profileForm').reset();
+        }
+
+        // Initialize profile modal functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle emoji selection
+            document.querySelectorAll('.emoji-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remove previous selection
+                    document.querySelectorAll('.emoji-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    // Add selection to clicked emoji
+                    this.classList.add('selected');
+                    
+                    // Update current avatar display
+                    const selectedEmoji = this.dataset.emoji;
+                    document.getElementById('currentProfileAvatar').textContent = selectedEmoji;
+                });
+            });
+            
+            // Handle profile form submission
+            document.getElementById('profileForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(e.target);
+                const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                
+                // Get selected emoji
+                const selectedEmoji = document.querySelector('.emoji-option.selected');
+                const newAvatar = selectedEmoji ? selectedEmoji.dataset.emoji : currentUser.avatar || '👨‍🏫';
+                
+                // Update user data
+                const updatedUser = {
+                    ...currentUser,
+                    name: formData.get('profileName'),
+                    avatar: newAvatar
+                };
+                
+                // Save to localStorage
+                localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+                
+                // Update UI immediately
+                updateProfileUI(updatedUser);
+                
+                // Close modal
+                closeProfileModal();
+                
+                // Show success message
+                showNotification('Profile updated successfully!', 'success');
+            });
+        });
+
+        function updateProfileUI(user) {
+            // Update welcome text
+            document.getElementById('welcomeText').textContent = `Welcome back, ${user.name}!`;
+            
+            // Update user name in header
+            const userNameElement = document.getElementById('userName');
+            if (userNameElement) {
+                userNameElement.textContent = user.name;
+            }
+            
+            // Update avatar in header
+            const userAvatar = document.getElementById('userAvatar');
+            if (user.avatar) {
+                userAvatar.textContent = user.avatar;
+            } else {
+                // Fallback to initials
+                const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                userAvatar.textContent = initials;
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            // Add styles
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? 'var(--success-500)' : type === 'error' ? 'var(--danger-500)' : 'var(--primary-500)'};
+                color: white;
+                padding: var(--space-4);
+                border-radius: var(--radius-lg);
+                box-shadow: var(--shadow-lg);
+                z-index: 2000;
+                animation: slideInRight 0.3s ease-out;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease-out';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
         }
 
         // Class management functions
@@ -1742,16 +2038,27 @@
 
         // Close modal when clicking outside
         document.addEventListener('click', function(e) {
-            const modal = document.getElementById('classModal');
-            if (e.target === modal) {
+            const classModal = document.getElementById('classModal');
+            const profileModal = document.getElementById('profileModal');
+            
+            if (e.target === classModal) {
                 closeClassModal();
+            }
+            
+            if (e.target === profileModal) {
+                closeProfileModal();
             }
         });
 
         // Close modal with Escape key
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && document.getElementById('classModal').classList.contains('active')) {
-                closeClassModal();
+            if (e.key === 'Escape') {
+                if (document.getElementById('classModal').classList.contains('active')) {
+                    closeClassModal();
+                }
+                if (document.getElementById('profileModal').classList.contains('active')) {
+                    closeProfileModal();
+                }
             }
         });
 
