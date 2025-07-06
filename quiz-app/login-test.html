@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Test - GestureQuiz</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e1e5e9;
+            border-radius: 10px;
+        }
+        .test-section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e1e5e9;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        .button:hover {
+            background: #5a6fd8;
+        }
+        .button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .results {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-bug"></i> GestureQuiz Login Test Tool</h1>
+        
+        <!-- Firebase Connection Test -->
+        <div class="test-section">
+            <h2>🔥 Firebase Connection Test</h2>
+            <button class="button" onclick="testConnection()">Test Firebase Connection</button>
+            <div id="connectionResults" class="results" style="display: none;"></div>
+        </div>
+
+        <!-- Quick Account Creation -->
+        <div class="test-section">
+            <h2>➕ Quick Account Creation</h2>
+            <div class="form-group">
+                <label>Test Email:</label>
+                <input type="email" id="testEmail" value="test@example.com" placeholder="test@example.com">
+            </div>
+            <div class="form-group">
+                <label>Test Password:</label>
+                <input type="password" id="testPassword" value="password123" placeholder="password123">
+            </div>
+            <div class="form-group">
+                <label>Full Name:</label>
+                <input type="text" id="testName" value="Test User" placeholder="Test User">
+            </div>
+            <div class="form-group">
+                <label>Role:</label>
+                <select id="testRole" style="width: 100%; padding: 10px; border: 2px solid #e1e5e9; border-radius: 5px;">
+                    <option value="student">Student</option>
+                    <option value="teacher">Teacher</option>
+                </select>
+            </div>
+            <button class="button" onclick="createTestAccount()">Create Test Account</button>
+            <div id="createResults" class="results" style="display: none;"></div>
+        </div>
+
+        <!-- Login Test -->
+        <div class="test-section">
+            <h2>🔐 Login Test</h2>
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" id="loginEmail" value="test@example.com" placeholder="Enter email">
+            </div>
+            <div class="form-group">
+                <label>Password:</label>
+                <input type="password" id="loginPassword" value="password123" placeholder="Enter password">
+            </div>
+            <button class="button" onclick="testLogin()">Test Login</button>
+            <button class="button" onclick="testLoginWithDebug()">Test Login (Debug Mode)</button>
+            <div id="loginResults" class="results" style="display: none;"></div>
+        </div>
+
+        <!-- Current User Status -->
+        <div class="test-section">
+            <h2>👤 Current User Status</h2>
+            <button class="button" onclick="checkCurrentUser()">Check Current User</button>
+            <button class="button" onclick="clearUserData()">Clear User Data</button>
+            <button class="button" onclick="logout()">Logout</button>
+            <div id="userResults" class="results" style="display: none;"></div>
+        </div>
+
+        <!-- Firestore Data Test -->
+        <div class="test-section">
+            <h2>📊 Firestore Data Test</h2>
+            <button class="button" onclick="listAllUsers()">List All Users</button>
+            <button class="button" onclick="searchUser()">Search User by Email</button>
+            <div class="form-group">
+                <label>Search Email:</label>
+                <input type="email" id="searchEmail" placeholder="Enter email to search">
+            </div>
+            <div id="firestoreResults" class="results" style="display: none;"></div>
+        </div>
+
+        <!-- Navigation Links -->
+        <div class="test-section">
+            <h2>🔗 Navigation Links</h2>
+            <a href="login.html" class="button">Go to Login Page</a>
+            <a href="register.html" class="button">Go to Register Page</a>
+            <a href="admin-user-sync.html" class="button">Go to Admin Sync Tool</a>
+            <a href="../index.html" class="button">Go to Homepage</a>
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAMGOSAICQQbbduHDBvLzhcdImJkTrlTmc",
+            authDomain: "gesturequiz-platform-429dd.firebaseapp.com",
+            projectId: "gesturequiz-platform-429dd",
+            storageBucket: "gesturequiz-platform-429dd.firebasestorage.app",
+            messagingSenderId: "911639818705",
+            appId: "1:911639818705:web:22d5bf2845c469185e70f0",
+            measurementId: "G-Z8W4H5WDG7"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        const storage = firebase.storage();
+
+        console.log('🚀 Firebase initialized');
+
+        // Test Firebase connection
+        async function testConnection() {
+            const resultsDiv = document.getElementById('connectionResults');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing connection...';
+
+            try {
+                // Test Firestore
+                const testDoc = await db.collection('test').doc('connection').get();
+                
+                // Test Auth
+                const currentUser = auth.currentUser;
+                
+                resultsDiv.innerHTML = `
+                    <div class="success">
+                        ✅ Firebase Connection Successful!<br>
+                        - Firestore: Connected<br>
+                        - Auth: Connected<br>
+                        - Storage: Connected<br>
+                        - Current User: ${currentUser ? currentUser.email : 'Not logged in'}<br>
+                        - Project ID: ${firebaseConfig.projectId}<br>
+                        - Timestamp: ${new Date().toISOString()}
+                    </div>
+                `;
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="error">
+                        ❌ Firebase Connection Failed!<br>
+                        Error: ${error.message}<br>
+                        Code: ${error.code}<br>
+                        Timestamp: ${new Date().toISOString()}
+                    </div>
+                `;
+            }
+        }
+
+        // Create test account
+        async function createTestAccount() {
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+            const name = document.getElementById('testName').value;
+            const role = document.getElementById('testRole').value;
+            const resultsDiv = document.getElementById('createResults');
+
+            if (!email || !password || !name) {
+                resultsDiv.style.display = 'block';
+                resultsDiv.innerHTML = '<div class="error">Please fill in all fields</div>';
+                return;
+            }
+
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
+
+            try {
+                // Create Firebase Auth user
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+
+                // Create Firestore user document
+                const userData = {
+                    name: name,
+                    email: email,
+                    role: role,
+                    avatar: role === 'teacher' ? '👨‍🏫' : '👨‍🎓',
+                    isVerified: false,
+                    createdAt: new Date().toISOString(),
+                    uid: user.uid,
+                    ...(role === 'teacher' && {
+                        school: 'Test School',
+                        department: 'Test Department',
+                        bio: 'Test teacher account',
+                        classes: [],
+                        totalQuizzes: 0
+                    }),
+                    ...(role === 'student' && {
+                        grade: '12th Grade',
+                        interests: ['Testing'],
+                        enrolledClasses: [],
+                        completedQuizzes: 0,
+                        totalPoints: 0
+                    })
+                };
+
+                await db.collection('users').doc(user.uid).set(userData);
+
+                resultsDiv.innerHTML = `
+                    <div class="success">
+                        ✅ Test Account Created Successfully!<br>
+                        Email: ${email}<br>
+                        Name: ${name}<br>
+                        Role: ${role}<br>
+                        UID: ${user.uid}<br>
+                        Created: ${new Date().toISOString()}
+                    </div>
+                `;
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="error">
+                        ❌ Account Creation Failed!<br>
+                        Error: ${error.message}<br>
+                        Code: ${error.code}<br>
+                        Timestamp: ${new Date().toISOString()}
+                    </div>
+                `;
+            }
+        }
+
+        // Test login
+        async function testLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const resultsDiv = document.getElementById('loginResults');
+
+            if (!email || !password) {
+                resultsDiv.style.display = 'block';
+                resultsDiv.innerHTML = '<div class="error">Please enter email and password</div>';
+                return;
+            }
+
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing login...';
+
+            try {
+                // Firebase Auth login
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+
+                // Get Firestore user data
+                const userDoc = await db.collection('users').doc(user.uid).get();
+
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    
+                    resultsDiv.innerHTML = `
+                        <div class="success">
+                            ✅ Login Successful!<br>
+                            Email: ${email}<br>
+                            UID: ${user.uid}<br>
+                            Name: ${userData.name}<br>
+                            Role: ${userData.role}<br>
+                            Firestore Data: Found<br>
+                            Timestamp: ${new Date().toISOString()}
+                        </div>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = `
+                        <div class="warning">
+                            ⚠️ Login Partially Successful!<br>
+                            Firebase Auth: Success<br>
+                            Firestore Data: NOT FOUND<br>
+                            This indicates a synchronization issue.<br>
+                            Timestamp: ${new Date().toISOString()}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="error">
+                        ❌ Login Failed!<br>
+                        Error: ${error.message}<br>
+                        Code: ${error.code}<br>
+                        Timestamp: ${new Date().toISOString()}
+                    </div>
+                `;
+            }
+        }
+
+        // Test login with debug
+        async function testLoginWithDebug() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const resultsDiv = document.getElementById('loginResults');
+
+            if (!email || !password) {
+                resultsDiv.style.display = 'block';
+                resultsDiv.innerHTML = '<div class="error">Please enter email and password</div>';
+                return;
+            }
+
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing login with debug...';
+
+            let debugLog = '';
+
+            try {
+                debugLog += `Starting login for: ${email}\n`;
+                
+                // Firebase Auth login
+                debugLog += `Attempting Firebase Auth login...\n`;
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                debugLog += `Firebase Auth success! UID: ${user.uid}\n`;
+
+                // Get Firestore user data
+                debugLog += `Fetching Firestore user data...\n`;
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                debugLog += `Firestore query complete.\n`;
+
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    debugLog += `Firestore data found: ${JSON.stringify(userData, null, 2)}\n`;
+                    
+                    resultsDiv.innerHTML = `
+                        <div class="success">
+                            ✅ Login Successful with Debug!<br>
+                            <pre>${debugLog}</pre>
+                        </div>
+                    `;
+                } else {
+                    debugLog += `Firestore data NOT FOUND!\n`;
+                    debugLog += `This indicates the user exists in Auth but not in Firestore.\n`;
+                    
+                    resultsDiv.innerHTML = `
+                        <div class="warning">
+                            ⚠️ Login Debug - Sync Issue Detected!<br>
+                            <pre>${debugLog}</pre>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                debugLog += `Login error: ${error.message}\n`;
+                debugLog += `Error code: ${error.code}\n`;
+                
+                resultsDiv.innerHTML = `
+                    <div class="error">
+                        ❌ Login Failed with Debug!<br>
+                        <pre>${debugLog}</pre>
+                    </div>
+                `;
+            }
+        }
+
+        // Check current user
+        async function checkCurrentUser() {
+            const resultsDiv = document.getElementById('userResults');
+            resultsDiv.style.display = 'block';
+
+            const currentUser = auth.currentUser;
+            const localUser = localStorage.getItem('currentUser');
+
+            let result = `
+                <div class="info">
+                    👤 Current User Status<br>
+                    Firebase Auth User: ${currentUser ? currentUser.email : 'Not logged in'}<br>
+                    Local Storage User: ${localUser ? 'Present' : 'Not found'}<br>
+                    Timestamp: ${new Date().toISOString()}
+                </div>
+            `;
+
+            if (currentUser) {
+                try {
+                    const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        result += `
+                            <div class="success">
+                                ✅ Firestore User Data Found<br>
+                                Name: ${userData.name}<br>
+                                Role: ${userData.role}<br>
+                                Created: ${userData.createdAt}
+                            </div>
+                        `;
+                    } else {
+                        result += `
+                            <div class="warning">
+                                ⚠️ Firestore User Data NOT FOUND<br>
+                                This user exists in Auth but not in Firestore.
+                            </div>
+                        `;
+                    }
+                } catch (error) {
+                    result += `
+                        <div class="error">
+                            ❌ Error fetching Firestore data<br>
+                            Error: ${error.message}
+                        </div>
+                    `;
+                }
+            }
+
+            resultsDiv.innerHTML = result;
+        }
+
+        // Clear user data
+        function clearUserData() {
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('rememberUser');
+            sessionStorage.clear();
+            
+            document.getElementById('userResults').style.display = 'block';
+            document.getElementById('userResults').innerHTML = `
+                <div class="success">
+                    ✅ User Data Cleared<br>
+                    Local storage and session storage cleared.<br>
+                    Timestamp: ${new Date().toISOString()}
+                </div>
+            `;
+        }
+
+        // Logout
+        async function logout() {
+            const resultsDiv = document.getElementById('userResults');
+            resultsDiv.style.display = 'block';
+
+            try {
+                await auth.signOut();
+                clearUserData();
+                
+                resultsDiv.innerHTML = `
+                    <div class="success">
+                        ✅ Logout Successful<br>
+                        User signed out from Firebase Auth.<br>
+                        All local data cleared.<br>
+                        Timestamp: ${new Date().toISOString()}
+                    </div>
+                `;
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="error">
+                        ❌ Logout Failed<br>
+                        Error: ${error.message}<br>
+                        Timestamp: ${new Date().toISOString()}
+                    </div>
+                `;
+            }
+        }
+
+        // List all users
+        async function listAllUsers() {
+            const resultsDiv = document.getElementById('firestoreResults');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Fetching users...';
+
+            try {
+                const snapshot = await db.collection('users').get();
+                
+                if (snapshot.empty) {
+                    resultsDiv.innerHTML = `
+                        <div class="warning">
+                            ⚠️ No users found in Firestore<br>
+                            Timestamp: ${new Date().toISOString()}
+                        </div>
+                    `;
+                    return;
+                }
+
+                let userList = `<div class="success">📋 Found ${snapshot.size} users:</div><br>`;
+                
+                snapshot.forEach(doc => {
+                    const userData = doc.data();
+                    userList += `
+                        <div style="background: white; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                            <strong>${userData.name || 'No name'}</strong><br>
+                            Email: ${userData.email || 'No email'}<br>
+                            Role: ${userData.role || 'No role'}<br>
+                            UID: ${doc.id}<br>
+                            Created: ${userData.createdAt || 'Unknown'}
+                        </div>
+                    `;
+                });
+
+                resultsDiv.innerHTML = userList;
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="error">
+                        ❌ Failed to fetch users<br>
+                        Error: ${error.message}<br>
+                        Timestamp: ${new Date().toISOString()}
+                    </div>
+                `;
+            }
+        }
+
+        // Search user
+        async function searchUser() {
+            const email = document.getElementById('searchEmail').value;
+            const resultsDiv = document.getElementById('firestoreResults');
+
+            if (!email) {
+                resultsDiv.style.display = 'block';
+                resultsDiv.innerHTML = '<div class="error">Please enter an email to search</div>';
+                return;
+            }
+
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Searching...';
+
+            try {
+                const snapshot = await db.collection('users').where('email', '==', email).get();
+                
+                if (snapshot.empty) {
+                    resultsDiv.innerHTML = `
+                        <div class="warning">
+                            ⚠️ No user found with email: ${email}<br>
+                            Timestamp: ${new Date().toISOString()}
+                        </div>
+                    `;
+                    return;
+                }
+
+                let result = `<div class="success">🔍 Found user:</div><br>`;
+                
+                snapshot.forEach(doc => {
+                    const userData = doc.data();
+                    result += `
+                        <div style="background: white; padding: 15px; border-radius: 5px;">
+                            <strong>${userData.name || 'No name'}</strong><br>
+                            Email: ${userData.email}<br>
+                            Role: ${userData.role || 'No role'}<br>
+                            UID: ${doc.id}<br>
+                            Created: ${userData.createdAt || 'Unknown'}<br>
+                            Verified: ${userData.isVerified ? 'Yes' : 'No'}
+                        </div>
+                    `;
+                });
+
+                resultsDiv.innerHTML = result;
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="error">
+                        ❌ Search failed<br>
+                        Error: ${error.message}<br>
+                        Timestamp: ${new Date().toISOString()}
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Login Test Tool loaded');
+            testConnection();
+        });
+    </script>
+</body>
+</html>

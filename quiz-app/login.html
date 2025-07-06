@@ -332,11 +332,15 @@
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
                 const user = userCredential.user;
 
+                console.log('✅ Firebase Auth login successful for:', email);
+                console.log('User UID:', user.uid);
+
                 // Get user data from Firestore
                 const userDoc = await db.collection('users').doc(user.uid).get();
                 
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
+                    console.log('✅ Firestore user data found:', userData);
                     
                     showSuccess('Login successful! Redirecting...');
                     
@@ -359,7 +363,10 @@
                         }
                     }, 1000);
                 } else {
-                    showError('User profile not found. Please contact support.');
+                    console.warn('⚠️ User exists in Firebase Auth but not in Firestore');
+                    
+                    // Try to create missing Firestore user document
+                    await createMissingFirestoreUser(user, email);
                 }
 
             } catch (error) {
@@ -376,6 +383,8 @@
                     errorMessage = 'Too many failed attempts. Please try again later.';
                 } else if (error.code === 'auth/network-request-failed') {
                     errorMessage = 'Network error. Please check your internet connection and try again.';
+                } else if (error.code === 'auth/user-disabled') {
+                    errorMessage = 'This account has been disabled. Please contact support.';
                 }
                 
                 showError(errorMessage);
@@ -383,6 +392,46 @@
                 // Re-enable submit button
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+            }
+        }
+
+        async function createMissingFirestoreUser(user, email) {
+            try {
+                console.log('🔄 Creating missing Firestore user document for:', email);
+                
+                // Create a basic user document
+                const userData = {
+                    name: user.displayName || email.split('@')[0],
+                    email: email,
+                    role: 'student', // Default role
+                    avatar: '👨‍🎓',
+                    isVerified: user.emailVerified || false,
+                    createdAt: new Date().toISOString(),
+                    uid: user.uid,
+                    // Student defaults
+                    grade: '',
+                    interests: [],
+                    enrolledClasses: [],
+                    completedQuizzes: 0,
+                    totalPoints: 0
+                };
+
+                await db.collection('users').doc(user.uid).set(userData);
+                console.log('✅ Missing Firestore user document created');
+
+                showSuccess('Account synchronized! Redirecting to dashboard...');
+                
+                // Store user data
+                localStorage.setItem('currentUser', JSON.stringify(userData));
+
+                // Redirect to student dashboard by default
+                setTimeout(() => {
+                    window.location.href = 'pages/student-dashboard.html';
+                }, 1500);
+
+            } catch (firestoreError) {
+                console.error('Failed to create missing Firestore user:', firestoreError);
+                showError('Account synchronization failed. Please contact support or try registering again.');
             }
         }
 
