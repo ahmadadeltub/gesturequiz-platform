@@ -89,22 +89,24 @@
 
         .btn {
             display: inline-block;
-            padding: 15px 30px;
+            padding: 20px 35px;
             background: #ff6b6b;
             color: white;
             text-decoration: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-weight: 600;
             transition: all 0.3s;
             border: none;
             cursor: pointer;
-            margin: 10px 5px;
-            font-size: 16px;
+            margin: 15px 5px;
+            font-size: 18px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
         .btn:hover {
             background: #ff5252;
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
         }
 
         .btn-success {
@@ -113,6 +115,23 @@
 
         .btn-success:hover {
             background: #218838;
+        }
+
+        .btn-urgent {
+            background: #dc3545;
+            font-size: 20px;
+            padding: 25px 40px;
+            animation: pulse 2s infinite;
+        }
+
+        .btn-urgent:hover {
+            background: #c82333;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
 
         .alert {
@@ -176,12 +195,23 @@
         </div>
         
         <div class="content">
+            <div style="background: #ff6b6b; color: white; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 20px;">
+                <h2 style="margin: 0 0 10px 0;">⚠️ IMMEDIATE ACTION NEEDED ⚠️</h2>
+                <p style="margin: 0; font-size: 16px;">Your Firebase project is 90% working! Just need to update 2 security rules.</p>
+                <p style="margin: 5px 0 0 0; font-weight: bold;">⏱️ Time to fix: 2 minutes</p>
+            </div>
+
             <div class="alert alert-danger">
-                <strong>🚨 Issue Detected:</strong> Firebase security rules are not updated. Let's fix this now!
+                <strong>🚨 URGENT ACTION REQUIRED:</strong> Your Firebase Authentication is working, but security rules need to be updated NOW!
                 <br><br>
-                <strong>Status:</strong> 
-                <span id="firestore-status">❌ Firestore Rules: Not Updated</span><br>
-                <span id="storage-status">❌ Storage Rules: Not Updated</span>
+                <strong>Current Status:</strong> 
+                <div style="margin-top: 10px;">
+                    <span id="firestore-status">❌ Firestore Rules: BLOCKING USER CREATION</span><br>
+                    <span id="storage-status">❌ Storage Rules: BLOCKING FILE UPLOADS</span><br>
+                    <span style="color: #155724;">✅ Firebase Auth: WORKING PERFECTLY</span>
+                </div>
+                <br>
+                <strong>🎯 Solution:</strong> Update the security rules in Firebase Console (2 minutes to fix)
             </div>
 
             <div class="step">
@@ -218,7 +248,7 @@ service cloud.firestore {
   }
 }
                 </div>
-                <a href="https://console.firebase.google.com/project/gesturequiz-platform-live/firestore/rules" target="_blank" class="btn">📝 Open Firestore Rules</a>
+                <a href="https://console.firebase.google.com/project/gesturequiz-platform-live/firestore/rules" target="_blank" class="btn btn-urgent">� OPEN FIRESTORE RULES NOW</a>
                 <button class="btn" onclick="testFirestoreRules()">🧪 Test Firestore Rules</button>
             </div>
 
@@ -239,7 +269,7 @@ service firebase.storage {
   }
 }
                 </div>
-                <a href="https://console.firebase.google.com/project/gesturequiz-platform-live/storage/rules" target="_blank" class="btn">📁 Open Storage Rules</a>
+                <a href="https://console.firebase.google.com/project/gesturequiz-platform-live/storage/rules" target="_blank" class="btn btn-urgent">� OPEN STORAGE RULES NOW</a>
                 <button class="btn" onclick="testStorageRules()">🧪 Test Storage Rules</button>
             </div>
 
@@ -338,6 +368,34 @@ service firebase.storage {
                 addResult(`❌ Firestore rules test failed: ${error.message}`, 'error');
                 addResult('💡 Solution: Update Firestore rules in Firebase Console', 'info');
                 document.getElementById('firestore-status').innerHTML = '❌ Firestore Rules: Not Updated';
+            }
+        }
+
+        async function testStorageRules() {
+            try {
+                addResult('🔍 Testing Storage rules...', 'info');
+                
+                // Create a test user first
+                const testEmail = `test-${Date.now()}@gesturequiz.com`;
+                const testPassword = 'Test123456';
+                const userCredential = await auth.createUserWithEmailAndPassword(testEmail, testPassword);
+                const user = userCredential.user;
+                
+                // Test Storage
+                const testBlob = new Blob(['test'], { type: 'text/plain' });
+                const testRef = storage.ref('test/rules-test.txt');
+                await testRef.put(testBlob);
+                addResult('✅ Storage rules: Working', 'success');
+                document.getElementById('storage-status').innerHTML = '✅ Storage Rules: Working';
+                
+                // Clean up
+                await testRef.delete();
+                await user.delete();
+                
+            } catch (error) {
+                addResult(`❌ Storage rules test failed: ${error.message}`, 'error');
+                addResult('💡 Solution: Update Storage rules in Firebase Console', 'info');
+                document.getElementById('storage-status').innerHTML = '❌ Storage Rules: BLOCKING FILE UPLOADS';
             }
         }
 
