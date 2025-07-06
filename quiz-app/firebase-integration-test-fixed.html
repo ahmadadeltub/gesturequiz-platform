@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Integration Test - Fixed</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .test-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border-left: 6px solid #667eea;
+        }
+
+        .test-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 16px;
+        }
+
+        .btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .test-result {
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .test-result.success { background: #d4edda; color: #155724; }
+        .test-result.error { background: #f8d7da; color: #721c24; }
+        .test-result.info { background: #d1ecf1; color: #0c5460; }
+        .test-result.warning { background: #fff3cd; color: #856404; }
+
+        .results {
+            margin-top: 20px;
+            padding: 20px;
+            background: #2d3748;
+            color: #e2e8f0;
+            border-radius: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .status-pass { background: #d4edda; color: #155724; }
+        .status-fail { background: #f8d7da; color: #721c24; }
+        .status-pending { background: #fff3cd; color: #856404; }
+
+        .summary {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .summary h3 {
+            color: #495057;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Firebase Integration Test - Fixed</h1>
+            <p>Comprehensive testing with proper authentication handling</p>
+        </div>
+
+        <div class="content">
+            <div class="test-section">
+                <h3>🧪 Comprehensive Integration Test</h3>
+                <p>This test properly handles authentication for all Firebase operations</p>
+                <button class="btn btn-success" onclick="runFixedTests()">🚀 Run Fixed Tests</button>
+                <button class="btn btn-danger" onclick="clearResults()">🗑️ Clear Results</button>
+            </div>
+
+            <div class="test-section">
+                <h3>📊 Test Status</h3>
+                <div id="test-status">
+                    <div>Firebase Connection: <span id="connection-status" class="status-indicator status-pending">Pending</span></div>
+                    <div>Authentication: <span id="auth-status" class="status-indicator status-pending">Pending</span></div>
+                    <div>Firestore Rules: <span id="firestore-status" class="status-indicator status-pending">Pending</span></div>
+                    <div>Storage Rules: <span id="storage-status" class="status-indicator status-pending">Pending</span></div>
+                    <div>Complete Registration: <span id="registration-status" class="status-indicator status-pending">Pending</span></div>
+                </div>
+            </div>
+
+            <div class="results" id="test-results" style="display: none;"></div>
+
+            <div class="summary" id="test-summary" style="display: none;">
+                <h3>📋 Test Summary</h3>
+                <div id="summary-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAt4ByDMxZFT00a-zESwNHS8uv3DY08uhg",
+            authDomain: "gesturequiz-platform-live.firebaseapp.com",
+            projectId: "gesturequiz-platform-live",
+            storageBucket: "gesturequiz-platform-live.firebasestorage.app",
+            messagingSenderId: "794242095954",
+            appId: "1:794242095954:web:85868edc63c96d37ea388b",
+            measurementId: "G-Y7WPTJRVG6"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        let testResults = [];
+        let testsPassed = 0;
+        let testsFailed = 0;
+
+        function addResult(message, type = 'info') {
+            const resultsDiv = document.getElementById('test-results');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}`;
+            
+            testResults.push({
+                message: logEntry,
+                type: type,
+                timestamp: timestamp
+            });
+            
+            resultsDiv.innerHTML += `<div class="test-result ${type}">${logEntry}</div>`;
+            resultsDiv.style.display = 'block';
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        function updateStatus(testName, status) {
+            const statusElement = document.getElementById(`${testName}-status`);
+            statusElement.className = `status-indicator status-${status}`;
+            statusElement.textContent = status === 'pass' ? 'Pass' : status === 'fail' ? 'Fail' : 'Pending';
+        }
+
+        function clearResults() {
+            document.getElementById('test-results').innerHTML = '';
+            document.getElementById('test-results').style.display = 'none';
+            document.getElementById('test-summary').style.display = 'none';
+            testResults = [];
+            testsPassed = 0;
+            testsFailed = 0;
+            
+            // Reset all status indicators
+            ['connection', 'auth', 'firestore', 'storage', 'registration'].forEach(test => {
+                updateStatus(test, 'pending');
+            });
+        }
+
+        // Create a test user that will be reused across tests
+        let testUser = null;
+        let testUserCredential = null;
+
+        async function createTestUser() {
+            try {
+                const testEmail = `test-${Date.now()}@gesturequiz.com`;
+                const testPassword = 'TestPassword123!';
+                
+                testUserCredential = await auth.createUserWithEmailAndPassword(testEmail, testPassword);
+                testUser = testUserCredential.user;
+                
+                addResult(`✅ Test user created: ${testUser.email}`, 'success');
+                return testUser;
+            } catch (error) {
+                addResult(`❌ Failed to create test user: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        async function cleanupTestUser() {
+            try {
+                if (testUser) {
+                    await testUser.delete();
+                    addResult(`🗑️ Test user cleaned up`, 'info');
+                    testUser = null;
+                    testUserCredential = null;
+                }
+            } catch (error) {
+                addResult(`⚠️ Failed to cleanup test user: ${error.message}`, 'warning');
+            }
+        }
+
+        async function testFirebaseConnection() {
+            try {
+                addResult('🔍 Testing Firebase connection...', 'info');
+                
+                // Test Firebase initialization
+                if (firebase.apps.length > 0) {
+                    addResult('✅ Firebase SDK loaded successfully', 'success');
+                } else {
+                    throw new Error('Firebase SDK not initialized');
+                }
+                
+                // Test services
+                if (auth && db && storage) {
+                    addResult('✅ All Firebase services available', 'success');
+                    updateStatus('connection', 'pass');
+                    testsPassed++;
+                } else {
+                    throw new Error('Some Firebase services not available');
+                }
+                
+            } catch (error) {
+                addResult(`❌ Connection test failed: ${error.message}`, 'error');
+                updateStatus('connection', 'fail');
+                testsFailed++;
+            }
+        }
+
+        async function testAuthentication() {
+            try {
+                addResult('🔍 Testing Authentication...', 'info');
+                
+                await createTestUser();
+                
+                if (testUser) {
+                    addResult('✅ Authentication working correctly', 'success');
+                    updateStatus('auth', 'pass');
+                    testsPassed++;
+                } else {
+                    throw new Error('Test user creation failed');
+                }
+                
+            } catch (error) {
+                addResult(`❌ Authentication test failed: ${error.message}`, 'error');
+                updateStatus('auth', 'fail');
+                testsFailed++;
+            }
+        }
+
+        async function testFirestoreRules() {
+            try {
+                addResult('🔍 Testing Firestore rules...', 'info');
+                
+                if (!testUser) {
+                    throw new Error('No authenticated user available');
+                }
+                
+                // Test Firestore write with authenticated user
+                const testDoc = db.collection('test').doc('rules-test');
+                await testDoc.set({
+                    message: 'Firestore rules test',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    userId: testUser.uid
+                });
+                
+                addResult('✅ Firestore write successful', 'success');
+                
+                // Test read
+                const docSnap = await testDoc.get();
+                if (docSnap.exists) {
+                    addResult('✅ Firestore read successful', 'success');
+                    updateStatus('firestore', 'pass');
+                    testsPassed++;
+                } else {
+                    throw new Error('Document not found after write');
+                }
+                
+                // Clean up
+                await testDoc.delete();
+                addResult('🗑️ Test document cleaned up', 'info');
+                
+            } catch (error) {
+                addResult(`❌ Firestore rules test failed: ${error.message}`, 'error');
+                updateStatus('firestore', 'fail');
+                testsFailed++;
+            }
+        }
+
+        async function testStorageRules() {
+            try {
+                addResult('🔍 Testing Storage rules...', 'info');
+                
+                if (!testUser) {
+                    throw new Error('No authenticated user available');
+                }
+                
+                // Test Storage upload with authenticated user
+                const testBlob = new Blob(['Storage rules test'], { type: 'text/plain' });
+                const testRef = storage.ref(`test/${testUser.uid}/rules-test.txt`);
+                
+                await testRef.put(testBlob);
+                addResult('✅ Storage upload successful', 'success');
+                
+                // Test download
+                const downloadURL = await testRef.getDownloadURL();
+                if (downloadURL) {
+                    addResult('✅ Storage download URL generated', 'success');
+                    updateStatus('storage', 'pass');
+                    testsPassed++;
+                } else {
+                    throw new Error('Failed to generate download URL');
+                }
+                
+                // Clean up
+                await testRef.delete();
+                addResult('🗑️ Test file cleaned up', 'info');
+                
+            } catch (error) {
+                addResult(`❌ Storage rules test failed: ${error.message}`, 'error');
+                updateStatus('storage', 'fail');
+                testsFailed++;
+            }
+        }
+
+        async function testCompleteRegistration() {
+            try {
+                addResult('🔍 Testing complete user registration flow...', 'info');
+                
+                if (!testUser) {
+                    throw new Error('No authenticated user available');
+                }
+                
+                // Test complete user document creation
+                const userDoc = db.collection('users').doc(testUser.uid);
+                await userDoc.set({
+                    email: testUser.email,
+                    displayName: 'Test User',
+                    role: 'student',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    isActive: true,
+                    testUser: true
+                });
+                addResult('✅ User document created', 'success');
+                
+                // Test avatar upload
+                const avatarBlob = new Blob(['Avatar test'], { type: 'text/plain' });
+                const avatarRef = storage.ref(`avatars/${testUser.uid}/test-avatar.txt`);
+                await avatarRef.put(avatarBlob);
+                addResult('✅ Avatar upload successful', 'success');
+                
+                // Verify user document exists
+                const userDocSnap = await userDoc.get();
+                if (userDocSnap.exists) {
+                    addResult('✅ User document verified', 'success');
+                    updateStatus('registration', 'pass');
+                    testsPassed++;
+                } else {
+                    throw new Error('User document not found');
+                }
+                
+                // Clean up
+                await userDoc.delete();
+                await avatarRef.delete();
+                addResult('🗑️ Registration test data cleaned up', 'info');
+                
+            } catch (error) {
+                addResult(`❌ Complete registration test failed: ${error.message}`, 'error');
+                updateStatus('registration', 'fail');
+                testsFailed++;
+            }
+        }
+
+        async function runFixedTests() {
+            try {
+                addResult('🚀 Starting comprehensive Firebase tests...', 'info');
+                clearResults();
+                
+                // Reset counters
+                testsPassed = 0;
+                testsFailed = 0;
+                
+                // Run tests in sequence
+                await testFirebaseConnection();
+                await delay(500);
+                
+                await testAuthentication();
+                await delay(500);
+                
+                await testFirestoreRules();
+                await delay(500);
+                
+                await testStorageRules();
+                await delay(500);
+                
+                await testCompleteRegistration();
+                await delay(500);
+                
+                // Clean up
+                await cleanupTestUser();
+                
+                // Show summary
+                showTestSummary();
+                
+            } catch (error) {
+                addResult(`❌ Test suite failed: ${error.message}`, 'error');
+                await cleanupTestUser();
+            }
+        }
+
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function showTestSummary() {
+            const summaryDiv = document.getElementById('test-summary');
+            const summaryContent = document.getElementById('summary-content');
+            
+            const totalTests = testsPassed + testsFailed;
+            const passRate = totalTests > 0 ? ((testsPassed / totalTests) * 100).toFixed(1) : 0;
+            
+            let status = 'success';
+            let statusText = 'All tests passed!';
+            
+            if (testsFailed > 0) {
+                status = 'error';
+                statusText = `${testsFailed} test(s) failed`;
+            }
+            
+            summaryContent.innerHTML = `
+                <div class="test-result ${status}">
+                    📊 Tests completed: ${totalTests} | ✅ Passed: ${testsPassed} | ❌ Failed: ${testsFailed} | 📈 Pass rate: ${passRate}%
+                </div>
+                <div class="test-result info">
+                    ${statusText}
+                </div>
+            `;
+            
+            summaryDiv.style.display = 'block';
+            
+            if (testsFailed === 0) {
+                addResult('🎉 All tests passed! Your Firebase integration is working perfectly!', 'success');
+            } else {
+                addResult('⚠️ Some tests failed. Please check the Firebase Console rules.', 'warning');
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            addResult('🔧 Firebase Integration Test - Fixed version loaded', 'info');
+            addResult('📊 Project: gesturequiz-platform-live', 'info');
+            addResult('🎯 This version properly handles authentication for all tests', 'info');
+        });
+    </script>
+</body>
+</html>
