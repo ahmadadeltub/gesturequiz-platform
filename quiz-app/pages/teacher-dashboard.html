@@ -1353,6 +1353,8 @@
         </div>
     </div>
 
+    <script src="../js/firebase-data-manager.js"></script>
+    <script src="../js/firebase-auth.js"></script>
     <script src="../js/live-data-manager.js"></script>
     <script src="../js/api-simulator.js"></script>
     <script src="../js/notification-system.js"></script>
@@ -1415,6 +1417,39 @@
         }
 
         async function loadUserData() {
+            // First check if Firebase is available
+            if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
+                // Use Firebase
+                const currentUser = window.firebaseDataManager.getCurrentUser();
+                if (currentUser) {
+                    const profileResult = await window.firebaseDataManager.getUserProfile(currentUser.uid);
+                    if (profileResult.success) {
+                        const userData = profileResult.data;
+                        document.getElementById('welcomeText').textContent = `Welcome back, ${userData.name}!`;
+                        document.getElementById('userName').textContent = userData.name;
+                        
+                        // Update user avatar
+                        const userAvatar = document.getElementById('userAvatar');
+                        if (userData.avatar) {
+                            userAvatar.textContent = userData.avatar;
+                        } else {
+                            // Fallback to initials
+                            const initials = userData.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                            userAvatar.textContent = initials;
+                        }
+                        
+                        // Save to localStorage for offline access
+                        localStorage.setItem('currentUser', JSON.stringify(userData));
+                        return;
+                    }
+                }
+                
+                // If not signed in, redirect to login
+                window.location.href = '../index.html';
+                return;
+            }
+            
+            // Fallback to localStorage
             const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
             if (currentUser.name) {
                 document.getElementById('welcomeText').textContent = `Welcome back, ${currentUser.name}!`;
@@ -1557,20 +1592,46 @@
             return `${diffInMonths}mo ago`;
         }
 
-        function loadClasses() {
-            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-            const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
-            const teacherClasses = classes.filter(cls => cls.createdBy === currentUser.email);
+        async function loadClasses() {
+            const classItems = document.getElementById('classItems');
             
+            try {
+                // First check if Firebase is available
+                if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
+                    // Use Firebase
+                    const currentUser = window.firebaseDataManager.getCurrentUser();
+                    if (currentUser) {
+                        const classesResult = await window.firebaseDataManager.getClasses(currentUser.uid);
+                        if (classesResult.success) {
+                            const classes = classesResult.data;
+                            displayClasses(classes);
+                            return;
+                        }
+                    }
+                }
+                
+                // Fallback to localStorage
+                const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+                const teacherClasses = classes.filter(cls => cls.createdBy === currentUser.email);
+                displayClasses(teacherClasses);
+                
+            } catch (error) {
+                console.error('Error loading classes:', error);
+                classItems.innerHTML = '<p style="text-align: center; color: var(--neutral-600); padding: var(--space-4);">Error loading classes. Please try again.</p>';
+            }
+        }
+        
+        function displayClasses(classes) {
             const classItems = document.getElementById('classItems');
             classItems.innerHTML = '';
             
-            if (teacherClasses.length === 0) {
+            if (classes.length === 0) {
                 classItems.innerHTML = '<p style="text-align: center; color: var(--neutral-600); padding: var(--space-4);">No classes created yet. Create your first class above!</p>';
                 return;
             }
             
-            teacherClasses.forEach(cls => {
+            classes.forEach(cls => {
                 const classItem = document.createElement('div');
                 classItem.className = 'class-item';
                 classItem.innerHTML = `
@@ -1614,9 +1675,25 @@
             alert('📋 Activity log feature coming soon! This will show a comprehensive history of all activities.');
         }
 
-        function logout() {
-            localStorage.removeItem('currentUser');
-            window.location.href = '../index.html';
+        async function logout() {
+            try {
+                // First check if Firebase is available
+                if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
+                    // Use Firebase logout
+                    await window.firebaseDataManager.signOut();
+                } else {
+                    // Fallback to localStorage cleanup
+                    localStorage.removeItem('currentUser');
+                    localStorage.removeItem('gestureQuizUser');
+                    window.location.href = '../index.html';
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+                // Force logout
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('gestureQuizUser');
+                window.location.href = '../index.html';
+            }
         }
 
         function openProfileModal() {
