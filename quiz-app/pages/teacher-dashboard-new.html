@@ -1163,6 +1163,34 @@
         </div>
     </div>
 
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAMGOSAICQQbbduHDBvLzhcdImJkTrlTmc",
+            authDomain: "gesturequiz-platform-429dd.firebaseapp.com",
+            projectId: "gesturequiz-platform-429dd",
+            storageBucket: "gesturequiz-platform-429dd.firebasestorage.app",
+            messagingSenderId: "911639818705",
+            appId: "1:911639818705:web:22d5bf2845c469185e70f0",
+            measurementId: "G-Z8W4H5WDG7"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        const storage = firebase.storage();
+        
+        console.log('✅ Firebase initialized successfully');
+    </script>
+
     <script>
         // Initialize data
         document.addEventListener('DOMContentLoaded', function() {
@@ -1311,9 +1339,28 @@
             alert('📋 Activity log feature coming soon! This will show a comprehensive history of all activities.');
         }
 
-        function logout() {
-            localStorage.removeItem('currentUser');
-            window.location.href = '../index.html';
+        async function logout() {
+            try {
+                // Firebase logout
+                if (typeof firebase !== 'undefined' && firebase.auth) {
+                    await firebase.auth().signOut();
+                }
+                
+                // Clear local storage
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('gestureQuizUser');
+                localStorage.removeItem('rememberUser');
+                
+                // Redirect to main page
+                window.location.href = '../index.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+                // Force logout even if Firebase fails
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('gestureQuizUser');
+                localStorage.removeItem('rememberUser');
+                window.location.href = '../index.html';
+            }
         }
 
         function openProfileModal() {
