@@ -42,7 +42,7 @@ git push -u origin main
 5. Click **"Save"**
 
 ## 🎉 Your Website Will Be Live At:
-`https://YOUR_USERNAME.github.io/gesturequiz-platform/`
+`https://ahmadadeltub.github.io/gesturequiz-platform/`
 
 ## 📱 Features Available:
 - **👨‍🏫 Teacher Dashboard**: Create classes, quizzes, view analytics
@@ -53,8 +53,8 @@ git push -u origin main
 - **🔒 Data Privacy**: All data stays on user's device
 
 ## 🔗 Share These URLs:
-- **Main Platform**: `https://YOUR_USERNAME.github.io/gesturequiz-platform/`
-- **Direct App**: `https://YOUR_USERNAME.github.io/gesturequiz-platform/quiz-app/`
+- **Main Platform**: `https://ahmadadeltub.github.io/gesturequiz-platform/`
+- **Direct App**: `https://ahmadadeltub.github.io/gesturequiz-platform/quiz-app/`
 
 ## 💡 After Going Live:
 1. **Test everything** - Try teacher and student features

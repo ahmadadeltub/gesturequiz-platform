@@ -7,7 +7,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="../js/data-integration.js"></script>
     <style>
         :root {
             --primary-600: #0284c7;
@@ -724,20 +723,10 @@
             
             // Check authentication
             const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-            if (!currentUser.email || currentUser.type !== 'teacher') {
+            if (!currentUser.email || currentUser.role !== 'teacher') {
                 window.location.href = '../index.html';
                 return;
             }
-            
-            // Initialize data integration
-            const dataIntegration = new DataIntegration();
-            window.dataIntegration = dataIntegration;
-            
-            // Override refresh function for real-time sync
-            dataIntegration.refreshDisplays = function() {
-                console.log('Refreshing analytics displays...');
-                refreshAnalytics();
-            };
 
             // Ensure we have sample data for demonstration
             ensureComprehensiveData();
@@ -2291,6 +2280,19 @@
                         createdBy: currentUser.email,
                         createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
                         updatedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: `quiz_${Date.now()}_3`,
+                        title: 'CSS Basics',
+                        description: 'Styling web pages with CSS',
+                        questions: [
+                            { question: 'What does CSS stand for?', options: ['Cascading Style Sheets', 'Computer Style Sheets', 'Creative Style Sheets', 'Colorful Style Sheets'], correct: 0 },
+                            { question: 'How do you select an element with class "example"?', options: ['#example', '.example', 'example', '*example'], correct: 1 }
+                        ],
+                        status: 'draft',
+                        createdBy: currentUser.email,
+                        createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+                        updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
                     }
                 ];
                 

@@ -293,19 +293,14 @@ class DataIntegration {
         const classIndex = classes.findIndex(cls => cls.code === classCode);
         
         if (classIndex === -1) {
-            throw new Error('Class not found with this code');
+            throw new Error('Class not found');
         }
 
         const targetClass = classes[classIndex];
         
         // Check if student is already in the class
-        if (targetClass.students && targetClass.students.some(s => s.email === this.currentUser.email)) {
+        if (targetClass.students.some(s => s.email === this.currentUser.email)) {
             throw new Error('You are already enrolled in this class');
-        }
-
-        // Initialize students array if it doesn't exist
-        if (!targetClass.students) {
-            targetClass.students = [];
         }
 
         // Add student to class

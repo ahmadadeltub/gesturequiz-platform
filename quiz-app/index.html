@@ -1096,7 +1096,8 @@
 
         .footer-designer,
         .footer-contact,
-        .footer-copyright {
+        .footer-copyright,
+        .footer-admin {
             display: flex;
             align-items: center;
             gap: var(--space-2);
@@ -1106,7 +1107,8 @@
 
         .footer-designer i,
         .footer-contact i,
-        .footer-copyright i {
+        .footer-copyright i,
+        .footer-admin i {
             color: var(--primary-600);
             font-size: 1rem;
         }
@@ -1133,6 +1135,17 @@
             margin-top: var(--space-2);
         }
 
+        .footer-admin {
+            color: var(--neutral-300);
+            font-size: 0.9rem;
+            margin-top: var(--space-2);
+        }
+
+        .footer-admin a:hover {
+            color: var(--primary-300) !important;
+            text-decoration: underline !important;
+        }
+
         /* Responsive footer */
         @media (max-width: 768px) {
             .footer {
@@ -1141,7 +1154,8 @@
             
             .footer-designer,
             .footer-contact,
-            .footer-copyright {
+            .footer-copyright,
+            .footer-admin {
                 font-size: 0.85rem;
                 flex-direction: column;
                 gap: var(--space-1);
@@ -1899,62 +1913,6 @@
         initializeDemoContent();
     </script>
 
-    <!-- System Management Section -->
-    <section class="system-management" style="background: var(--neutral-100); padding: var(--space-16) 0;">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">System Management</h2>
-                <p class="section-description">
-                    Advanced tools for system administration, testing, and monitoring
-                </p>
-            </div>
-            
-            <div class="management-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-6); margin-top: var(--space-12);">
-                <div class="management-card" style="background: white; border-radius: var(--radius-2xl); padding: var(--space-8); box-shadow: var(--shadow-lg); transition: var(--transition-base);">
-                    <div class="card-icon" style="width: 60px; height: 60px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: var(--radius-xl); display: flex; align-items: center; justify-content: center; margin-bottom: var(--space-6);">
-                        <i class="fas fa-rocket" style="color: white; font-size: 1.8rem;"></i>
-                    </div>
-                    <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: var(--space-4); color: var(--neutral-800);">Command Center</h3>
-                    <p style="color: var(--neutral-600); margin-bottom: var(--space-6); line-height: 1.6;">
-                        Comprehensive system overview with real-time metrics, performance monitoring, and complete system control
-                    </p>
-                    <a href="pages/system-command-center.html" class="btn btn-primary" style="width: 100%; justify-content: center;">
-                        <i class="fas fa-external-link-alt"></i>
-                        Open Command Center
-                    </a>
-                </div>
-                
-                <div class="management-card" style="background: white; border-radius: var(--radius-2xl); padding: var(--space-8); box-shadow: var(--shadow-lg); transition: var(--transition-base);">
-                    <div class="card-icon" style="width: 60px; height: 60px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: var(--radius-xl); display: flex; align-items: center; justify-content: center; margin-bottom: var(--space-6);">
-                        <i class="fas fa-vials" style="color: white; font-size: 1.8rem;"></i>
-                    </div>
-                    <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: var(--space-4); color: var(--neutral-800);">System Testing</h3>
-                    <p style="color: var(--neutral-600); margin-bottom: var(--space-6); line-height: 1.6;">
-                        Complete testing suite for all system components, integration points, and performance validation
-                    </p>
-                    <a href="pages/complete-system-test.html" class="btn btn-outline" style="width: 100%; justify-content: center;">
-                        <i class="fas fa-flask"></i>
-                        Run System Tests
-                    </a>
-                </div>
-                
-                <div class="management-card" style="background: white; border-radius: var(--radius-2xl); padding: var(--space-8); box-shadow: var(--shadow-lg); transition: var(--transition-base);">
-                    <div class="card-icon" style="width: 60px; height: 60px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: var(--radius-xl); display: flex; align-items: center; justify-content: center; margin-bottom: var(--space-6);">
-                        <i class="fas fa-database" style="color: white; font-size: 1.8rem;"></i>
-                    </div>
-                    <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: var(--space-4); color: var(--neutral-800);">Test Data Setup</h3>
-                    <p style="color: var(--neutral-600); margin-bottom: var(--space-6); line-height: 1.6;">
-                        Generate comprehensive test data with multiple users, classes, quizzes, and realistic scenarios
-                    </p>
-                    <a href="setup-test-users.html" class="btn btn-outline" style="width: 100%; justify-content: center;">
-                        <i class="fas fa-cog"></i>
-                        Setup Test Data
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
@@ -1971,6 +1929,10 @@
                     <div class="footer-copyright">
                         <i class="fas fa-copyright"></i>
                         <span>This website copyright to <strong>Ahmad Tubaishat</strong></span>
+                    </div>
+                    <div class="footer-admin">
+                        <i class="fas fa-shield-alt"></i>
+                        <span><a href="pages/admin.html" style="color: var(--primary-400); text-decoration: none; font-weight: 500;">Admin Panel</a></span>
                     </div>
                 </div>
             </div>
