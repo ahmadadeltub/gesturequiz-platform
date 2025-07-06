@@ -126,6 +126,54 @@ class FirebaseDataManager {
         }
     }
 
+    async createAccount(email, password, userData) {
+        try {
+            const userCredential = await this.firebase.createUserWithEmailAndPassword(this.auth, email, password);
+            const user = userCredential.user;
+            
+            // Create user profile in Firestore
+            await this.createUserProfile(user.uid, {
+                email: email,
+                name: userData.name || 'New User',
+                role: userData.role || 'student',
+                avatar: userData.avatar || (userData.role === 'teacher' ? '👩‍🏫' : '👨‍🎓'),
+                createdAt: new Date().toISOString(),
+                ...userData
+            });
+            
+            return { success: true, user: user };
+        } catch (error) {
+            console.error('❌ Create account failed:', error);
+            let errorMessage = 'Account creation failed. Please try again.';
+            
+            if (error.code === 'auth/email-already-in-use') {
+                errorMessage = 'An account with this email already exists. Please sign in instead.';
+            } else if (error.code === 'auth/invalid-email') {
+                errorMessage = 'Please enter a valid email address.';
+            } else if (error.code === 'auth/weak-password') {
+                errorMessage = 'Password should be at least 6 characters.';
+            }
+            
+            return { success: false, error: errorMessage };
+        }
+    }
+
+    async getUserData(userId) {
+        try {
+            const userRef = this.firebase.doc(this.db, 'users', userId);
+            const userDoc = await this.firebase.getDoc(userRef);
+            
+            if (userDoc.exists()) {
+                return userDoc.data();
+            } else {
+                return null;
+            }
+        } catch (error) {
+            console.error('❌ Get user data failed:', error);
+            return null;
+        }
+    }
+
     async signUp(email, password, userData) {
         try {
             const userCredential = await this.firebase.createUserWithEmailAndPassword(this.auth, email, password);

@@ -25,6 +25,10 @@
     <!-- External Stylesheets -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Firebase Scripts -->
+    <script src="js/firebase-data-manager.js"></script>
+    <script src="js/firebase-auth.js"></script>
     <style>
         /* Professional SaaS Landing Page */
         :root {
@@ -100,9 +104,66 @@
             display: flex;
             align-items: center;
             gap: var(--space-3);
-            font-size: 1.5rem;
             font-weight: 700;
-            color: var(--neutral-900);
+            font-size: 1.5rem;
+            color: var(--primary-600);
+            text-decoration: none;
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: var(--space-8);
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--neutral-600);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color var(--transition-base);
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-600);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: var(--space-4);
+            align-items: center;
+        }
+
+        .btn-login {
+            color: var(--primary-600);
+            text-decoration: none;
+            font-weight: 600;
+            padding: var(--space-2) var(--space-4);
+            border-radius: var(--radius-lg);
+            transition: all var(--transition-base);
+        }
+
+        .btn-login:hover {
+            background: var(--primary-600);
+            color: white;
+        }
+
+        .btn-register {
+            background: var(--primary-600);
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            padding: var(--space-3) var(--space-6);
+            border-radius: var(--radius-lg);
+            transition: all var(--transition-base);
+        }
+
+        .btn-register:hover {
+            background: var(--primary-700);
+            transform: translateY(-2px);
         }
 
         .logo-icon {
@@ -1368,16 +1429,6 @@
                 <div id="signInSection" class="auth-form-section" style="display: none;">
                     <h3>Sign In to Your Account</h3>
                     
-                    <!-- Test Credentials Notice -->
-                    <div style="background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%); border: 1px solid #0ea5e9; border-radius: 12px; padding: 15px; margin-bottom: 20px;">
-                        <h4 style="margin: 0 0 10px 0; color: #0369a1; font-size: 0.9rem; font-weight: 600;">🧪 Test Accounts Available</h4>
-                        <div style="font-size: 0.8rem; color: #075985; line-height: 1.4;">
-                            <strong>🧑‍🏫 Teacher:</strong> teacher@gesturequiz.com / teacher2025<br>
-                            <strong>🧑‍🎓 Student #1:</strong> student@gesturequiz.com / student2025<br>
-                            <strong>🧑‍🎓 Student #2:</strong> student2@gesturequiz.com / student2025
-                        </div>
-                    </div>
-                    
                     <form id="signInForm">
                         <div class="form-group">
                             <label for="signInEmail">Email</label>
@@ -1580,84 +1631,39 @@
             document.getElementById('signUpSection').style.display = 'none';
         }
 
-        // Initialize user storage if not exists
+        // Remove unused localStorage functions
         function initializeUserStorage() {
-            if (!localStorage.getItem('registeredUsers')) {
-                localStorage.setItem('registeredUsers', JSON.stringify([]));
+            // No longer needed in production
+        }
+
+        // Firebase Data Manager instance
+        let firebaseDataManager = null;
+        
+        // Initialize Firebase
+        async function initializeFirebase() {
+            try {
+                firebaseDataManager = new FirebaseDataManager();
+                await firebaseDataManager.initialize();
+                console.log('✅ Firebase initialized for production');
+                return true;
+            } catch (error) {
+                console.error('❌ Firebase initialization failed:', error);
+                alert('Unable to connect to the server. Please check your internet connection and try again.');
+                return false;
             }
         }
 
-        // Demo users for testing (remove in production)
-        function createDemoUsers() {
-            const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-            
-            // Define required demo users
-            const requiredUsers = [
-                {
-                    id: 1,
-                    name: 'Ahmad Tubaishat',
-                    email: 'ahmadadeltub@gmail.com',
-                    password: '1234567',
-                    role: 'teacher',
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    id: 2,
-                    name: 'Student 1',
-                    email: 'std1@demo.com',
-                    password: '123456',
-                    role: 'student',
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    id: 3,
-                    name: 'Student 2',
-                    email: 'std2@demo.com',
-                    password: '123456',
-                    role: 'student',
-                    createdAt: new Date().toISOString()
-                }
-            ];
-            
-            let usersUpdated = false;
-            
-            // Ensure each required user exists
-            requiredUsers.forEach(requiredUser => {
-                const existingUser = users.find(user => user.email === requiredUser.email);
-                if (!existingUser) {
-                    // Find the highest existing ID and increment
-                    const maxId = users.length > 0 ? Math.max(...users.map(u => u.id || 0)) : 0;
-                    requiredUser.id = maxId + 1;
-                    users.push(requiredUser);
-                    usersUpdated = true;
-                    console.log('Added demo user:', requiredUser.email);
-                } else {
-                    // Update password if it's different (in case it was changed)
-                    if (existingUser.password !== requiredUser.password) {
-                        existingUser.password = requiredUser.password;
-                        existingUser.name = requiredUser.name; // Update name too
-                        usersUpdated = true;
-                        console.log('Updated demo user:', requiredUser.email);
-                    }
-                }
-            });
-            
-            if (usersUpdated) {
-                localStorage.setItem('registeredUsers', JSON.stringify(users));
-                console.log('Demo users ensured in system');
+        // Handle Sign Up with Firebase
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Initialize Firebase
+            const firebaseReady = await initializeFirebase();
+            if (!firebaseReady) {
+                return;
             }
-            
-            console.log('Current users in system:', users.map(u => ({ email: u.email, role: u.role })));
-        }
-
-        // Handle Sign Up
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeUserStorage();
-            createDemoUsers();
             
             const signUpForm = document.getElementById('signUpForm');
             if (signUpForm) {
-                signUpForm.addEventListener('submit', function(e) {
+                signUpForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
                     
                     const name = document.getElementById('signUpName').value.trim();
@@ -1675,87 +1681,100 @@
                         return;
                     }
                     
-                    // Check if user already exists
-                    const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-                    const existingUser = users.find(user => user.email === email);
-                    
-                    if (existingUser) {
-                        alert('An account with this email already exists. Please sign in instead.');
-                        return;
+                    try {
+                        // Show loading
+                        const submitButton = e.target.querySelector('button[type="submit"]');
+                        const originalText = submitButton.innerHTML;
+                        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
+                        submitButton.disabled = true;
+                        
+                        // Create user with Firebase
+                        const result = await firebaseDataManager.createAccount(email, password, {
+                            name: name,
+                            role: role,
+                            createdAt: new Date().toISOString()
+                        });
+                        
+                        if (result.success) {
+                            alert('✅ Account created successfully! You can now sign in.');
+                            showSignInForm();
+                            
+                            // Clear form
+                            signUpForm.reset();
+                        } else {
+                            alert('❌ Registration failed: ' + result.error);
+                        }
+                        
+                        // Restore button
+                        submitButton.innerHTML = originalText;
+                        submitButton.disabled = false;
+                        
+                    } catch (error) {
+                        console.error('Registration error:', error);
+                        alert('❌ Registration failed. Please try again.');
+                        
+                        // Restore button
+                        const submitButton = e.target.querySelector('button[type="submit"]');
+                        submitButton.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
+                        submitButton.disabled = false;
                     }
-                    
-                    // Create new user
-                    const newUser = {
-                        id: Date.now(),
-                        name: name,
-                        email: email,
-                        password: password, // In production, this should be hashed
-                        role: role,
-                        createdAt: new Date().toISOString()
-                    };
-                    
-                    users.push(newUser);
-                    localStorage.setItem('registeredUsers', JSON.stringify(users));
-                    
-                    alert('✅ Account created successfully! You can now sign in.');
-                    showSignInForm();
                 });
             }
             
             const signInForm = document.getElementById('signInForm');
             if (signInForm) {
-                signInForm.addEventListener('submit', function(e) {
+                signInForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
                     
                     const email = document.getElementById('signInEmail').value.trim();
                     const password = document.getElementById('signInPassword').value;
-                    
-                    console.log('Sign-in attempt:', { email, passwordLength: password.length });
                     
                     if (!email || !password) {
                         alert('Please enter both email and password.');
                         return;
                     }
                     
-                    // Check if user exists and password matches
-                    const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-                    console.log('Available users:', users.map(u => ({ email: u.email, role: u.role })));
-                    
-                    const user = users.find(user => user.email === email && user.password === password);
-                    console.log('User found:', user ? 'Yes' : 'No');
-                    
-                    if (!user) {
-                        console.log('Login failed - checking for partial matches...');
-                        const emailMatch = users.find(u => u.email === email);
-                        if (emailMatch) {
-                            console.log('Email exists but password is wrong. Expected:', emailMatch.password, 'Got:', password);
+                    try {
+                        // Show loading
+                        const submitButton = e.target.querySelector('button[type="submit"]');
+                        const originalText = submitButton.innerHTML;
+                        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
+                        submitButton.disabled = true;
+                        
+                        // Sign in with Firebase
+                        const result = await firebaseDataManager.signIn(email, password);
+                        
+                        if (result.success) {
+                            // Get user data
+                            const userData = await firebaseDataManager.getUserData(result.user.uid);
+                            
+                            hideLoginModal();
+                            showLoadingScreen();
+                            
+                            setTimeout(() => {
+                                if (userData.role === 'teacher') {
+                                    window.location.href = 'pages/teacher-dashboard.html';
+                                } else {
+                                    window.location.href = 'pages/student-dashboard.html';
+                                }
+                            }, 2000);
                         } else {
-                            console.log('Email not found in system');
+                            alert('❌ Sign in failed: ' + result.error);
                         }
-                        alert('❌ Invalid email or password. Please check your credentials or create an account.');
-                        return;
+                        
+                        // Restore button
+                        submitButton.innerHTML = originalText;
+                        submitButton.disabled = false;
+                        
+                    } catch (error) {
+                        console.error('Sign in error:', error);
+                        alert('❌ Sign in failed. Please check your credentials.');
+                        
+                        // Restore button
+                        const submitButton = e.target.querySelector('button[type="submit"]');
+                        submitButton.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+                        submitButton.disabled = false;
                     }
-                    
-                    // Sign in successful
-                    const userData = {
-                        role: user.role,
-                        name: user.name,
-                        email: user.email,
-                        id: user.id
-                    };
-                    
-                    localStorage.setItem('currentUser', JSON.stringify(userData));
-                    
-                    hideLoginModal();
-                    showLoadingScreen();
-                    
-                    setTimeout(() => {
-                        if (user.role === 'teacher') {
-                            window.location.href = 'pages/teacher-dashboard.html';
-                        } else {
-                            window.location.href = 'pages/student-dashboard.html';
-                        }
-                    }, 2000);
                 });
             }
         });
@@ -1781,13 +1800,10 @@
             }
         });
 
-        console.log('GestureQuiz loaded successfully!');
-        console.log('🎉 Complete registration system is ready!');
-        console.log('🧑‍🏫 Teacher Login: teacher@gesturequiz.com / teacher2025');
-        console.log('🧑‍🎓 Student #1: student@gesturequiz.com / student2025');
-        console.log('🧑‍🎓 Student #2: student2@gesturequiz.com / student2025');
-        console.log('🔧 Or register your own account using the Register button');
-        console.log('💡 Run resetAllData() in console to clear all data for fresh testing');
+        console.log('✅ GestureQuiz Production Platform Ready!');
+        console.log('🔥 Firebase Authentication Active');
+        console.log('☁️ Cloud Storage Integration Active');
+        console.log('� Ready for Real Users!');
         
         // Initialize demo content function
         function initializeDemoContent() {
@@ -2165,9 +2181,5 @@
         console.log('🚀 GestureQuiz PWA initialized');
         console.log('📱 Ready for installation and offline use');
     </script>
-    
-    <!-- Firebase Integration -->
-    <script src="js/firebase-data-manager.js"></script>
-    <script src="js/firebase-auth.js"></script>
 </body>
 </html>
