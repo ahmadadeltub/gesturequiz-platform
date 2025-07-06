@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quick Test Login - GestureQuiz</title>
+    <title>Firebase Test Login - GestureQuiz</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -244,8 +245,114 @@
         <div id="status"></div>
     </div>
 
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
+    
+    <!-- GestureQuiz Scripts -->
+    <script src="js/firebase-data-manager.js"></script>
+
     <script>
-        function setupTestData() {
+        let firebaseManager = null;
+        let useFirebase = true;
+
+        // Initialize Firebase on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            await initializeFirebase();
+        });
+
+        async function initializeFirebase() {
+            try {
+                firebaseManager = new FirebaseDataManager();
+                
+                // Wait for initialization
+                let attempts = 0;
+                while (!firebaseManager.isInitialized && attempts < 30) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    attempts++;
+                }
+                
+                if (firebaseManager.isInitialized) {
+                    console.log('✅ Firebase initialized successfully');
+                    useFirebase = true;
+                } else {
+                    console.log('⚠️ Firebase failed to initialize, using localStorage');
+                    useFirebase = false;
+                }
+            } catch (error) {
+                console.error('❌ Firebase error:', error);
+                useFirebase = false;
+            }
+        }
+
+        async function setupTestData() {
+            if (useFirebase && firebaseManager) {
+                await setupFirebaseTestData();
+            } else {
+                setupLocalTestData();
+            }
+        }
+
+        async function setupFirebaseTestData() {
+            const testAccounts = [
+                {
+                    email: 'teacher@gesturequiz.com',
+                    password: 'teacher2025',
+                    name: 'Dr. Sarah Johnson',
+                    role: 'teacher',
+                    department: 'Mathematics',
+                    bio: 'Mathematics Professor with 10+ years of experience',
+                    avatar: '👩‍🏫',
+                    classes: ['Math 101', 'Calculus I', 'Statistics'],
+                    isVerified: true
+                },
+                {
+                    email: 'student@gesturequiz.com',
+                    password: 'student2025',
+                    name: 'Alex Martinez',
+                    role: 'student',
+                    grade: '10th Grade',
+                    avatar: '👨‍🎓',
+                    subjects: ['Mathematics', 'Physics', 'Chemistry'],
+                    enrolledClasses: ['Math 101', 'Physics Advanced'],
+                    isVerified: true
+                },
+                {
+                    email: 'student2@gesturequiz.com',
+                    password: 'student2025',
+                    name: 'Emma Wilson',
+                    role: 'student',
+                    grade: '10th Grade',
+                    avatar: '👩‍🎓',
+                    subjects: ['Mathematics', 'Biology', 'English'],
+                    enrolledClasses: ['Math 101', 'Biology Advanced'],
+                    isVerified: true
+                }
+            ];
+
+            showStatus('Creating Firebase test accounts...', 'success');
+            
+            for (const account of testAccounts) {
+                try {
+                    const result = await firebaseManager.signUp(account.email, account.password, account);
+                    if (result.success) {
+                        console.log(`✅ Created ${account.role}: ${account.email}`);
+                    } else {
+                        console.log(`Account ${account.email} may already exist`);
+                    }
+                    // Sign out after creation
+                    await firebaseManager.signOut();
+                } catch (error) {
+                    console.log(`Account creation error for ${account.email}:`, error);
+                }
+            }
+            
+            showStatus('✅ Firebase test accounts created successfully! You can now login with the credentials above.', 'success');
+        }
+
+        function setupLocalTestData() {
             // Create comprehensive test accounts
             const teacherAccount = {
                 id: 'teacher_001',
@@ -256,7 +363,7 @@
                 school: 'Lincoln High School',
                 department: 'Mathematics',
                 phone: '+1-555-0123',
-                avatar: 'https://images.unsplash.com/photo-1559582927-62cddd4a4b8d?w=150&h=150&fit=crop&crop=face',
+                avatar: '👩‍🏫',
                 createdAt: new Date().toISOString(),
                 stats: {
                     totalClasses: 3,
@@ -275,7 +382,7 @@
                     role: 'student',
                     grade: '10th Grade',
                     studentId: 'ST001',
-                    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+                    avatar: '👨‍🎓',
                     createdAt: new Date().toISOString(),
                     stats: {
                         totalQuizzes: 8,
@@ -293,7 +400,7 @@
                     role: 'student',
                     grade: '10th Grade',
                     studentId: 'ST002',
-                    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b74a6caa?w=150&h=150&fit=crop&crop=face',
+                    avatar: '👩‍🎓',
                     createdAt: new Date().toISOString(),
                     stats: {
                         totalQuizzes: 7,
@@ -329,11 +436,69 @@
             showStatus('✅ Test accounts created successfully! You can now login with the credentials above.', 'success');
         }
 
-        function quickLogin(accountType) {
+        async function quickLogin(accountType) {
+            let email, password;
+            
+            if (accountType === 'teacher') {
+                email = 'teacher@gesturequiz.com';
+                password = 'teacher2025';
+            } else if (accountType === 'student1') {
+                email = 'student@gesturequiz.com';
+                password = 'student2025';
+            } else if (accountType === 'student2') {
+                email = 'student2@gesturequiz.com';
+                password = 'student2025';
+            }
+
+            if (useFirebase && firebaseManager) {
+                await firebaseLogin(email, password);
+            } else {
+                localLogin(accountType);
+            }
+        }
+
+        async function firebaseLogin(email, password) {
+            try {
+                showStatus('Logging in with Firebase...', 'success');
+                
+                const result = await firebaseManager.signIn(email, password);
+                
+                if (result.success) {
+                    const userData = {
+                        ...result.profile,
+                        uid: result.user.uid,
+                        email: result.user.email
+                    };
+                    
+                    // Store user data for dashboard access
+                    localStorage.setItem('currentUser', JSON.stringify(userData));
+                    localStorage.setItem('gestureQuizUser', JSON.stringify(userData));
+                    localStorage.setItem('gesturequiz_user', JSON.stringify(userData));
+                    localStorage.setItem('isLoggedIn', 'true');
+                    
+                    showStatus(`✅ Logged in as ${userData.name}! Redirecting...`, 'success');
+                    
+                    // Redirect based on role
+                    setTimeout(() => {
+                        if (userData.role === 'teacher') {
+                            window.location.href = 'pages/teacher-dashboard.html';
+                        } else {
+                            window.location.href = 'pages/student-dashboard.html';
+                        }
+                    }, 1500);
+                } else {
+                    showStatus(`❌ Login failed: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`❌ Login error: ${error.message}`, 'error');
+            }
+        }
+
+        function localLogin(accountType) {
             let userData, email, password;
             
             // First, ensure test accounts exist
-            setupTestData();
+            setupLocalTestData();
             
             if (accountType === 'teacher') {
                 email = 'teacher@gesturequiz.com';

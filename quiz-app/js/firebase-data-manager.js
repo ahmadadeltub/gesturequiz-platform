@@ -34,7 +34,7 @@ class FirebaseDataManager {
             const { initializeApp } = await import('https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js');
             const { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js');
             const { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot } = await import('https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js');
-            const { getStorage, ref, uploadBytes, getDownloadURL } = await import('https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js');
+            const { getStorage, ref, uploadBytes, getDownloadURL, deleteObject, listAll } = await import('https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js');
 
             // Initialize Firebase
             this.app = initializeApp(firebaseConfig);
@@ -61,7 +61,9 @@ class FirebaseDataManager {
                 onSnapshot,
                 ref,
                 uploadBytes,
-                getDownloadURL
+                getDownloadURL,
+                deleteObject,
+                listAll
             };
 
             // Listen for auth state changes
@@ -72,6 +74,7 @@ class FirebaseDataManager {
 
             this.isInitialized = true;
             console.log('✅ Firebase initialized successfully');
+            console.log('📁 Storage bucket:', firebaseConfig.storageBucket);
             
             return { success: true };
         } catch (error) {
@@ -287,6 +290,22 @@ class FirebaseDataManager {
         }
     }
 
+    async getClass(classId) {
+        try {
+            const classRef = this.firebase.doc(this.db, 'classes', classId);
+            const classDoc = await this.firebase.getDoc(classRef);
+            
+            if (classDoc.exists()) {
+                return { success: true, data: { id: classDoc.id, ...classDoc.data() } };
+            } else {
+                return { success: false, error: 'Class not found' };
+            }
+        } catch (error) {
+            console.error('❌ Get class failed:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
     async getClasses(userId = null) {
         try {
             const classesRef = this.firebase.collection(this.db, 'classes');
@@ -329,6 +348,72 @@ class FirebaseDataManager {
             return { success: true };
         } catch (error) {
             console.error('❌ Delete class failed:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    // Student Management Methods
+    async addStudentToClass(classId, studentData) {
+        try {
+            const classRef = this.firebase.doc(this.db, 'classes', classId);
+            const classDoc = await this.firebase.getDoc(classRef);
+            
+            if (!classDoc.exists()) {
+                return { success: false, error: 'Class not found' };
+            }
+            
+            const classDataCurrent = classDoc.data();
+            const students = classDataCurrent.students || [];
+            
+            // Check if student already exists
+            if (students.some(s => s.email.toLowerCase() === studentData.email.toLowerCase())) {
+                return { success: false, error: 'Student with this email already exists in the class' };
+            }
+            
+            // Add student with unique ID
+            const newStudent = {
+                id: this.generateId(),
+                ...studentData,
+                addedAt: new Date().toISOString()
+            };
+            
+            students.push(newStudent);
+            
+            await this.firebase.updateDoc(classRef, {
+                students: students,
+                updatedAt: new Date().toISOString()
+            });
+            
+            return { success: true, student: newStudent };
+        } catch (error) {
+            console.error('❌ Add student to class failed:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    async removeStudentFromClass(classId, studentId) {
+        try {
+            const classRef = this.firebase.doc(this.db, 'classes', classId);
+            const classDoc = await this.firebase.getDoc(classRef);
+            
+            if (!classDoc.exists()) {
+                return { success: false, error: 'Class not found' };
+            }
+            
+            const classData = classDoc.data();
+            const students = classData.students || [];
+            
+            // Remove student
+            const updatedStudents = students.filter(s => s.id !== studentId);
+            
+            await this.firebase.updateDoc(classRef, {
+                students: updatedStudents,
+                updatedAt: new Date().toISOString()
+            });
+            
+            return { success: true };
+        } catch (error) {
+            console.error('❌ Remove student from class failed:', error);
             return { success: false, error: error.message };
         }
     }
@@ -444,6 +529,173 @@ class FirebaseDataManager {
             console.error('❌ Local storage failed:', error);
             return false;
         }
+    }
+
+    // Storage Methods
+    async uploadFile(filePath, file, metadata = {}) {
+        try {
+            if (!this.currentUser) {
+                return { success: false, error: 'User not authenticated' };
+            }
+
+            const storageRef = this.firebase.ref(this.storage, filePath);
+            const uploadMetadata = {
+                contentType: file.type,
+                customMetadata: {
+                    uploadedBy: this.currentUser.uid,
+                    uploadedAt: new Date().toISOString(),
+                    ...metadata
+                }
+            };
+
+            const snapshot = await this.firebase.uploadBytes(storageRef, file, uploadMetadata);
+            const downloadURL = await this.firebase.getDownloadURL(snapshot.ref);
+            
+            console.log('✅ File uploaded successfully:', filePath);
+            return { 
+                success: true, 
+                downloadURL,
+                fullPath: snapshot.ref.fullPath,
+                size: snapshot.metadata.size
+            };
+        } catch (error) {
+            console.error('❌ File upload failed:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    async uploadProfileImage(file) {
+        try {
+            if (!this.currentUser) {
+                return { success: false, error: 'User not authenticated' };
+            }
+
+            const fileName = `profile_${this.currentUser.uid}_${Date.now()}.${file.name.split('.').pop()}`;
+            const filePath = `users/${this.currentUser.uid}/profile/${fileName}`;
+            
+            return await this.uploadFile(filePath, file, {
+                type: 'profile_image',
+                userId: this.currentUser.uid
+            });
+        } catch (error) {
+            console.error('❌ Profile image upload failed:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    async uploadQuizAsset(quizId, file) {
+        try {
+            if (!this.currentUser) {
+                return { success: false, error: 'User not authenticated' };
+            }
+
+            const fileName = `${Date.now()}_${file.name}`;
+            const filePath = `quizzes/${quizId}/assets/${fileName}`;
+            
+            return await this.uploadFile(filePath, file, {
+                type: 'quiz_asset',
+                quizId: quizId,
+                userId: this.currentUser.uid
+            });
+        } catch (error) {
+            console.error('❌ Quiz asset upload failed:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    async getFileDownloadURL(filePath) {
+        try {
+            const storageRef = this.firebase.ref(this.storage, filePath);
+            const downloadURL = await this.firebase.getDownloadURL(storageRef);
+            return { success: true, downloadURL };
+        } catch (error) {
+            console.error('❌ Get download URL failed:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    async deleteFile(filePath) {
+        try {
+            const storageRef = this.firebase.ref(this.storage, filePath);
+            await this.firebase.deleteObject(storageRef);
+            console.log('✅ File deleted successfully:', filePath);
+            return { success: true };
+        } catch (error) {
+            console.error('❌ File deletion failed:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    async listFiles(folderPath) {
+        try {
+            const listRef = this.firebase.ref(this.storage, folderPath);
+            const listResult = await this.firebase.listAll(listRef);
+            
+            const files = await Promise.all(
+                listResult.items.map(async (itemRef) => {
+                    const downloadURL = await this.firebase.getDownloadURL(itemRef);
+                    return {
+                        name: itemRef.name,
+                        fullPath: itemRef.fullPath,
+                        downloadURL
+                    };
+                })
+            );
+            
+            return { success: true, files };
+        } catch (error) {
+            console.error('❌ List files failed:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    async getUserFiles(userId = null) {
+        try {
+            const targetUserId = userId || this.currentUser?.uid;
+            if (!targetUserId) {
+                return { success: false, error: 'User ID required' };
+            }
+
+            return await this.listFiles(`users/${targetUserId}`);
+        } catch (error) {
+            console.error('❌ Get user files failed:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    async getQuizAssets(quizId) {
+        try {
+            return await this.listFiles(`quizzes/${quizId}/assets`);
+        } catch (error) {
+            console.error('❌ Get quiz assets failed:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    // Helper method to validate file types
+    validateFileType(file, allowedTypes = []) {
+        if (allowedTypes.length === 0) {
+            return { valid: true };
+        }
+
+        const fileType = file.type.toLowerCase();
+        const isValid = allowedTypes.some(type => fileType.includes(type));
+        
+        return {
+            valid: isValid,
+            error: isValid ? null : `File type not allowed. Allowed types: ${allowedTypes.join(', ')}`
+        };
+    }
+
+    // Helper method to validate file size
+    validateFileSize(file, maxSizeMB = 10) {
+        const maxSizeBytes = maxSizeMB * 1024 * 1024;
+        const isValid = file.size <= maxSizeBytes;
+        
+        return {
+            valid: isValid,
+            error: isValid ? null : `File size exceeds ${maxSizeMB}MB limit`
+        };
     }
 
     // Test accounts creation

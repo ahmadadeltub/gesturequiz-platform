@@ -740,6 +740,118 @@
             transform: scale(1.1);
         }
 
+        /* Profile Upload Styles */
+        .upload-tab-buttons {
+            display: flex;
+            gap: var(--space-2);
+            margin-bottom: var(--space-4);
+        }
+
+        .upload-tab-btn {
+            flex: 1;
+            padding: var(--space-2) var(--space-3);
+            border: 1px solid var(--neutral-300);
+            background: white;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+        }
+
+        .upload-tab-btn:hover {
+            background: var(--neutral-50);
+            border-color: var(--primary-300);
+        }
+
+        .upload-tab-btn.active {
+            background: var(--primary-600);
+            color: white;
+            border-color: var(--primary-600);
+        }
+
+        .upload-tab-content {
+            display: none;
+        }
+
+        .upload-tab-content.active {
+            display: block;
+        }
+
+        .file-upload-area {
+            padding: var(--space-4);
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-md);
+            background: var(--neutral-50);
+        }
+
+        .upload-dropzone {
+            border: 2px dashed var(--neutral-300);
+            border-radius: var(--radius-md);
+            padding: var(--space-6);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            background: white;
+        }
+
+        .upload-dropzone:hover {
+            border-color: var(--primary-400);
+            background: var(--primary-50);
+        }
+
+        .upload-dropzone i {
+            font-size: 2rem;
+            color: var(--primary-400);
+            margin-bottom: var(--space-2);
+            display: block;
+        }
+
+        .upload-dropzone p {
+            margin: var(--space-2) 0;
+            font-weight: 500;
+            color: var(--neutral-700);
+        }
+
+        .upload-dropzone small {
+            color: var(--neutral-500);
+        }
+
+        #uploadPreview {
+            text-align: center;
+            padding: var(--space-4);
+        }
+
+        #uploadPreview img {
+            margin-bottom: var(--space-3);
+            box-shadow: var(--shadow-md);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--neutral-200);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+            margin: var(--space-2) 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-500), var(--primary-600));
+            border-radius: var(--radius-full);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .btn-small {
+            padding: var(--space-2) var(--space-3);
+            font-size: 0.8rem;
+        }
+
         /* Notification animations */
         @keyframes slideInRight {
             from {
@@ -1213,33 +1325,68 @@
                         <label>Profile Picture</label>
                         <div class="profile-picture-section">
                             <div class="current-avatar" id="currentProfileAvatar">👨‍🏫</div>
-                            <div class="avatar-options">
-                                <h4>Choose an Avatar:</h4>
-                                <div class="emoji-grid">
-                                    <div class="emoji-option" data-emoji="👨‍🏫">👨‍🏫</div>
-                                    <div class="emoji-option" data-emoji="👩‍🏫">👩‍🏫</div>
-                                    <div class="emoji-option" data-emoji="🧑‍🏫">🧑‍🏫</div>
-                                    <div class="emoji-option" data-emoji="👨‍💼">👨‍💼</div>
-                                    <div class="emoji-option" data-emoji="👩‍💼">👩‍💼</div>
-                                    <div class="emoji-option" data-emoji="🧑‍💼">🧑‍💼</div>
-                                    <div class="emoji-option" data-emoji="👨‍🎓">👨‍🎓</div>
-                                    <div class="emoji-option" data-emoji="👩‍🎓">👩‍🎓</div>
-                                    <div class="emoji-option" data-emoji="🧑‍🎓">🧑‍🎓</div>
-                                    <div class="emoji-option" data-emoji="👨‍🔬">👨‍🔬</div>
-                                    <div class="emoji-option" data-emoji="👩‍🔬">👩‍🔬</div>
-                                    <div class="emoji-option" data-emoji="🧑‍🔬">🧑‍🔬</div>
-                                    <div class="emoji-option" data-emoji="👨‍🏭">👨‍🏭</div>
-                                    <div class="emoji-option" data-emoji="👩‍🏭">👩‍🏭</div>
-                                    <div class="emoji-option" data-emoji="🧑‍🏭">🧑‍🏭</div>
-                                    <div class="emoji-option" data-emoji="👨‍💻">👨‍💻</div>
-                                    <div class="emoji-option" data-emoji="👩‍💻">👩‍💻</div>
-                                    <div class="emoji-option" data-emoji="🧑‍💻">🧑‍💻</div>
-                                    <div class="emoji-option" data-emoji="🎯">🎯</div>
-                                    <div class="emoji-option" data-emoji="📚">📚</div>
-                                    <div class="emoji-option" data-emoji="🎓">🎓</div>
-                                    <div class="emoji-option" data-emoji="📝">📝</div>
-                                    <div class="emoji-option" data-emoji="🏆">🏆</div>
-                                    <div class="emoji-option" data-emoji="⭐">⭐</div>
+                            <div class="profile-upload-options">
+                                <div class="upload-tab-buttons">
+                                    <button type="button" class="upload-tab-btn active" onclick="switchUploadTab('emoji')">
+                                        <i class="fas fa-smile"></i> Choose Avatar
+                                    </button>
+                                    <button type="button" class="upload-tab-btn" onclick="switchUploadTab('upload')">
+                                        <i class="fas fa-upload"></i> Upload Image
+                                    </button>
+                                </div>
+                                
+                                <div class="upload-tab-content active" id="emojiTab">
+                                    <h4>Choose an Avatar:</h4>
+                                    <div class="emoji-grid">
+                                        <div class="emoji-option" data-emoji="👨‍🏫">👨‍🏫</div>
+                                        <div class="emoji-option" data-emoji="👩‍🏫">👩‍🏫</div>
+                                        <div class="emoji-option" data-emoji="🧑‍🏫">🧑‍🏫</div>
+                                        <div class="emoji-option" data-emoji="👨‍💼">👨‍💼</div>
+                                        <div class="emoji-option" data-emoji="👩‍💼">👩‍💼</div>
+                                        <div class="emoji-option" data-emoji="🧑‍💼">🧑‍💼</div>
+                                        <div class="emoji-option" data-emoji="👨‍🎓">👨‍🎓</div>
+                                        <div class="emoji-option" data-emoji="👩‍🎓">👩‍🎓</div>
+                                        <div class="emoji-option" data-emoji="🧑‍🎓">🧑‍🎓</div>
+                                        <div class="emoji-option" data-emoji="👨‍🔬">👨‍🔬</div>
+                                        <div class="emoji-option" data-emoji="👩‍🔬">👩‍🔬</div>
+                                        <div class="emoji-option" data-emoji="🧑‍🔬">🧑‍🔬</div>
+                                        <div class="emoji-option" data-emoji="👨‍🏭">👨‍🏭</div>
+                                        <div class="emoji-option" data-emoji="👩‍🏭">👩‍🏭</div>
+                                        <div class="emoji-option" data-emoji="🧑‍🏭">🧑‍🏭</div>
+                                        <div class="emoji-option" data-emoji="👨‍💻">👨‍💻</div>
+                                        <div class="emoji-option" data-emoji="👩‍💻">👩‍💻</div>
+                                        <div class="emoji-option" data-emoji="🧑‍💻">🧑‍💻</div>
+                                        <div class="emoji-option" data-emoji="🎯">🎯</div>
+                                        <div class="emoji-option" data-emoji="📚">📚</div>
+                                        <div class="emoji-option" data-emoji="🎓">🎓</div>
+                                        <div class="emoji-option" data-emoji="📝">📝</div>
+                                        <div class="emoji-option" data-emoji="🏆">🏆</div>
+                                        <div class="emoji-option" data-emoji="⭐">⭐</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="upload-tab-content" id="uploadTab">
+                                    <h4>Upload Profile Image:</h4>
+                                    <div class="file-upload-area">
+                                        <input type="file" id="profileImageFile" accept="image/*" style="display: none;">
+                                        <div class="upload-dropzone" onclick="document.getElementById('profileImageFile').click()">
+                                            <i class="fas fa-cloud-upload-alt"></i>
+                                            <p>Click to select an image file</p>
+                                            <small>Supports JPG, PNG, GIF (Max 5MB)</small>
+                                        </div>
+                                        <div id="uploadPreview" style="display: none;">
+                                            <img id="uploadPreviewImg" style="max-width: 100px; max-height: 100px; border-radius: 50%;">
+                                            <button type="button" class="btn btn-primary btn-small" onclick="uploadProfileImageFile()">
+                                                <i class="fas fa-upload"></i> Upload Image
+                                            </button>
+                                        </div>
+                                        <div id="uploadProgress" style="display: none;">
+                                            <div class="progress-bar">
+                                                <div class="progress-fill" id="uploadProgressFill"></div>
+                                            </div>
+                                            <small id="uploadStatus">Uploading...</small>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1697,23 +1844,56 @@
         }
 
         function openProfileModal() {
-            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            let currentUser = null;
             
-            // Populate form with current user data
-            document.getElementById('profileName').value = currentUser.name || '';
-            document.getElementById('profileEmail').value = currentUser.email || '';
-            
-            // Set current avatar
-            const currentAvatar = currentUser.avatar || '👨‍🏫';
-            document.getElementById('currentProfileAvatar').textContent = currentAvatar;
-            
-            // Highlight selected emoji
-            document.querySelectorAll('.emoji-option').forEach(option => {
-                option.classList.remove('selected');
-                if (option.dataset.emoji === currentAvatar) {
-                    option.classList.add('selected');
+            // First check if Firebase is available
+            if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
+                currentUser = window.firebaseDataManager.getCurrentUser();
+                if (currentUser) {
+                    // Get user profile from Firebase
+                    window.firebaseDataManager.getUserProfile(currentUser.uid).then(result => {
+                        if (result.success) {
+                            const userData = result.data;
+                            // Populate form with Firebase data
+                            document.getElementById('profileName').value = userData.name || '';
+                            document.getElementById('profileEmail').value = userData.email || '';
+                            
+                            // Set current avatar
+                            const currentAvatar = userData.avatar || '👨‍🏫';
+                            document.getElementById('currentProfileAvatar').textContent = currentAvatar;
+                            
+                            // Highlight selected emoji
+                            document.querySelectorAll('.emoji-option').forEach(option => {
+                                option.classList.remove('selected');
+                                if (option.dataset.emoji === currentAvatar) {
+                                    option.classList.add('selected');
+                                }
+                            });
+                        }
+                    });
                 }
-            });
+            }
+            
+            // Fallback to localStorage
+            if (!currentUser) {
+                const localUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                
+                // Populate form with localStorage data
+                document.getElementById('profileName').value = localUser.name || '';
+                document.getElementById('profileEmail').value = localUser.email || '';
+                
+                // Set current avatar
+                const currentAvatar = localUser.avatar || '👨‍🏫';
+                document.getElementById('currentProfileAvatar').textContent = currentAvatar;
+                
+                // Highlight selected emoji
+                document.querySelectorAll('.emoji-option').forEach(option => {
+                    option.classList.remove('selected');
+                    if (option.dataset.emoji === currentAvatar) {
+                        option.classList.add('selected');
+                    }
+                });
+            }
             
             // Show modal
             document.getElementById('profileModal').classList.add('active');
@@ -1744,34 +1924,73 @@
             });
             
             // Handle profile form submission
-            document.getElementById('profileForm').addEventListener('submit', function(e) {
+            document.getElementById('profileForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
-                const formData = new FormData(e.target);
-                const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-                
-                // Get selected emoji
-                const selectedEmoji = document.querySelector('.emoji-option.selected');
-                const newAvatar = selectedEmoji ? selectedEmoji.dataset.emoji : currentUser.avatar || '👨‍🏫';
-                
-                // Update user data
-                const updatedUser = {
-                    ...currentUser,
-                    name: formData.get('profileName'),
-                    avatar: newAvatar
-                };
-                
-                // Save to localStorage
-                localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-                
-                // Update UI immediately
-                updateProfileUI(updatedUser);
-                
-                // Close modal
-                closeProfileModal();
-                
-                // Show success message
-                showNotification('Profile updated successfully!', 'success');
+                try {
+                    const formData = new FormData(e.target);
+                    
+                    // Get selected emoji
+                    const selectedEmoji = document.querySelector('.emoji-option.selected');
+                    const newAvatar = selectedEmoji ? selectedEmoji.dataset.emoji : '👨‍🏫';
+                    
+                    const updatedData = {
+                        name: formData.get('profileName'),
+                        avatar: newAvatar
+                    };
+                    
+                    // First check if Firebase is available
+                    if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
+                        const currentUser = window.firebaseDataManager.getCurrentUser();
+                        if (currentUser) {
+                            const result = await window.firebaseDataManager.updateUserProfile(currentUser.uid, updatedData);
+                            if (result.success) {
+                                showNotification('Profile updated successfully!', 'success');
+                                
+                                // Update UI immediately
+                                updateProfileUI({
+                                    name: updatedData.name,
+                                    email: currentUser.email,
+                                    avatar: updatedData.avatar
+                                });
+                                
+                                // Update localStorage for offline access
+                                const localUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                                localStorage.setItem('currentUser', JSON.stringify({
+                                    ...localUser,
+                                    ...updatedData
+                                }));
+                                
+                                // Close modal
+                                closeProfileModal();
+                                return;
+                            } else {
+                                throw new Error(result.error || 'Failed to update profile');
+                            }
+                        }
+                    }
+                    
+                    // Fallback to localStorage
+                    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                    const updatedUser = {
+                        ...currentUser,
+                        ...updatedData
+                    };
+                    
+                    localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+                    
+                    showNotification('Profile updated successfully!', 'success');
+                    
+                    // Update UI immediately
+                    updateProfileUI(updatedUser);
+                    
+                    // Close modal
+                    closeProfileModal();
+                    
+                } catch (error) {
+                    console.error('Error updating profile:', error);
+                    showNotification('Error updating profile: ' + error.message, 'error');
+                }
             });
         });
 
@@ -1861,241 +2080,439 @@
 
         // Handle class form submission
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('classForm').addEventListener('submit', function(e) {
+            document.getElementById('classForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
                 const formData = new FormData(e.target);
-                const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
                 const editingId = this.dataset.editingId;
                 
-                // Get existing classes
-                const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
-                
-                if (editingId) {
-                    // Update existing class
-                    const classIndex = classes.findIndex(cls => cls.id === editingId);
-                    if (classIndex !== -1) {
-                        classes[classIndex] = {
-                            ...classes[classIndex],
+                try {
+                    // First check if Firebase is available
+                    if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
+                        const currentUser = window.firebaseDataManager.getCurrentUser();
+                        if (!currentUser) {
+                            showNotification('Please sign in to manage classes', 'error');
+                            return;
+                        }
+                        
+                        const classData = {
                             name: formData.get('className'),
                             description: formData.get('classDescription'),
                             subject: formData.get('classSubject'),
                             grade: formData.get('classGrade'),
+                            createdBy: currentUser.uid,
+                            createdByEmail: currentUser.email,
                             updatedAt: new Date().toISOString()
                         };
                         
-                        // Save to localStorage
-                        localStorage.setItem('teacherClasses', JSON.stringify(classes));
+                        if (editingId) {
+                            // Update existing class
+                            const result = await window.firebaseDataManager.updateClass(editingId, classData);
+                            if (result.success) {
+                                showNotification('Class updated successfully!', 'success');
+                            } else {
+                                throw new Error(result.error || 'Failed to update class');
+                            }
+                        } else {
+                            // Create new class
+                            classData.createdAt = new Date().toISOString();
+                            classData.students = [];
+                            
+                            const result = await window.firebaseDataManager.createClass(classData);
+                            if (result.success) {
+                                showNotification('Class created successfully!', 'success');
+                            } else {
+                                throw new Error(result.error || 'Failed to create class');
+                            }
+                        }
                         
                         // Reset form and refresh
                         document.getElementById('classForm').reset();
                         delete this.dataset.editingId;
-                        loadClasses();
-                        loadDashboardStats();
+                        await loadClasses();
+                        await loadDashboardStats();
                         closeClassModal();
                         
-                        // Show success message
-                        alert('Class updated successfully!');
+                        return;
                     }
-                } else {
-                    // Create new class
-                    const newClass = {
-                        id: 'class_' + Date.now(),
-                        name: formData.get('className'),
-                        description: formData.get('classDescription'),
-                        subject: formData.get('classSubject'),
-                        grade: formData.get('classGrade'),
-                        createdBy: currentUser.email,
-                        createdAt: new Date().toISOString(),
-                        students: []
-                    };
                     
-                    classes.push(newClass);
+                    // Fallback to localStorage
+                    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                    const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
                     
-                    // Save to localStorage
-                    localStorage.setItem('teacherClasses', JSON.stringify(classes));
+                    if (editingId) {
+                        // Update existing class
+                        const classIndex = classes.findIndex(cls => cls.id === editingId);
+                        if (classIndex !== -1) {
+                            classes[classIndex] = {
+                                ...classes[classIndex],
+                                name: formData.get('className'),
+                                description: formData.get('classDescription'),
+                                subject: formData.get('classSubject'),
+                                grade: formData.get('classGrade'),
+                                updatedAt: new Date().toISOString()
+                            };
+                            
+                            localStorage.setItem('teacherClasses', JSON.stringify(classes));
+                            showNotification('Class updated successfully!', 'success');
+                        }
+                    } else {
+                        // Create new class
+                        const newClass = {
+                            id: 'class_' + Date.now(),
+                            name: formData.get('className'),
+                            description: formData.get('classDescription'),
+                            subject: formData.get('classSubject'),
+                            grade: formData.get('classGrade'),
+                            createdBy: currentUser.email,
+                            createdAt: new Date().toISOString(),
+                            students: []
+                        };
+                        
+                        classes.push(newClass);
+                        localStorage.setItem('teacherClasses', JSON.stringify(classes));
+                        showNotification('Class created successfully!', 'success');
+                    }
                     
                     // Reset form and refresh
                     document.getElementById('classForm').reset();
-                    loadClasses();
-                    loadDashboardStats();
+                    delete this.dataset.editingId;
+                    await loadClasses();
+                    await loadDashboardStats();
+                    closeClassModal();
                     
-                    // Show success message
-                    alert('Class created successfully!');
+                } catch (error) {
+                    console.error('Error managing class:', error);
+                    showNotification('Error managing class: ' + error.message, 'error');
                 }
             });
         });
 
-        function editClass(classId) {
-            const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
-            const classToEdit = classes.find(cls => cls.id === classId);
-            
-            if (!classToEdit) {
-                alert('Class not found!');
-                return;
+        async function editClass(classId) {
+            try {
+                let classToEdit = null;
+                
+                // First check if Firebase is available
+                if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
+                    const currentUser = window.firebaseDataManager.getCurrentUser();
+                    if (currentUser) {
+                        const result = await window.firebaseDataManager.getClass(classId);
+                        if (result.success) {
+                            classToEdit = result.data;
+                        }
+                    }
+                }
+                
+                // Fallback to localStorage
+                if (!classToEdit) {
+                    const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+                    classToEdit = classes.find(cls => cls.id === classId);
+                }
+                
+                if (!classToEdit) {
+                    showNotification('Class not found!', 'error');
+                    return;
+                }
+                
+                // Populate the form with existing data
+                document.getElementById('className').value = classToEdit.name;
+                document.getElementById('classDescription').value = classToEdit.description || '';
+                document.getElementById('classSubject').value = classToEdit.subject || '';
+                document.getElementById('classGrade').value = classToEdit.grade || '';
+                
+                // Update the form submit button and track editing state
+                const submitButton = document.querySelector('#classForm button[type="submit"]');
+                submitButton.textContent = 'Update Class';
+                submitButton.innerHTML = '<i class="fas fa-save"></i> Update Class';
+                
+                // Store the class ID for updating
+                document.getElementById('classForm').dataset.editingId = classId;
+                
+                // Open the modal
+                document.getElementById('classModal').classList.add('active');
+                
+            } catch (error) {
+                console.error('Error loading class for editing:', error);
+                showNotification('Error loading class data', 'error');
             }
-            
-            // Populate the form with existing data
-            document.getElementById('className').value = classToEdit.name;
-            document.getElementById('classDescription').value = classToEdit.description || '';
-            document.getElementById('classSubject').value = classToEdit.subject || '';
-            document.getElementById('classGrade').value = classToEdit.grade || '';
-            
-            // Update the form submit button and track editing state
-            const submitButton = document.querySelector('#classForm button[type="submit"]');
-            submitButton.textContent = 'Update Class';
-            submitButton.innerHTML = '<i class="fas fa-save"></i> Update Class';
-            
-            // Store the class ID for updating
-            document.getElementById('classForm').dataset.editingId = classId;
-            
-            // Open the modal
-            document.getElementById('classModal').classList.add('active');
         }
 
         // Student Management Functions
-        function manageStudents(classId) {
-            currentEditingClassId = classId;
-            const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
-            const classData = classes.find(cls => cls.id === classId);
-            
-            if (!classData) {
-                alert('Class not found!');
-                return;
+        async function manageStudents(classId) {
+            try {
+                currentEditingClassId = classId;
+                let classData = null;
+                
+                // First check if Firebase is available
+                if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
+                    const currentUser = window.firebaseDataManager.getCurrentUser();
+                    if (currentUser) {
+                        const result = await window.firebaseDataManager.getClass(classId);
+                        if (result.success) {
+                            classData = result.data;
+                        }
+                    }
+                }
+                
+                // Fallback to localStorage
+                if (!classData) {
+                    const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+                    classData = classes.find(cls => cls.id === classId);
+                }
+                
+                if (!classData) {
+                    showNotification('Class not found!', 'error');
+                    return;
+                }
+                
+                // Hide class form and list, show student management
+                document.getElementById('classForm').style.display = 'none';
+                document.getElementById('classList').style.display = 'none';
+                document.getElementById('studentManagement').style.display = 'block';
+                
+                // Update modal header
+                document.querySelector('#classModal .modal-header h2').textContent = `Manage Students - ${classData.name}`;
+                
+                // Load students for this class
+                await loadStudentsForClass(classId);
+                
+                // Open modal
+                document.getElementById('classModal').classList.add('active');
+                
+            } catch (error) {
+                console.error('Error loading class for student management:', error);
+                showNotification('Error loading class data', 'error');
             }
-            
-            // Hide class form and list, show student management
-            document.getElementById('classForm').style.display = 'none';
-            document.getElementById('classList').style.display = 'none';
-            document.getElementById('studentManagement').style.display = 'block';
-            
-            // Update modal header
-            document.querySelector('#classModal .modal-header h2').textContent = `Manage Students - ${classData.name}`;
-            
-            // Load students for this class
-            loadStudentsForClass(classId);
-            
-            // Open modal
-            document.getElementById('classModal').classList.add('active');
         }
 
-        function loadStudentsForClass(classId) {
-            const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
-            const classData = classes.find(cls => cls.id === classId);
-            
-            if (!classData) return;
-            
-            const studentList = document.getElementById('studentList');
-            studentList.innerHTML = '';
-            
-            if (!classData.students || classData.students.length === 0) {
-                studentList.innerHTML = '<p style="text-align: center; color: var(--neutral-600); padding: var(--space-4);">No students added yet.</p>';
-                return;
+        async function loadStudentsForClass(classId) {
+            try {
+                let classData = null;
+                
+                // First check if Firebase is available
+                if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
+                    const currentUser = window.firebaseDataManager.getCurrentUser();
+                    if (currentUser) {
+                        const result = await window.firebaseDataManager.getClass(classId);
+                        if (result.success) {
+                            classData = result.data;
+                        }
+                    }
+                }
+                
+                // Fallback to localStorage
+                if (!classData) {
+                    const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+                    classData = classes.find(cls => cls.id === classId);
+                }
+                
+                if (!classData) return;
+                
+                const studentList = document.getElementById('studentList');
+                studentList.innerHTML = '';
+                
+                if (!classData.students || classData.students.length === 0) {
+                    studentList.innerHTML = '<p style="text-align: center; color: var(--neutral-600); padding: var(--space-4);">No students added yet.</p>';
+                    return;
+                }
+                
+                classData.students.forEach(student => {
+                    const studentItem = document.createElement('div');
+                    studentItem.className = 'student-item';
+                    studentItem.innerHTML = `
+                        <div class="student-info">
+                            <h4>${student.name}</h4>
+                            <p>${student.email}</p>
+                        </div>
+                        <div class="student-actions">
+                            <button class="btn btn-danger btn-small" onclick="removeStudent('${classId}', '${student.id}')">
+                                <i class="fas fa-trash"></i>
+                                Remove
+                            </button>
+                        </div>
+                    `;
+                    studentList.appendChild(studentItem);
+                });
+                
+            } catch (error) {
+                console.error('Error loading students:', error);
+                const studentList = document.getElementById('studentList');
+                studentList.innerHTML = '<p style="text-align: center; color: var(--neutral-600); padding: var(--space-4);">Error loading students. Please try again.</p>';
             }
-            
-            classData.students.forEach(student => {
-                const studentItem = document.createElement('div');
-                studentItem.className = 'student-item';
-                studentItem.innerHTML = `
-                    <div class="student-info">
-                        <h4>${student.name}</h4>
-                        <p>${student.email}</p>
-                    </div>
-                    <div class="student-actions">
-                        <button class="btn btn-danger btn-small" onclick="removeStudent('${classId}', '${student.id}')">
-                            <i class="fas fa-trash"></i>
-                            Remove
-                        </button>
-                    </div>
-                `;
-                studentList.appendChild(studentItem);
-            });
         }
 
-        function addStudent() {
+        async function addStudent() {
             const studentName = document.getElementById('studentName').value.trim();
             const studentEmail = document.getElementById('studentEmail').value.trim();
             
             if (!studentName || !studentEmail) {
-                alert('Please enter both student name and email.');
+                showNotification('Please enter both student name and email.', 'error');
                 return;
             }
             
-            const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
-            const classIndex = classes.findIndex(cls => cls.id === currentEditingClassId);
-            
-            if (classIndex === -1) {
-                alert('Class not found!');
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(studentEmail)) {
+                showNotification('Please enter a valid email address.', 'error');
                 return;
             }
             
-            // Check if student already exists
-            if (classes[classIndex].students && classes[classIndex].students.some(s => s.email === studentEmail)) {
-                alert('A student with this email already exists in the class.');
-                return;
+            try {
+                const studentData = {
+                    name: studentName,
+                    email: studentEmail,
+                    addedAt: new Date().toISOString()
+                };
+                
+                // First check if Firebase is available
+                if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
+                    const currentUser = window.firebaseDataManager.getCurrentUser();
+                    if (currentUser) {
+                        const result = await window.firebaseDataManager.addStudentToClass(currentEditingClassId, studentData);
+                        if (result.success) {
+                            showNotification('Student added successfully!', 'success');
+                            
+                            // Clear form
+                            document.getElementById('studentName').value = '';
+                            document.getElementById('studentEmail').value = '';
+                            
+                            // Reload student list
+                            await loadStudentsForClass(currentEditingClassId);
+                            return;
+                        } else {
+                            throw new Error(result.error || 'Failed to add student');
+                        }
+                    }
+                }
+                
+                // Fallback to localStorage
+                const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+                const classIndex = classes.findIndex(cls => cls.id === currentEditingClassId);
+                
+                if (classIndex === -1) {
+                    showNotification('Class not found!', 'error');
+                    return;
+                }
+                
+                // Check if student already exists
+                if (classes[classIndex].students && classes[classIndex].students.some(s => s.email === studentEmail)) {
+                    showNotification('A student with this email already exists in the class.', 'error');
+                    return;
+                }
+                
+                // Add student
+                if (!classes[classIndex].students) {
+                    classes[classIndex].students = [];
+                }
+                
+                const newStudent = {
+                    id: 'student_' + Date.now(),
+                    name: studentName,
+                    email: studentEmail,
+                    addedAt: new Date().toISOString()
+                };
+                
+                classes[classIndex].students.push(newStudent);
+                localStorage.setItem('teacherClasses', JSON.stringify(classes));
+                
+                showNotification('Student added successfully!', 'success');
+                
+                // Clear form
+                document.getElementById('studentName').value = '';
+                document.getElementById('studentEmail').value = '';
+                
+                // Reload student list
+                await loadStudentsForClass(currentEditingClassId);
+                
+            } catch (error) {
+                console.error('Error adding student:', error);
+                showNotification('Error adding student: ' + error.message, 'error');
             }
-            
-            // Add student
-            if (!classes[classIndex].students) {
-                classes[classIndex].students = [];
-            }
-            
-            const newStudent = {
-                id: 'student_' + Date.now(),
-                name: studentName,
-                email: studentEmail,
-                addedAt: new Date().toISOString()
-            };
-            
-            classes[classIndex].students.push(newStudent);
-            
-            // Save to localStorage
-            localStorage.setItem('teacherClasses', JSON.stringify(classes));
-            
-            // Clear form
-            document.getElementById('studentName').value = '';
-            document.getElementById('studentEmail').value = '';
-            
-            // Reload student list
-            loadStudentsForClass(currentEditingClassId);
-            
-            alert('Student added successfully!');
         }
 
-        function removeStudent(classId, studentId) {
+        async function removeStudent(classId, studentId) {
             if (!confirm('Are you sure you want to remove this student from the class?')) {
                 return;
             }
             
-            const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
-            const classIndex = classes.findIndex(cls => cls.id === classId);
-            
-            if (classIndex === -1) {
-                alert('Class not found!');
+            try {
+                // First check if Firebase is available
+                if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
+                    const currentUser = window.firebaseDataManager.getCurrentUser();
+                    if (currentUser) {
+                        const result = await window.firebaseDataManager.removeStudentFromClass(classId, studentId);
+                        if (result.success) {
+                            showNotification('Student removed successfully!', 'success');
+                            
+                            // Reload student list
+                            await loadStudentsForClass(classId);
+                            return;
+                        } else {
+                            throw new Error(result.error || 'Failed to remove student');
+                        }
+                    }
+                }
+                
+                // Fallback to localStorage
+                const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+                const classIndex = classes.findIndex(cls => cls.id === classId);
+                
+                if (classIndex === -1) {
+                    showNotification('Class not found!', 'error');
+                    return;
+                }
+                
+                // Remove student
+                classes[classIndex].students = classes[classIndex].students.filter(s => s.id !== studentId);
+                localStorage.setItem('teacherClasses', JSON.stringify(classes));
+                
+                showNotification('Student removed successfully!', 'success');
+                
+                // Reload student list
+                await loadStudentsForClass(classId);
+                
+            } catch (error) {
+                console.error('Error removing student:', error);
+                showNotification('Error removing student: ' + error.message, 'error');
+            }
+        }
+
+        async function deleteClass(classId) {
+            if (!confirm('Are you sure you want to delete this class? This action cannot be undone.')) {
                 return;
             }
             
-            // Remove student
-            classes[classIndex].students = classes[classIndex].students.filter(s => s.id !== studentId);
-            
-            // Save to localStorage
-            localStorage.setItem('teacherClasses', JSON.stringify(classes));
-            
-            // Reload student list
-            loadStudentsForClass(classId);
-            
-            alert('Student removed successfully!');
-        }
-
-        function deleteClass(classId) {
-            if (confirm('Are you sure you want to delete this class? This action cannot be undone.')) {
+            try {
+                // First check if Firebase is available
+                if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
+                    const currentUser = window.firebaseDataManager.getCurrentUser();
+                    if (currentUser) {
+                        const result = await window.firebaseDataManager.deleteClass(classId);
+                        if (result.success) {
+                            showNotification('Class deleted successfully!', 'success');
+                            
+                            await loadClasses();
+                            await loadDashboardStats();
+                            return;
+                        } else {
+                            throw new Error(result.error || 'Failed to delete class');
+                        }
+                    }
+                }
+                
+                // Fallback to localStorage
                 const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
                 const updatedClasses = classes.filter(cls => cls.id !== classId);
                 localStorage.setItem('teacherClasses', JSON.stringify(updatedClasses));
                 
-                loadClasses();
-                loadDashboardStats();
-                alert('Class deleted successfully!');
+                showNotification('Class deleted successfully!', 'success');
+                
+                await loadClasses();
+                await loadDashboardStats();
+                
+            } catch (error) {
+                console.error('Error deleting class:', error);
+                showNotification('Error deleting class: ' + error.message, 'error');
             }
         }
 

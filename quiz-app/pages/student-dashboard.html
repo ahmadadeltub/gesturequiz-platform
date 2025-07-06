@@ -943,30 +943,105 @@
         </div>
     </footer>
 
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
+    
+    <!-- GestureQuiz Scripts -->
+    <script src="../js/firebase-data-manager.js"></script>
+    <script src="../js/firebase-auth.js"></script>
     <script src="../js/live-data-manager.js"></script>
     <script src="../js/api-simulator.js"></script>
     <script src="../js/data-integration.js"></script>
     <script src="../js/notification-system.js"></script>
     <script>
         let currentUser = {};
+        let firebaseDataManager = null;
+        let firebaseAuth = null;
         let dataIntegration = null;
         let dataManager = null;
         let apiClient = null;
 
         // Initialize dashboard
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeDashboard();
+        document.addEventListener('DOMContentLoaded', async function() {
+            await initializeDashboard();
         });
 
-        function initializeDashboard() {
-            // Check authentication
+        async function initializeDashboard() {
+            try {
+                // Initialize Firebase
+                firebaseDataManager = new FirebaseDataManager();
+                await firebaseDataManager.initialize();
+                
+                firebaseAuth = new FirebaseAuthManager();
+                await firebaseAuth.initialize();
+                
+                // Check authentication
+                currentUser = firebaseAuth.getCurrentUser();
+                if (!currentUser || currentUser.role !== 'student') {
+                    // Try localStorage fallback for test users
+                    const localUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                    if (!localUser.email || localUser.role !== 'student') {
+                        window.location.href = '../index.html';
+                        return;
+                    }
+                    currentUser = localUser;
+                }
+
+                // Initialize all data management systems
+                dataIntegration = new DataIntegration();
+                dataManager = new LiveDataManager();
+                apiClient = new APISimulator();
+                
+                // Setup real-time updates
+                setupRealTimeUpdates();
+                
+                // Override refresh function for real-time sync
+                dataIntegration.refreshDisplays = function() {
+                    loadUserData();
+                    loadQuizzes();
+                    loadStatistics();
+                    loadRecentActivity();
+                };
+
+                // Load user data
+                loadUserData();
+                
+                // Load quiz data
+                await loadQuizzes();
+                
+                // Load statistics
+                loadStatistics();
+                
+                // Load recent activity
+                loadRecentActivity();
+                
+                // Set up auto-refresh
+                setInterval(refreshData, 30000); // Refresh every 30 seconds
+                
+                // Show welcome message
+                showNotification(`Welcome back, ${currentUser.name}!`, 'success');
+                
+            } catch (error) {
+                console.error('❌ Dashboard initialization failed:', error);
+                showNotification('Dashboard initialization failed. Using offline mode.', 'warning');
+                
+                // Fallback to localStorage mode
+                initializeOfflineMode();
+            }
+        }
+
+        function initializeOfflineMode() {
+            // Check authentication with localStorage
             currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-            if (!currentUser.email || currentUser.type !== 'student') {
+            if (!currentUser.email || currentUser.role !== 'student') {
                 window.location.href = '../index.html';
                 return;
             }
 
-            // Initialize all data management systems
+            // Initialize data management systems
             dataIntegration = new DataIntegration();
             dataManager = new LiveDataManager();
             apiClient = new APISimulator();
@@ -995,7 +1070,7 @@
             loadRecentActivity();
             
             // Set up auto-refresh
-            setInterval(refreshData, 30000); // Refresh every 30 seconds
+            setInterval(refreshData, 30000);
             
             // Show welcome message
             setTimeout(() => {
