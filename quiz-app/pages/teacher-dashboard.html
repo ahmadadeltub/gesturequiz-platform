@@ -2556,35 +2556,15 @@
             }
         });
 
-        // Initialize test data if not present
-        if (!localStorage.getItem('currentUser')) {
-            const testUser = {
-                email: 'test@teacher.com',
-                name: 'Test Teacher',
-                role: 'teacher'
-            };
-            localStorage.setItem('currentUser', JSON.stringify(testUser));
+        // Production mode - no automatic test user creation
+        // Users must be properly authenticated through Firebase
+        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        if (!currentUser.email) {
+            console.log('No authenticated user found - redirecting to login');
+            window.location.href = '../login.html';
         }
-        
-        if (!localStorage.getItem('gestureQuizzes')) {
-            const testQuizzes = [
-                {
-                    id: 'quiz1',
-                    title: 'Sample Quiz 1',
-                    createdBy: 'test@teacher.com',
-                    status: 'published',
-                    questions: []
-                },
-                {
-                    id: 'quiz2',
-                    title: 'Sample Quiz 2',
-                    createdBy: 'test@teacher.com',
-                    status: 'draft',
-                    questions: []
-                }
-            ];
-            localStorage.setItem('gestureQuizzes', JSON.stringify(testQuizzes));
-        }
+        // Production mode - no automatic test quiz creation
+        // Let users create their own quizzes
     </script>
 </body>
 </html>

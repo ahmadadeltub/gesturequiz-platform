@@ -1584,32 +1584,10 @@
             }, 2000);
         }
 
-        // Enhanced modal interactions
+        // Role selection removed - users must register/login properly
         function selectRole(role) {
-            // Hide modal first
-            hideLoginModal();
-            
-            // Show loading state
-            showLoadingScreen();
-            
-            // Simulate setting up user session
-            setTimeout(() => {
-                // Store user data
-                const userData = {
-                    role: role,
-                    name: role === 'teacher' ? 'Demo Teacher' : 'Demo Student',
-                    email: role === 'teacher' ? 'teacher@test.com' : 'student@test.com'
-                };
-                
-                localStorage.setItem('currentUser', JSON.stringify(userData));
-                
-                // Redirect to appropriate dashboard
-                if (role === 'teacher') {
-                    window.location.href = 'pages/teacher-dashboard.html';
-                } else {
-                    window.location.href = 'pages/student-dashboard.html';
-                }
-            }, 2000);
+            // Direct users to registration page
+            window.location.href = 'register.html';
         }
 
         // Authentication Functions
@@ -1639,6 +1617,48 @@
         // Firebase Data Manager instance
         let firebaseDataManager = null;
         
+        // Clear any test data from localStorage
+        function clearTestData() {
+            // Remove any test accounts or demo data
+            const testEmails = [
+                'test@teacher.com',
+                'test@student.com',
+                'teacher@test.com',
+                'student@test.com',
+                'ahmadadeltub@gmail.com',
+                'std1@demo.com',
+                'std2@demo.com',
+                'teacher@gesturequiz.com',
+                'student@gesturequiz.com',
+                'student2@gesturequiz.com'
+            ];
+            
+            // Check if current user is a test account
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            if (currentUser.email && testEmails.includes(currentUser.email)) {
+                localStorage.removeItem('currentUser');
+                console.log('Removed test user from localStorage');
+            }
+            
+            // Remove demo content but keep legitimate user data
+            const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+            const filteredUsers = users.filter(user => !testEmails.includes(user.email));
+            
+            if (filteredUsers.length < users.length) {
+                localStorage.setItem('registeredUsers', JSON.stringify(filteredUsers));
+                console.log('Removed test accounts from localStorage');
+            }
+            
+            // Remove demo quizzes
+            const quizzes = JSON.parse(localStorage.getItem('gestureQuizzes') || '[]');
+            const filteredQuizzes = quizzes.filter(quiz => !testEmails.includes(quiz.createdBy));
+            
+            if (filteredQuizzes.length < quizzes.length) {
+                localStorage.setItem('gestureQuizzes', JSON.stringify(filteredQuizzes));
+                console.log('Removed demo quizzes from localStorage');
+            }
+        }
+
         // Initialize Firebase
         async function initializeFirebase() {
             try {
@@ -1655,6 +1675,9 @@
 
         // Handle Sign Up with Firebase
         document.addEventListener('DOMContentLoaded', async function() {
+            // Clear any existing test data in production mode
+            clearTestData();
+            
             // Initialize Firebase
             const firebaseReady = await initializeFirebase();
             if (!firebaseReady) {
@@ -1807,139 +1830,29 @@
         
         // Initialize demo content function
         function initializeDemoContent() {
-            // Ensure demo users are always available
-            createDemoUsers();
-            
-            // Create some sample quizzes for the teacher account
-            createSampleQuizzes();
+            // Production mode - no demo content
+            console.log('Production mode: No demo content created');
         }
         
+        // Production mode - no sample quizzes
         function createSampleQuizzes() {
-            const quizzes = JSON.parse(localStorage.getItem('gestureQuizzes') || '[]');
-            
-            // Only create sample quizzes if none exist for Ahmad
-            const teacherQuizzes = quizzes.filter(quiz => quiz.createdBy === 'ahmadadeltub@gmail.com');
-            
-            if (teacherQuizzes.length === 0) {
-                const sampleQuizzes = [
-                    {
-                        id: 'quiz_sample_1',
-                        title: 'Basic Hand Gestures',
-                        description: 'Learn fundamental hand gestures for communication',
-                        category: 'Communication',
-                        difficulty: 'easy',
-                        status: 'published',
-                        published: true,
-                        publishedAt: new Date().toISOString(),
-                        createdAt: new Date().toISOString(),
-                        updatedAt: new Date().toISOString(),
-                        createdBy: 'ahmadadeltub@gmail.com',
-                        questions: [
-                            {
-                                id: '1',
-                                text: 'Which gesture represents approval?',
-                                options: [
-                                    { text: 'Thumbs down', gesture: '👎' },
-                                    { text: 'Thumbs up', gesture: '👍' },
-                                    { text: 'Peace sign', gesture: '✌️' },
-                                    { text: 'OK sign', gesture: '👌' }
-                                ],
-                                correctAnswer: 1
-                            },
-                            {
-                                id: '2',
-                                text: 'What does the peace sign represent?',
-                                options: [
-                                    { text: 'Victory or peace', gesture: '✌️' },
-                                    { text: 'Stop', gesture: '✋' },
-                                    { text: 'Perfect', gesture: '👌' },
-                                    { text: 'Good job', gesture: '👍' }
-                                ],
-                                correctAnswer: 0
-                            }
-                        ]
-                    },
-                    {
-                        id: 'quiz_sample_2',
-                        title: 'Advanced Gesture Recognition',
-                        description: 'Test your knowledge of complex hand gestures',
-                        category: 'Advanced',
-                        difficulty: 'hard',
-                        status: 'draft',
-                        published: false,
-                        createdAt: new Date().toISOString(),
-                        updatedAt: new Date().toISOString(),
-                        createdBy: 'ahmadadeltub@gmail.com',
-                        questions: [
-                            {
-                                id: '1',
-                                text: 'Which gesture indicates precision or perfection?',
-                                options: [
-                                    { text: 'Thumbs up', gesture: '👍' },
-                                    { text: 'Peace sign', gesture: '✌️' },
-                                    { text: 'OK sign', gesture: '👌' },
-                                    { text: 'Stop hand', gesture: '✋' }
-                                ],
-                                correctAnswer: 2
-                            }
-                        ]
-                    }
-                ];
-                
-                const allQuizzes = [...quizzes, ...sampleQuizzes];
-                localStorage.setItem('gestureQuizzes', JSON.stringify(allQuizzes));
-                console.log('Sample quizzes created for Ahmad Tubaishat');
-            }
+            console.log('Production mode: No sample quizzes created');
         }
         
-        // Global function to reset to default accounts (for testing)
+        // Production mode - no default accounts
         window.resetToDefaultAccounts = function() {
-            const defaultUsers = [
-                {
-                    id: 1,
-                    name: 'Ahmad Tubaishat',
-                    email: 'ahmadadeltub@gmail.com',
-                    password: '1234567',
-                    role: 'teacher',
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    id: 2,
-                    name: 'Student 1',
-                    email: 'std1@demo.com',
-                    password: '123456',
-                    role: 'student',
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    id: 3,
-                    name: 'Student 2',
-                    email: 'std2@demo.com',
-                    password: '123456',
-                    role: 'student',
-                    createdAt: new Date().toISOString()
-                }
-            ];
-            
-            localStorage.setItem('registeredUsers', JSON.stringify(defaultUsers));
-            console.log('✅ Default accounts restored!');
-            console.log('🧑‍🏫 Teacher: teacher@gesturequiz.com / teacher2025');
-            console.log('🧑‍🎓 Student #1: student@gesturequiz.com / student2025');
-            console.log('🧑‍🎓 Student #2: student2@gesturequiz.com / student2025');
-            console.log('Users in localStorage:', defaultUsers);
-            alert('Default accounts restored! Check console for login details.');
+            console.log('Production mode: No default accounts available');
+            alert('Production mode: Please register a new account to get started.');
         };
         
-        // Global function to create sample data (for testing)
+        // Production mode - no test data
         window.createTestData = function() {
-            resetToDefaultAccounts();
-            createSampleQuizzes();
-            console.log('🎯 Test data created with sample quizzes!');
-            alert('Test data created! Ahmad Tubaishat now has sample quizzes.');
+            console.log('Production mode: No test data available');
+            alert('Production mode: Please register a new account and create real content.');
         };
         
-        // Initialize demo content
-        initializeDemoContent();
+        // Production mode - no demo content initialization
+        // Users must register and create their own content
     </script>
 
     <!-- Footer -->
