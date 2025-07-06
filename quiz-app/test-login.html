@@ -332,6 +332,9 @@
         function quickLogin(accountType) {
             let userData, email, password;
             
+            // First, ensure test accounts exist
+            setupTestData();
+            
             if (accountType === 'teacher') {
                 email = 'teacher@gesturequiz.com';
                 password = 'teacher2025';
@@ -353,17 +356,22 @@
                 return;
             }
             
-            // Set current user session
+            // Set current user session (multiple formats for compatibility)
             localStorage.setItem('currentUser', JSON.stringify(userData));
+            localStorage.setItem('gestureQuizUser', JSON.stringify(userData));
             localStorage.setItem('gesturequiz_user', JSON.stringify(userData));
             localStorage.setItem('isLoggedIn', 'true');
             
+            showStatus(`✅ Logged in as ${userData.name}! Redirecting...`, 'success');
+            
             // Redirect based on role
-            if (userData.role === 'teacher') {
-                window.location.href = 'pages/teacher-dashboard.html';
-            } else {
-                window.location.href = 'pages/student-dashboard.html';
-            }
+            setTimeout(() => {
+                if (userData.role === 'teacher' || userData.type === 'teacher') {
+                    window.location.href = 'pages/teacher-dashboard.html';
+                } else {
+                    window.location.href = 'pages/student-dashboard.html';
+                }
+            }, 1500);
         }
 
         function showStatus(message, type) {
