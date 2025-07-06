@@ -177,12 +177,20 @@
         
         <div class="content">
             <div class="alert alert-danger">
-                <strong>🚨 Issue:</strong> Firebase integration is not working. Let's fix this quickly with the verified project configuration.
+                <strong>🚨 Issue Detected:</strong> Firebase security rules are not updated. Let's fix this now!
+                <br><br>
+                <strong>Status:</strong> 
+                <span id="firestore-status">❌ Firestore Rules: Not Updated</span><br>
+                <span id="storage-status">❌ Storage Rules: Not Updated</span>
             </div>
 
             <div class="step">
                 <h3>Step 1: Update Firestore Rules</h3>
-                <p>Copy this code and paste it in <strong>Firebase Console → Firestore Database → Rules</strong></p>
+                <p><strong>⚠️ CRITICAL:</strong> You must update these rules in Firebase Console and click <span class="highlight">"Publish"</span></p>
+                <p>1. Click the button below to open Firebase Console</p>
+                <p>2. Copy the rules code</p>
+                <p>3. Paste in the Firebase Console Rules editor</p>
+                <p>4. Click <span class="highlight">"Publish"</span> button</p>
                 <div class="code-box" id="firestore-rules">
                     <button class="copy-btn" onclick="copyRules('firestore-rules')">Copy</button>rules_version = '2';
 service cloud.firestore {
@@ -211,11 +219,16 @@ service cloud.firestore {
 }
                 </div>
                 <a href="https://console.firebase.google.com/project/gesturequiz-platform-live/firestore/rules" target="_blank" class="btn">📝 Open Firestore Rules</a>
+                <button class="btn" onclick="testFirestoreRules()">🧪 Test Firestore Rules</button>
             </div>
 
             <div class="step">
                 <h3>Step 2: Update Storage Rules</h3>
-                <p>Copy this code and paste it in <strong>Firebase Console → Storage → Rules</strong></p>
+                <p><strong>⚠️ CRITICAL:</strong> You must update these rules in Firebase Console and click <span class="highlight">"Publish"</span></p>
+                <p>1. Click the button below to open Firebase Console</p>
+                <p>2. Copy the rules code</p>
+                <p>3. Paste in the Firebase Console Rules editor</p>
+                <p>4. Click <span class="highlight">"Publish"</span> button</p>
                 <div class="code-box" id="storage-rules">
                     <button class="copy-btn" onclick="copyRules('storage-rules')">Copy</button>rules_version = '2';
 service firebase.storage {
@@ -227,6 +240,7 @@ service firebase.storage {
 }
                 </div>
                 <a href="https://console.firebase.google.com/project/gesturequiz-platform-live/storage/rules" target="_blank" class="btn">📁 Open Storage Rules</a>
+                <button class="btn" onclick="testStorageRules()">🧪 Test Storage Rules</button>
             </div>
 
             <div class="step">
@@ -300,9 +314,42 @@ service firebase.storage {
             testResults.scrollTop = testResults.scrollHeight;
         }
 
+        async function testFirestoreRules() {
+            try {
+                addResult('🔍 Testing Firestore rules...', 'info');
+                
+                // Create a test user first
+                const testEmail = `test-${Date.now()}@gesturequiz.com`;
+                const testPassword = 'Test123456';
+                const userCredential = await auth.createUserWithEmailAndPassword(testEmail, testPassword);
+                const user = userCredential.user;
+                
+                // Test Firestore write
+                const testDoc = db.collection('test').doc('rules-test');
+                await testDoc.set({ test: true, timestamp: new Date().toISOString() });
+                addResult('✅ Firestore rules: Working', 'success');
+                document.getElementById('firestore-status').innerHTML = '✅ Firestore Rules: Working';
+                
+                // Clean up
+                await testDoc.delete();
+                await user.delete();
+                
+            } catch (error) {
+                addResult(`❌ Firestore rules test failed: ${error.message}`, 'error');
+                addResult('💡 Solution: Update Firestore rules in Firebase Console', 'info');
+                document.getElementById('firestore-status').innerHTML = '❌ Firestore Rules: Not Updated';
+            }
+        }
+
         async function runQuickTest() {
             try {
                 addResult('🔍 Testing Firebase services...', 'info');
+                
+                // Create a test user first
+                const testEmail = `test-${Date.now()}@gesturequiz.com`;
+                const testPassword = 'Test123456';
+                const userCredential = await auth.createUserWithEmailAndPassword(testEmail, testPassword);
+                const user = userCredential.user;
                 
                 // Test Firestore
                 const testDoc = db.collection('test').doc('quick-test');
@@ -316,6 +363,9 @@ service firebase.storage {
                 await testRef.put(testBlob);
                 addResult('✅ Storage: Working', 'success');
                 await testRef.delete();
+                
+                // Clean up test user
+                await user.delete();
                 
                 addResult('🎉 All services working!', 'success');
                 document.getElementById('success-message').classList.remove('hidden');
