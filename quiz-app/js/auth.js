@@ -301,10 +301,12 @@ class AuthSystem {
 
     logout() {
         localStorage.removeItem('gestureQuizUser');
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('rememberUser');
         this.currentUser = null;
         this.showMessage('Logged out successfully', 'success');
         setTimeout(() => {
-            window.location.reload();
+            window.location.href = 'https://ahmadadeltub.github.io/gesturequiz-platform/index.html';
         }, 1000);
     }
 

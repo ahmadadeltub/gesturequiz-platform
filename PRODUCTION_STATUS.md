@@ -18,7 +18,8 @@
 - ✅ Enhanced localStorage cleanup for complete session termination
 - ✅ Updated all dashboard versions (main, new, old)
 - ✅ Added Firebase configuration to all dashboard pages
-- ✅ Created logout test page for debugging (`quiz-app/logout-test.html`)
+- ✅ Updated logout redirect to live website URL
+- ✅ All logout functions now redirect to: https://ahmadadeltub.github.io/gesturequiz-platform/index.html
 
 #### **🎨 Homepage Improvements**
 - ✅ Made GestureQuiz logo clickable (refreshes page)
