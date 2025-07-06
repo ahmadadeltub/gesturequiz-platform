@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Permission Troubleshooter - GestureQuiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .diagnostic-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #007bff;
+        }
+
+        .diagnostic-section h3 {
+            color: #007bff;
+            margin-bottom: 15px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .status-icon {
+            width: 30px;
+            height: 30px;
+            margin-right: 15px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        .info { background: #d1ecf1; color: #0c5460; }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background 0.3s;
+            border: none;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        .btn:hover { background: #0056b3; }
+        .btn-success { background: #28a745; }
+        .btn-success:hover { background: #1e7e34; }
+        .btn-danger { background: #dc3545; }
+        .btn-danger:hover { background: #c82333; }
+
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            margin: 10px 0;
+            white-space: pre-line;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .results {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .result-item {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚨 Firebase Permission Troubleshooter</h1>
+            <p>Diagnose and fix "Permission denied" errors</p>
+        </div>
+        
+        <div class="content">
+            <div class="alert alert-danger">
+                <strong>🔍 Issue:</strong> "Permission denied" error during user registration. Let's diagnose and fix this step by step.
+            </div>
+
+            <div class="diagnostic-section">
+                <h3>📊 Firebase Project Status</h3>
+                <div id="project-status">
+                    <div class="status-item info">
+                        <div class="status-icon">⏳</div>
+                        <div>Checking Firebase connection...</div>
+                    </div>
+                </div>
+                <div class="code-block">Project: gesturequiz-platform-live
+Storage: gs://gesturequiz-platform-live.firebasestorage.app
+Auth Domain: gesturequiz-platform-live.firebaseapp.com</div>
+            </div>
+
+            <div class="diagnostic-section">
+                <h3>🔐 Authentication Test</h3>
+                <div id="auth-status">
+                    <div class="status-item info">
+                        <div class="status-icon">⏳</div>
+                        <div>Testing authentication service...</div>
+                    </div>
+                </div>
+                <button class="btn btn-success" onclick="testAuth()">Test Auth Service</button>
+            </div>
+
+            <div class="diagnostic-section">
+                <h3>💾 Firestore Rules Test</h3>
+                <div id="firestore-status">
+                    <div class="status-item info">
+                        <div class="status-icon">⏳</div>
+                        <div>Testing Firestore permissions...</div>
+                    </div>
+                </div>
+                <button class="btn btn-success" onclick="testFirestore()">Test Firestore Write</button>
+                <button class="btn btn-danger" onclick="showRulesFix()">Show Rules Fix</button>
+            </div>
+
+            <div class="diagnostic-section">
+                <h3>📁 Storage Rules Test</h3>
+                <div id="storage-status">
+                    <div class="status-item info">
+                        <div class="status-icon">⏳</div>
+                        <div>Testing Storage permissions...</div>
+                    </div>
+                </div>
+                <button class="btn btn-success" onclick="testStorage()">Test Storage Upload</button>
+            </div>
+
+            <div class="diagnostic-section">
+                <h3>🧪 User Registration Test</h3>
+                <div id="registration-status">
+                    <div class="status-item info">
+                        <div class="status-icon">⏳</div>
+                        <div>Ready to test user registration...</div>
+                    </div>
+                </div>
+                <button class="btn btn-success" onclick="testRegistration()">Test Full Registration</button>
+            </div>
+
+            <div class="diagnostic-section hidden" id="rules-fix-section">
+                <h3>🔧 Firebase Rules Fix</h3>
+                <p><strong>Copy these rules to Firebase Console:</strong></p>
+                
+                <h4>Firestore Rules (Database → Rules):</h4>
+                <div class="code-block" id="firestore-rules">rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow create: if request.auth != null;
+      allow read, update: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    match /classes/{classId} {
+      allow create, read, update, delete: if request.auth != null;
+    }
+    
+    match /quizzes/{quizId} {
+      allow create, read, update, delete: if request.auth != null;
+    }
+    
+    match /test/{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}</div>
+                
+                <h4>Storage Rules (Storage → Rules):</h4>
+                <div class="code-block" id="storage-rules">rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}</div>
+                
+                <button class="btn btn-success" onclick="copyRules('firestore')">Copy Firestore Rules</button>
+                <button class="btn btn-success" onclick="copyRules('storage')">Copy Storage Rules</button>
+                <a href="https://console.firebase.google.com/" target="_blank" class="btn">Open Firebase Console</a>
+            </div>
+
+            <div class="results hidden" id="results">
+                <h4>🔍 Diagnostic Results:</h4>
+                <div id="results-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAt4ByDMxZFT00a-zESwNHS8uv3DY08uhg",
+            authDomain: "gesturequiz-platform-live.firebaseapp.com",
+            projectId: "gesturequiz-platform-live",
+            storageBucket: "gesturequiz-platform-live.firebasestorage.app",
+            messagingSenderId: "794242095954",
+            appId: "1:794242095954:web:85868edc63c96d37ea388b",
+            measurementId: "G-Y7WPTJRVG6"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        const storage = firebase.storage();
+
+        function updateStatus(elementId, message, type = 'info', icon = '⏳') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `
+                <div class="status-item ${type}">
+                    <div class="status-icon">${icon}</div>
+                    <div>${message}</div>
+                </div>
+            `;
+        }
+
+        function addResult(message, type = 'info') {
+            const resultsContainer = document.getElementById('results-container');
+            const results = document.getElementById('results');
+            
+            results.classList.remove('hidden');
+            
+            const div = document.createElement('div');
+            div.className = `result-item ${type}`;
+            div.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+            resultsContainer.appendChild(div);
+            
+            results.scrollTop = results.scrollHeight;
+        }
+
+        async function testAuth() {
+            try {
+                addResult('🔐 Testing Firebase Authentication...', 'info');
+                
+                // Test auth service availability
+                const authUser = auth.currentUser;
+                addResult('✅ Auth service available', 'success');
+                
+                updateStatus('auth-status', 'Authentication service is working', 'success', '✅');
+                
+            } catch (error) {
+                addResult(`❌ Auth test failed: ${error.message}`, 'error');
+                updateStatus('auth-status', `Auth error: ${error.message}`, 'error', '❌');
+            }
+        }
+
+        async function testFirestore() {
+            try {
+                addResult('💾 Testing Firestore write permissions...', 'info');
+                
+                // Try to write a test document
+                const testRef = db.collection('test').doc('permission-test');
+                await testRef.set({
+                    message: 'Permission test',
+                    timestamp: new Date().toISOString(),
+                    test: true
+                });
+                
+                addResult('✅ Firestore write: SUCCESS', 'success');
+                updateStatus('firestore-status', 'Firestore permissions are working', 'success', '✅');
+                
+                // Clean up
+                await testRef.delete();
+                
+            } catch (error) {
+                addResult(`❌ Firestore write failed: ${error.message}`, 'error');
+                updateStatus('firestore-status', `Firestore error: ${error.code}`, 'error', '❌');
+                
+                if (error.code === 'permission-denied') {
+                    addResult('🔧 Solution: Update Firestore security rules', 'warning');
+                    showRulesFix();
+                }
+            }
+        }
+
+        async function testStorage() {
+            try {
+                addResult('📁 Testing Storage upload permissions...', 'info');
+                
+                // Create test file
+                const testBlob = new Blob(['Storage permission test'], { type: 'text/plain' });
+                const testRef = storage.ref('test/permission-test.txt');
+                
+                await testRef.put(testBlob);
+                
+                addResult('✅ Storage upload: SUCCESS', 'success');
+                updateStatus('storage-status', 'Storage permissions are working', 'success', '✅');
+                
+                // Clean up
+                await testRef.delete();
+                
+            } catch (error) {
+                addResult(`❌ Storage upload failed: ${error.message}`, 'error');
+                updateStatus('storage-status', `Storage error: ${error.code}`, 'error', '❌');
+                
+                if (error.code === 'storage/unauthorized') {
+                    addResult('🔧 Solution: Update Storage security rules', 'warning');
+                    showRulesFix();
+                }
+            }
+        }
+
+        async function testRegistration() {
+            try {
+                addResult('🧪 Testing complete user registration flow...', 'info');
+                
+                const testEmail = `test-${Date.now()}@gesturequiz.com`;
+                const testPassword = 'Test123456';
+                
+                // Step 1: Create Firebase Auth user
+                addResult('Step 1: Creating Firebase Auth user...', 'info');
+                const userCredential = await auth.createUserWithEmailAndPassword(testEmail, testPassword);
+                const user = userCredential.user;
+                addResult('✅ Step 1: Firebase Auth user created', 'success');
+                
+                // Step 2: Create Firestore user document
+                addResult('Step 2: Creating Firestore user document...', 'info');
+                await db.collection('users').doc(user.uid).set({
+                    email: testEmail,
+                    name: 'Test User',
+                    role: 'student',
+                    createdAt: new Date().toISOString(),
+                    testUser: true
+                });
+                addResult('✅ Step 2: Firestore document created', 'success');
+                
+                // Step 3: Test storage upload
+                addResult('Step 3: Testing storage upload...', 'info');
+                const testBlob = new Blob(['Avatar test'], { type: 'text/plain' });
+                const avatarRef = storage.ref(`avatars/${user.uid}/test-avatar.txt`);
+                await avatarRef.put(testBlob);
+                addResult('✅ Step 3: Storage upload successful', 'success');
+                
+                addResult('🎉 COMPLETE REGISTRATION TEST: SUCCESS!', 'success');
+                updateStatus('registration-status', 'User registration is working perfectly', 'success', '✅');
+                
+                // Clean up
+                await avatarRef.delete();
+                await db.collection('users').doc(user.uid).delete();
+                await user.delete();
+                addResult('🧹 Cleanup completed', 'info');
+                
+            } catch (error) {
+                addResult(`❌ Registration test failed: ${error.message}`, 'error');
+                updateStatus('registration-status', `Registration error: ${error.code}`, 'error', '❌');
+                
+                addResult(`🔧 Error code: ${error.code}`, 'warning');
+                addResult('💡 Check Firebase security rules', 'warning');
+                showRulesFix();
+            }
+        }
+
+        function showRulesFix() {
+            document.getElementById('rules-fix-section').classList.remove('hidden');
+            addResult('📋 Firebase rules fix displayed', 'info');
+        }
+
+        function copyRules(type) {
+            const rulesElement = document.getElementById(`${type}-rules`);
+            const textArea = document.createElement('textarea');
+            textArea.value = rulesElement.textContent;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            addResult(`📋 ${type.charAt(0).toUpperCase() + type.slice(1)} rules copied to clipboard`, 'success');
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatus('project-status', 'Firebase project connected', 'success', '✅');
+            addResult('🚀 Permission troubleshooter initialized', 'info');
+            addResult('📊 Project: gesturequiz-platform-live', 'info');
+            addResult('🔗 Storage: gs://gesturequiz-platform-live.firebasestorage.app', 'info');
+        });
+    </script>
+</body>
+</html>

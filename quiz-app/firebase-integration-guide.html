@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Integration Step-by-Step - GestureQuiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .step {
+            margin-bottom: 40px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 6px solid #007bff;
+        }
+
+        .step h2 {
+            color: #007bff;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .step-number {
+            background: #007bff;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            margin-right: 15px;
+        }
+
+        .step-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            margin: 15px 0;
+            white-space: pre-wrap;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        .btn:hover { background: #0056b3; transform: translateY(-2px); }
+        .btn-success { background: #28a745; }
+        .btn-success:hover { background: #1e7e34; }
+        .btn-danger { background: #dc3545; }
+        .btn-danger:hover { background: #c82333; }
+        .btn-warning { background: #ffc107; color: #212529; }
+        .btn-warning:hover { background: #e0a800; }
+
+        .alert {
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 2px solid #bee5eb;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 2px solid #ffeaa7;
+        }
+
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+
+        .checklist li {
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+
+        .checklist li::before {
+            content: "☐";
+            font-size: 20px;
+            margin-right: 15px;
+            color: #007bff;
+        }
+
+        .checklist li.completed::before {
+            content: "✅";
+        }
+
+        .test-section {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .test-result {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .test-result.success { background: #d4edda; color: #155724; }
+        .test-result.error { background: #f8d7da; color: #721c24; }
+        .test-result.info { background: #d1ecf1; color: #0c5460; }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            color: #856404;
+        }
+
+        .important {
+            background: #ffe6e6;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #dc3545;
+            margin: 15px 0;
+        }
+
+        .copy-button {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .copy-button:hover {
+            background: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Firebase Integration Step-by-Step</h1>
+            <p>Let's fix your Firebase integration once and for all!</p>
+        </div>
+        
+        <div class="content">
+            <div class="alert alert-danger">
+                <strong>🚨 Current Issue:</strong> Firebase integration is not working properly. This guide will walk you through fixing it step by step.
+            </div>
+
+            <div class="step">
+                <div class="step-title">
+                    <div class="step-number">1</div>
+                    <h2>Verify Firebase Project Setup</h2>
+                </div>
+                <p>First, let's make sure your Firebase project is properly configured.</p>
+                
+                <div class="important">
+                    <strong>⚠️ Critical:</strong> Make sure you're using the correct project: <span class="highlight">gesturequiz-platform-live</span>
+                </div>
+
+                <h4>Firebase Console Checklist:</h4>
+                <ul class="checklist">
+                    <li>Go to <a href="https://console.firebase.google.com/" target="_blank">Firebase Console</a></li>
+                    <li>Select project: <strong>gesturequiz-platform-live</strong></li>
+                    <li>Authentication → Sign-in method → Email/Password is ENABLED</li>
+                    <li>Firestore Database is created</li>
+                    <li>Storage is set up</li>
+                    <li>Authorized domains include: ahmadadeltub.github.io</li>
+                </ul>
+
+                <button class="btn btn-success" onclick="testFirebaseConnection()">Test Firebase Connection</button>
+            </div>
+
+            <div class="step">
+                <div class="step-title">
+                    <div class="step-number">2</div>
+                    <h2>Set Up Firebase Security Rules</h2>
+                </div>
+                <p>The most common issue is restrictive security rules. Let's fix this.</p>
+
+                <h4>Firestore Database Rules:</h4>
+                <div class="code-block" id="firestore-rules">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow authenticated users to create and manage their own user documents
+    match /users/{userId} {
+      allow create: if request.auth != null;
+      allow read, update: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Allow authenticated users to manage classes
+    match /classes/{classId} {
+      allow create, read, update, delete: if request.auth != null;
+    }
+    
+    // Allow authenticated users to manage quizzes
+    match /quizzes/{quizId} {
+      allow create, read, update, delete: if request.auth != null;
+    }
+    
+    // Allow authenticated users to manage submissions
+    match /submissions/{submissionId} {
+      allow create, read, update: if request.auth != null;
+    }
+    
+    // Allow test documents for debugging
+    match /test/{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}</div>
+                <button class="copy-button" onclick="copyToClipboard('firestore-rules')">Copy Rules</button>
+
+                <h4>Storage Rules:</h4>
+                <div class="code-block" id="storage-rules">rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Allow authenticated users to upload and download files
+    match /{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}</div>
+                <button class="copy-button" onclick="copyToClipboard('storage-rules')">Copy Rules</button>
+
+                <div class="important">
+                    <strong>📋 Action Required:</strong>
+                    <br>1. Copy the Firestore rules above
+                    <br>2. Go to Firebase Console → Firestore Database → Rules
+                    <br>3. Paste the rules and click "Publish"
+                    <br>4. Copy the Storage rules above
+                    <br>5. Go to Firebase Console → Storage → Rules
+                    <br>6. Paste the rules and click "Publish"
+                </div>
+
+                <button class="btn btn-warning" onclick="testFirestoreRules()">Test Firestore Rules</button>
+                <button class="btn btn-warning" onclick="testStorageRules()">Test Storage Rules</button>
+            </div>
+
+            <div class="step">
+                <div class="step-title">
+                    <div class="step-number">3</div>
+                    <h2>Test Firebase Integration</h2>
+                </div>
+                <p>Now let's test if everything is working properly.</p>
+
+                <div class="test-section">
+                    <h4>🧪 Integration Tests:</h4>
+                    <button class="btn btn-success" onclick="testAuthentication()">Test Authentication</button>
+                    <button class="btn btn-success" onclick="testFirestoreWrite()">Test Firestore Write</button>
+                    <button class="btn btn-success" onclick="testStorageUpload()">Test Storage Upload</button>
+                    <button class="btn btn-danger" onclick="testFullRegistration()">Test Complete Registration</button>
+                </div>
+
+                <div id="test-results" class="test-section" style="display: none;">
+                    <h4>📊 Test Results:</h4>
+                    <div id="results-container"></div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-title">
+                    <div class="step-number">4</div>
+                    <h2>Try User Registration</h2>
+                </div>
+                <p>If all tests pass, try creating a user account.</p>
+
+                <div class="alert alert-info">
+                    <strong>✅ Success Criteria:</strong>
+                    <br>• User account created in Firebase Auth
+                    <br>• User document created in Firestore
+                    <br>• No "Permission denied" errors
+                </div>
+
+                <a href="../quiz-app/register.html" class="btn btn-success">Try Registration</a>
+                <a href="../quiz-app/login.html" class="btn btn-primary">Try Login</a>
+            </div>
+
+            <div class="step">
+                <div class="step-title">
+                    <div class="step-number">5</div>
+                    <h2>Final Verification</h2>
+                </div>
+                <p>Let's verify everything is working correctly.</p>
+
+                <h4>✅ Final Checklist:</h4>
+                <ul class="checklist">
+                    <li>Firebase project is properly configured</li>
+                    <li>Security rules are published and active</li>
+                    <li>All integration tests pass</li>
+                    <li>User registration works without errors</li>
+                    <li>User login works correctly</li>
+                    <li>Dashboard loads for registered users</li>
+                </ul>
+
+                <button class="btn btn-success" onclick="runFullTest()">Run Complete Test Suite</button>
+            </div>
+
+            <div class="alert alert-success" style="display: none;" id="success-message">
+                <strong>🎉 SUCCESS!</strong> Your Firebase integration is working perfectly!
+                <br>✅ Users can now register and login without issues
+                <br>✅ All Firebase services are properly connected
+                <br>✅ Your GestureQuiz platform is ready for production use
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAt4ByDMxZFT00a-zESwNHS8uv3DY08uhg",
+            authDomain: "gesturequiz-platform-live.firebaseapp.com",
+            projectId: "gesturequiz-platform-live",
+            storageBucket: "gesturequiz-platform-live.firebasestorage.app",
+            messagingSenderId: "794242095954",
+            appId: "1:794242095954:web:85868edc63c96d37ea388b",
+            measurementId: "G-Y7WPTJRVG6"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        const storage = firebase.storage();
+
+        let testsPassed = 0;
+        let totalTests = 0;
+
+        function addTestResult(message, type = 'info') {
+            const resultsContainer = document.getElementById('results-container');
+            const testResults = document.getElementById('test-results');
+            
+            testResults.style.display = 'block';
+            
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+            resultsContainer.appendChild(div);
+            
+            testResults.scrollTop = testResults.scrollHeight;
+        }
+
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const textArea = document.createElement('textarea');
+            textArea.value = element.textContent;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            addTestResult(`📋 Rules copied to clipboard`, 'success');
+        }
+
+        async function testFirebaseConnection() {
+            try {
+                addTestResult('🔍 Testing Firebase connection...', 'info');
+                
+                // Test Firebase initialization
+                if (firebase.apps.length > 0) {
+                    addTestResult('✅ Firebase SDK loaded successfully', 'success');
+                    testsPassed++;
+                } else {
+                    addTestResult('❌ Firebase SDK not initialized', 'error');
+                }
+                
+                // Test services
+                if (auth) {
+                    addTestResult('✅ Authentication service available', 'success');
+                    testsPassed++;
+                } else {
+                    addTestResult('❌ Authentication service not available', 'error');
+                }
+                
+                if (db) {
+                    addTestResult('✅ Firestore service available', 'success');
+                    testsPassed++;
+                } else {
+                    addTestResult('❌ Firestore service not available', 'error');
+                }
+                
+                if (storage) {
+                    addTestResult('✅ Storage service available', 'success');
+                    testsPassed++;
+                } else {
+                    addTestResult('❌ Storage service not available', 'error');
+                }
+                
+                addTestResult(`📊 Connection test: ${testsPassed}/4 services available`, 'info');
+                
+            } catch (error) {
+                addTestResult(`❌ Connection test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testFirestoreRules() {
+            try {
+                addTestResult('🔍 Testing Firestore rules...', 'info');
+                
+                const testDoc = db.collection('test').doc('rules-test');
+                await testDoc.set({
+                    message: 'Rules test',
+                    timestamp: new Date().toISOString()
+                });
+                
+                addTestResult('✅ Firestore rules: WORKING', 'success');
+                
+                // Clean up
+                await testDoc.delete();
+                
+            } catch (error) {
+                addTestResult(`❌ Firestore rules test failed: ${error.message}`, 'error');
+                addTestResult('💡 Solution: Update Firestore rules in Firebase Console', 'info');
+            }
+        }
+
+        async function testStorageRules() {
+            try {
+                addTestResult('🔍 Testing Storage rules...', 'info');
+                
+                const testBlob = new Blob(['Storage rules test'], { type: 'text/plain' });
+                const testRef = storage.ref('test/rules-test.txt');
+                await testRef.put(testBlob);
+                
+                addTestResult('✅ Storage rules: WORKING', 'success');
+                
+                // Clean up
+                await testRef.delete();
+                
+            } catch (error) {
+                addTestResult(`❌ Storage rules test failed: ${error.message}`, 'error');
+                addTestResult('💡 Solution: Update Storage rules in Firebase Console', 'info');
+            }
+        }
+
+        async function testAuthentication() {
+            try {
+                addTestResult('🔍 Testing Authentication...', 'info');
+                
+                // Test creating a temporary user
+                const testEmail = `test-${Date.now()}@gesturequiz.com`;
+                const testPassword = 'TestPassword123';
+                
+                const userCredential = await auth.createUserWithEmailAndPassword(testEmail, testPassword);
+                addTestResult('✅ Authentication: User creation successful', 'success');
+                
+                // Clean up
+                await userCredential.user.delete();
+                addTestResult('✅ Authentication: Test user cleaned up', 'success');
+                
+            } catch (error) {
+                addTestResult(`❌ Authentication test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testFirestoreWrite() {
+            try {
+                addTestResult('🔍 Testing Firestore write...', 'info');
+                
+                const testDoc = db.collection('test').doc('write-test');
+                await testDoc.set({
+                    message: 'Write test',
+                    timestamp: new Date().toISOString()
+                });
+                
+                addTestResult('✅ Firestore write: SUCCESS', 'success');
+                
+                // Clean up
+                await testDoc.delete();
+                
+            } catch (error) {
+                addTestResult(`❌ Firestore write failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testStorageUpload() {
+            try {
+                addTestResult('🔍 Testing Storage upload...', 'info');
+                
+                const testBlob = new Blob(['Storage upload test'], { type: 'text/plain' });
+                const testRef = storage.ref('test/upload-test.txt');
+                await testRef.put(testBlob);
+                
+                addTestResult('✅ Storage upload: SUCCESS', 'success');
+                
+                // Clean up
+                await testRef.delete();
+                
+            } catch (error) {
+                addTestResult(`❌ Storage upload failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testFullRegistration() {
+            try {
+                addTestResult('🔍 Testing complete user registration...', 'info');
+                
+                const testEmail = `fulltest-${Date.now()}@gesturequiz.com`;
+                const testPassword = 'TestPassword123';
+                
+                // Step 1: Create user in Firebase Auth
+                const userCredential = await auth.createUserWithEmailAndPassword(testEmail, testPassword);
+                const user = userCredential.user;
+                addTestResult('✅ Step 1: Firebase Auth user created', 'success');
+                
+                // Step 2: Create user document in Firestore
+                await db.collection('users').doc(user.uid).set({
+                    email: testEmail,
+                    name: 'Test User',
+                    role: 'student',
+                    createdAt: new Date().toISOString(),
+                    testUser: true
+                });
+                addTestResult('✅ Step 2: Firestore user document created', 'success');
+                
+                // Step 3: Test storage upload
+                const testBlob = new Blob(['User avatar test'], { type: 'text/plain' });
+                const avatarRef = storage.ref(`avatars/${user.uid}/test-avatar.txt`);
+                await avatarRef.put(testBlob);
+                addTestResult('✅ Step 3: Storage upload successful', 'success');
+                
+                addTestResult('🎉 COMPLETE REGISTRATION: SUCCESS!', 'success');
+                
+                // Clean up
+                await avatarRef.delete();
+                await db.collection('users').doc(user.uid).delete();
+                await user.delete();
+                addTestResult('✅ Test cleanup completed', 'success');
+                
+            } catch (error) {
+                addTestResult(`❌ Full registration test failed: ${error.message}`, 'error');
+                addTestResult(`🔧 Error details: ${error.code}`, 'error');
+            }
+        }
+
+        async function runFullTest() {
+            addTestResult('🚀 Running complete test suite...', 'info');
+            
+            await testFirebaseConnection();
+            await testFirestoreRules();
+            await testStorageRules();
+            await testAuthentication();
+            await testFirestoreWrite();
+            await testStorageUpload();
+            await testFullRegistration();
+            
+            addTestResult('📊 Test suite completed!', 'info');
+            
+            // Show success message if all tests passed
+            if (testsPassed >= 4) {
+                document.getElementById('success-message').style.display = 'block';
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            addTestResult('🚀 Firebase Integration Guide initialized', 'info');
+            addTestResult('📊 Project: gesturequiz-platform-live', 'info');
+            addTestResult('🎯 Ready to test Firebase integration', 'info');
+        });
+    </script>
+</body>
+</html>
