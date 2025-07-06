@@ -15,6 +15,9 @@ class AuthSystem {
             }
         }, 1500);
 
+        // Ensure test accounts exist
+        this.ensureTestAccounts();
+
         // Check if user is already logged in
         const savedUser = localStorage.getItem('gestureQuizUser');
         if (savedUser) {
@@ -26,6 +29,17 @@ class AuthSystem {
 
         // Bind form events
         setTimeout(() => this.bindFormEvents(), 1600);
+    }
+
+    ensureTestAccounts() {
+        // Check if test accounts already exist
+        const authData = localStorage.getItem('gesturequiz_auth');
+        if (!authData) {
+            console.log('Creating test accounts...');
+            this.createTestAccounts();
+        } else {
+            console.log('Test accounts already exist');
+        }
     }
 
     showAuthScreen() {
@@ -71,17 +85,59 @@ class AuthSystem {
             // Simulate API call
             await this.delay(1000);
             
-            // For demo purposes, accept any login
-            const user = {
-                id: Date.now(),
-                name: email.split('@')[0],
-                email: email,
-                type: userType,
-                loginTime: new Date().toISOString()
-            };
+            // Check for test accounts first
+            const authData = localStorage.getItem('gesturequiz_auth');
+            let user = null;
+            
+            if (authData) {
+                const accounts = JSON.parse(authData);
+                if (accounts[email] && accounts[email].password === password) {
+                    // Use the stored test account data
+                    user = accounts[email].userData;
+                    user.loginTime = new Date().toISOString();
+                } else {
+                    this.showMessage('Invalid email or password', 'error');
+                    return;
+                }
+            } else {
+                // If no test data exists, create it automatically
+                this.createTestAccounts();
+                
+                // Try again with test accounts
+                const newAuthData = localStorage.getItem('gesturequiz_auth');
+                if (newAuthData) {
+                    const accounts = JSON.parse(newAuthData);
+                    if (accounts[email] && accounts[email].password === password) {
+                        user = accounts[email].userData;
+                        user.loginTime = new Date().toISOString();
+                    } else {
+                        // For demo purposes, accept any other login
+                        user = {
+                            id: Date.now(),
+                            name: email.split('@')[0],
+                            email: email,
+                            role: userType,
+                            type: userType,
+                            loginTime: new Date().toISOString()
+                        };
+                    }
+                } else {
+                    // Fallback: accept any login
+                    user = {
+                        id: Date.now(),
+                        name: email.split('@')[0],
+                        email: email,
+                        role: userType,
+                        type: userType,
+                        loginTime: new Date().toISOString()
+                    };
+                }
+            }
 
             this.currentUser = user;
             localStorage.setItem('gestureQuizUser', JSON.stringify(user));
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            localStorage.setItem('isLoggedIn', 'true');
             
             this.showMessage('Login successful!', 'success');
             this.hideAuthModal();
@@ -400,6 +456,93 @@ class AuthSystem {
 
     getCurrentUser() {
         return this.currentUser;
+    }
+
+    createTestAccounts() {
+        // Create comprehensive test accounts
+        const teacherAccount = {
+            id: 'teacher_001',
+            name: 'Dr. Sarah Johnson',
+            email: 'teacher@gesturequiz.com',
+            password: 'teacher2025',
+            role: 'teacher',
+            type: 'teacher',
+            school: 'Lincoln High School',
+            department: 'Mathematics',
+            phone: '+1-555-0123',
+            avatar: 'https://images.unsplash.com/photo-1559582927-62cddd4a4b8d?w=150&h=150&fit=crop&crop=face',
+            createdAt: new Date().toISOString(),
+            stats: {
+                totalClasses: 3,
+                totalStudents: 45,
+                totalQuizzes: 12,
+                averageScore: 87.5
+            }
+        };
+
+        const studentAccounts = [
+            {
+                id: 'student_001',
+                name: 'Alex Martinez',
+                email: 'student@gesturequiz.com',
+                password: 'student2025',
+                role: 'student',
+                type: 'student',
+                grade: '10th Grade',
+                studentId: 'ST001',
+                avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+                createdAt: new Date().toISOString(),
+                stats: {
+                    totalQuizzes: 8,
+                    averageScore: 92.3,
+                    completedQuizzes: 8,
+                    totalClasses: 3,
+                    rank: 1
+                }
+            },
+            {
+                id: 'student_002',
+                name: 'Emma Wilson',
+                email: 'student2@gesturequiz.com',
+                password: 'student2025',
+                role: 'student',
+                type: 'student',
+                grade: '10th Grade',
+                studentId: 'ST002',
+                avatar: 'https://images.unsplash.com/photo-1494790108755-2616b74a6caa?w=150&h=150&fit=crop&crop=face',
+                createdAt: new Date().toISOString(),
+                stats: {
+                    totalQuizzes: 7,
+                    averageScore: 85.7,
+                    completedQuizzes: 7,
+                    totalClasses: 2,
+                    rank: 3
+                }
+            }
+        ];
+
+        // Save test accounts
+        localStorage.setItem('teacherAccount', JSON.stringify(teacherAccount));
+        localStorage.setItem('studentAccounts', JSON.stringify(studentAccounts));
+        
+        // Create user authentication data
+        const authData = {
+            'teacher@gesturequiz.com': {
+                password: 'teacher2025',
+                userData: teacherAccount
+            },
+            'student@gesturequiz.com': {
+                password: 'student2025',
+                userData: studentAccounts[0]
+            },
+            'student2@gesturequiz.com': {
+                password: 'student2025',
+                userData: studentAccounts[1]
+            }
+        };
+        localStorage.setItem('gesturequiz_auth', JSON.stringify(authData));
+        
+        console.log('✅ Test accounts created successfully!');
     }
 }
 

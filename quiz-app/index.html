@@ -1367,6 +1367,17 @@
                 <!-- Sign In Form Section (hidden by default) -->
                 <div id="signInSection" class="auth-form-section" style="display: none;">
                     <h3>Sign In to Your Account</h3>
+                    
+                    <!-- Test Credentials Notice -->
+                    <div style="background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%); border: 1px solid #0ea5e9; border-radius: 12px; padding: 15px; margin-bottom: 20px;">
+                        <h4 style="margin: 0 0 10px 0; color: #0369a1; font-size: 0.9rem; font-weight: 600;">🧪 Test Accounts Available</h4>
+                        <div style="font-size: 0.8rem; color: #075985; line-height: 1.4;">
+                            <strong>🧑‍🏫 Teacher:</strong> teacher@gesturequiz.com / teacher2025<br>
+                            <strong>🧑‍🎓 Student #1:</strong> student@gesturequiz.com / student2025<br>
+                            <strong>🧑‍🎓 Student #2:</strong> student2@gesturequiz.com / student2025
+                        </div>
+                    </div>
+                    
                     <form id="signInForm">
                         <div class="form-group">
                             <label for="signInEmail">Email</label>
@@ -1772,8 +1783,9 @@
 
         console.log('GestureQuiz loaded successfully!');
         console.log('🎉 Complete registration system is ready!');
-        console.log('�‍🏫 Teacher Login: ahmadadeltub@gmail.com / 1234567');
-        console.log('👨‍🎓 Student Login: std1@demo.com / 123456 or std2@demo.com / 123456');
+        console.log('🧑‍🏫 Teacher Login: teacher@gesturequiz.com / teacher2025');
+        console.log('🧑‍🎓 Student #1: student@gesturequiz.com / student2025');
+        console.log('🧑‍🎓 Student #2: student2@gesturequiz.com / student2025');
         console.log('🔧 Or register your own account using the Register button');
         console.log('💡 Run resetAllData() in console to clear all data for fresh testing');
         
@@ -1895,8 +1907,9 @@
             
             localStorage.setItem('registeredUsers', JSON.stringify(defaultUsers));
             console.log('✅ Default accounts restored!');
-            console.log('👨‍🏫 Teacher: ahmadadeltub@gmail.com / 1234567');
-            console.log('👨‍🎓 Students: std1@demo.com / 123456, std2@demo.com / 123456');
+            console.log('🧑‍🏫 Teacher: teacher@gesturequiz.com / teacher2025');
+            console.log('🧑‍🎓 Student #1: student@gesturequiz.com / student2025');
+            console.log('🧑‍🎓 Student #2: student2@gesturequiz.com / student2025');
             console.log('Users in localStorage:', defaultUsers);
             alert('Default accounts restored! Check console for login details.');
         };
