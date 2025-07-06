@@ -139,15 +139,105 @@
         <div id="status"></div>
         
         <div class="test-users">
-            <h2>👥 Test User Credentials</h2>
+            <h2>👥 Full Test User Accounts</h2>
             
             <div class="user-card">
-                <div class="user-type">🧑‍🏫 TEACHER</div>
+                <div class="user-type">🧑‍🏫 TEACHER ACCOUNT</div>
                 <div class="credentials">
-                    Email: teacher@test.com<br>
-                    Password: teacher123<br>
-                    Name: John Smith
+                    Email: teacher@gesturequiz.com<br>
+                    Password: teacher2025<br>
+                    Name: Dr. Sarah Johnson<br>
+                    Role: Mathematics Teacher<br>
+                    School: Lincoln High School
                 </div>
+                <div class="user-features">
+                    <strong>✅ Features Available:</strong>
+                    <ul>
+                        <li>Create and manage classes (3 sample classes)</li>
+                        <li>Design interactive quizzes (5 sample quizzes)</li>
+                        <li>View student progress and analytics</li>
+                        <li>Gesture recognition for quiz answers</li>
+                        <li>Real-time performance monitoring</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="user-card">
+                <div class="user-type student">🧑‍🎓 STUDENT ACCOUNT</div>
+                <div class="credentials">
+                    Email: student@gesturequiz.com<br>
+                    Password: student2025<br>
+                    Name: Alex Martinez<br>
+                    Grade: 10th Grade<br>
+                    Student ID: ST001
+                </div>
+                <div class="user-features">
+                    <strong>✅ Features Available:</strong>
+                    <ul>
+                        <li>Join classes using class codes</li>
+                        <li>Take interactive gesture-based quizzes</li>
+                        <li>View personal progress and scores</li>
+                        <li>Practice with gesture recognition</li>
+                        <li>Track learning achievements</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="user-card">
+                <div class="user-type student">🧑‍🎓 STUDENT ACCOUNT #2</div>
+                <div class="credentials">
+                    Email: student2@gesturequiz.com<br>
+                    Password: student2025<br>
+                    Name: Emma Wilson<br>
+                    Grade: 10th Grade<br>
+                    Student ID: ST002
+                </div>
+                <div class="user-features">
+                    <strong>✅ Features Available:</strong>
+                    <ul>
+                        <li>Complete quiz history and progress</li>
+                        <li>Multiple class enrollments</li>
+                        <li>Different performance levels for testing</li>
+                        <li>Comprehensive analytics data</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="sample-data">
+            <h2>📊 Sample Data Includes:</h2>
+            <div class="data-overview">
+                <div class="data-item">
+                    <strong>🏫 Classes:</strong> 3 Active Classes
+                    <ul>
+                        <li>Mathematics 10A (Class Code: MATH10A)</li>
+                        <li>Physics Advanced (Class Code: PHYS101)</li>
+                        <li>Chemistry Lab (Class Code: CHEM201)</li>
+                    </ul>
+                </div>
+                
+                <div class="data-item">
+                    <strong>📝 Quizzes:</strong> 5 Interactive Quizzes
+                    <ul>
+                        <li>Algebra Basics (10 questions)</li>
+                        <li>Geometry Shapes (8 questions)</li>
+                        <li>Physics Forces (12 questions)</li>
+                        <li>Chemical Reactions (15 questions)</li>
+                        <li>Mixed Review (20 questions)</li>
+                    </ul>
+                </div>
+                
+                <div class="data-item">
+                    <strong>📈 Analytics:</strong> Complete Performance Data
+                    <ul>
+                        <li>Quiz completion rates</li>
+                        <li>Student progress tracking</li>
+                        <li>Class performance metrics</li>
+                        <li>Gesture recognition accuracy</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
             </div>
             
             <div class="user-card">
@@ -180,107 +270,332 @@
 
     <script>
         function setupTestData() {
-            // Create sample classes with more comprehensive data
+            // Create comprehensive test accounts
+            const teacherAccount = {
+                id: 'teacher_001',
+                name: 'Dr. Sarah Johnson',
+                email: 'teacher@gesturequiz.com',
+                password: 'teacher2025',
+                role: 'teacher',
+                school: 'Lincoln High School',
+                department: 'Mathematics',
+                phone: '+1-555-0123',
+                avatar: 'https://images.unsplash.com/photo-1559582927-62cddd4a4b8d?w=150&h=150&fit=crop&crop=face',
+                createdAt: new Date().toISOString(),
+                stats: {
+                    totalClasses: 3,
+                    totalStudents: 45,
+                    totalQuizzes: 12,
+                    averageScore: 87.5
+                }
+            };
+
+            const studentAccounts = [
+                {
+                    id: 'student_001',
+                    name: 'Alex Martinez',
+                    email: 'student@gesturequiz.com',
+                    password: 'student2025',
+                    role: 'student',
+                    grade: '10th Grade',
+                    studentId: 'ST001',
+                    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+                    createdAt: new Date().toISOString(),
+                    stats: {
+                        totalQuizzes: 8,
+                        averageScore: 92.3,
+                        completedQuizzes: 8,
+                        totalClasses: 3,
+                        rank: 1
+                    }
+                },
+                {
+                    id: 'student_002',
+                    name: 'Emma Wilson',
+                    email: 'student2@gesturequiz.com',
+                    password: 'student2025',
+                    role: 'student',
+                    grade: '10th Grade',
+                    studentId: 'ST002',
+                    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b74a6caa?w=150&h=150&fit=crop&crop=face',
+                    createdAt: new Date().toISOString(),
+                    stats: {
+                        totalQuizzes: 7,
+                        averageScore: 85.7,
+                        completedQuizzes: 7,
+                        totalClasses: 2,
+                        rank: 3
+                    }
+                }
+            ];
+
+            // Create comprehensive class data
             const sampleClasses = [
                 {
-                    id: 'class_demo_1',
-                    name: 'Introduction to Computer Science',
-                    subject: 'computer-science',
-                    grade: '9th Grade',
-                    room: 'Room 101',
-                    code: 'CS101A',
-                    description: 'Basic concepts of programming and computer science',
-                    createdBy: 'teacher@test.com',
-                    createdAt: new Date().toISOString(),
-                    students: [
-                        {
-                            id: 'student_1',
-                            name: 'Alex Wilson',
-                            email: 'student@test.com',
-                            addedAt: new Date().toISOString()
-                        },
-                        {
-                            id: 'student_2',
-                            name: 'Emma Davis',
-                            email: 'emma@test.com',
-                            addedAt: new Date().toISOString()
-                        },
-                        {
-                            id: 'student_3',
-                            name: 'Michael Brown',
-                            email: 'mike@test.com',
-                            addedAt: new Date().toISOString()
-                        }
-                    ]
-                },
-                {
-                    id: 'class_demo_2',
-                    name: 'Advanced Mathematics',
-                    subject: 'mathematics',
+                    id: 'class_math_001',
+                    name: 'Mathematics 10A',
+                    subject: 'Mathematics',
                     grade: '10th Grade',
                     room: 'Room 205',
-                    code: 'MATH10',
-                    description: 'Advanced algebra and geometry concepts',
-                    createdBy: 'teacher@test.com',
+                    code: 'MATH10A',
+                    description: 'Advanced algebra, geometry, and trigonometry for 10th grade students',
+                    createdBy: 'teacher@gesturequiz.com',
+                    teacherName: 'Dr. Sarah Johnson',
                     createdAt: new Date().toISOString(),
+                    schedule: 'Mon, Wed, Fri - 9:00 AM',
                     students: [
                         {
-                            id: 'student_4',
-                            name: 'Sarah Johnson',
-                            email: 'sarah@test.com',
-                            addedAt: new Date().toISOString()
+                            id: 'student_001',
+                            name: 'Alex Martinez',
+                            email: 'student@gesturequiz.com',
+                            grade: '10th Grade',
+                            addedAt: new Date().toISOString(),
+                            performance: {
+                                averageScore: 92.3,
+                                quizzesCompleted: 5,
+                                lastActive: new Date().toISOString()
+                            }
                         },
                         {
-                            id: 'student_5',
-                            name: 'David Miller',
-                            email: 'david@test.com',
-                            addedAt: new Date().toISOString()
+                            id: 'student_002',
+                            name: 'Emma Wilson',
+                            email: 'student2@gesturequiz.com',
+                            grade: '10th Grade',
+                            addedAt: new Date().toISOString(),
+                            performance: {
+                                averageScore: 85.7,
+                                quizzesCompleted: 4,
+                                lastActive: new Date().toISOString()
+                            }
                         }
                     ]
                 },
                 {
-                    id: 'class_demo_3',
-                    name: 'Physics Fundamentals',
-                    subject: 'physics',
+                    id: 'class_phys_001',
+                    name: 'Physics Advanced',
+                    subject: 'Physics',
                     grade: '11th Grade',
                     room: 'Lab 301',
-                    code: 'PHY11',
-                    description: 'Introduction to physics principles and experiments',
-                    createdBy: 'teacher@test.com',
+                    code: 'PHYS101',
+                    description: 'Advanced physics concepts with hands-on experiments',
+                    createdBy: 'teacher@gesturequiz.com',
+                    teacherName: 'Dr. Sarah Johnson',
                     createdAt: new Date().toISOString(),
+                    schedule: 'Tue, Thu - 10:30 AM',
                     students: [
                         {
-                            id: 'student_6',
-                            name: 'Lisa Chen',
-                            email: 'lisa@test.com',
-                            addedAt: new Date().toISOString()
+                            id: 'student_001',
+                            name: 'Alex Martinez',
+                            email: 'student@gesturequiz.com',
+                            grade: '10th Grade',
+                            addedAt: new Date().toISOString(),
+                            performance: {
+                                averageScore: 89.5,
+                                quizzesCompleted: 3,
+                                lastActive: new Date().toISOString()
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: 'class_chem_001',
+                    name: 'Chemistry Lab',
+                    subject: 'Chemistry',
+                    grade: '11th Grade',
+                    room: 'Lab 402',
+                    code: 'CHEM201',
+                    description: 'Practical chemistry with laboratory experiments',
+                    createdBy: 'teacher@gesturequiz.com',
+                    teacherName: 'Dr. Sarah Johnson',
+                    createdAt: new Date().toISOString(),
+                    schedule: 'Mon, Wed - 2:00 PM',
+                    students: [
+                        {
+                            id: 'student_002',
+                            name: 'Emma Wilson',
+                            email: 'student2@gesturequiz.com',
+                            grade: '10th Grade',
+                            addedAt: new Date().toISOString(),
+                            performance: {
+                                averageScore: 88.2,
+                                quizzesCompleted: 3,
+                                lastActive: new Date().toISOString()
+                            }
                         }
                     ]
                 }
             ];
             
-            // Create sample quizzes with more detailed structure
+            // Create comprehensive quiz data
             const sampleQuizzes = [
                 {
-                    id: 'quiz_demo_1',
-                    title: 'Basic Programming Concepts',
-                    description: 'Test your knowledge of basic programming concepts',
-                    classId: 'class_demo_1',
-                    createdBy: 'teacher@test.com',
+                    id: 'quiz_math_001',
+                    title: 'Algebra Basics',
+                    description: 'Test your understanding of basic algebraic concepts',
+                    classId: 'class_math_001',
+                    className: 'Mathematics 10A',
+                    createdBy: 'teacher@gesturequiz.com',
                     createdAt: new Date().toISOString(),
                     published: true,
                     publishedAt: new Date().toISOString(),
+                    timeLimit: 30,
+                    totalQuestions: 10,
                     questions: [
                         {
                             id: 'q1',
-                            question: 'What is a variable in programming?',
+                            question: 'What is the value of x in the equation 2x + 5 = 15?',
+                            options: ['3', '5', '7', '10'],
+                            correctAnswer: 1,
+                            gestureAnswer: 'open_palm',
+                            explanation: 'Solving: 2x + 5 = 15, subtract 5 from both sides: 2x = 10, divide by 2: x = 5'
+                        },
+                        {
+                            id: 'q2',
+                            question: 'Which of the following is a quadratic equation?',
+                            options: ['x + 2 = 0', '2x + 3y = 5', 'x² + 3x + 2 = 0', '√x = 4'],
+                            correctAnswer: 2,
+                            gestureAnswer: 'peace_sign',
+                            explanation: 'A quadratic equation has the form ax² + bx + c = 0 where a ≠ 0'
+                        }
+                    ],
+                    attempts: [
+                        {
+                            studentId: 'student_001',
+                            studentName: 'Alex Martinez',
+                            score: 95,
+                            totalQuestions: 10,
+                            correctAnswers: 9,
+                            timeSpent: 18,
+                            completedAt: new Date().toISOString()
+                        },
+                        {
+                            studentId: 'student_002',
+                            studentName: 'Emma Wilson',
+                            score: 85,
+                            totalQuestions: 10,
+                            correctAnswers: 8,
+                            timeSpent: 22,
+                            completedAt: new Date().toISOString()
+                        }
+                    ]
+                },
+                {
+                    id: 'quiz_phys_001',
+                    title: 'Physics Forces',
+                    description: 'Understanding forces and motion in physics',
+                    classId: 'class_phys_001',
+                    className: 'Physics Advanced',
+                    createdBy: 'teacher@gesturequiz.com',
+                    createdAt: new Date().toISOString(),
+                    published: true,
+                    publishedAt: new Date().toISOString(),
+                    timeLimit: 45,
+                    totalQuestions: 12,
+                    questions: [
+                        {
+                            id: 'q1',
+                            question: 'What is Newton\'s First Law of Motion?',
                             options: [
-                                'A storage location with a name',
-                                'A type of loop',
-                                'A function parameter',
-                                'A programming language'
+                                'F = ma',
+                                'An object in motion stays in motion unless acted upon by a force',
+                                'For every action, there is an equal and opposite reaction',
+                                'Energy cannot be created or destroyed'
                             ],
-                            correctAnswer: 0,
+                            correctAnswer: 1,
+                            gestureAnswer: 'thumbs_up',
+                            explanation: 'Newton\'s First Law states that an object at rest stays at rest and an object in motion stays in motion with the same speed and in the same direction unless acted upon by an unbalanced force.'
+                        }
+                    ],
+                    attempts: [
+                        {
+                            studentId: 'student_001',
+                            studentName: 'Alex Martinez',
+                            score: 88,
+                            totalQuestions: 12,
+                            correctAnswers: 10,
+                            timeSpent: 35,
+                            completedAt: new Date().toISOString()
+                        }
+                    ]
+                },
+                {
+                    id: 'quiz_chem_001',
+                    title: 'Chemical Reactions',
+                    description: 'Basic chemical reactions and equations',
+                    classId: 'class_chem_001',
+                    className: 'Chemistry Lab',
+                    createdBy: 'teacher@gesturequiz.com',
+                    createdAt: new Date().toISOString(),
+                    published: true,
+                    publishedAt: new Date().toISOString(),
+                    timeLimit: 40,
+                    totalQuestions: 15,
+                    questions: [
+                        {
+                            id: 'q1',
+                            question: 'What happens when you mix an acid with a base?',
+                            options: [
+                                'They explode',
+                                'They neutralize each other',
+                                'They become more acidic',
+                                'Nothing happens'
+                            ],
+                            correctAnswer: 1,
+                            gestureAnswer: 'ok_sign',
+                            explanation: 'When an acid and base react, they neutralize each other, producing water and a salt.'
+                        }
+                    ],
+                    attempts: [
+                        {
+                            studentId: 'student_002',
+                            studentName: 'Emma Wilson',
+                            score: 92,
+                            totalQuestions: 15,
+                            correctAnswers: 13,
+                            timeSpent: 32,
+                            completedAt: new Date().toISOString()
+                        }
+                    ]
+                }
+            ];
+
+            // Save all data to localStorage
+            localStorage.setItem('teacherAccount', JSON.stringify(teacherAccount));
+            localStorage.setItem('studentAccounts', JSON.stringify(studentAccounts));
+            localStorage.setItem('gesturequiz_classes', JSON.stringify(sampleClasses));
+            localStorage.setItem('gesturequiz_quizzes', JSON.stringify(sampleQuizzes));
+            
+            // Create user authentication data
+            const authData = {
+                'teacher@gesturequiz.com': {
+                    password: 'teacher2025',
+                    userData: teacherAccount
+                },
+                'student@gesturequiz.com': {
+                    password: 'student2025',
+                    userData: studentAccounts[0]
+                },
+                'student2@gesturequiz.com': {
+                    password: 'student2025',
+                    userData: studentAccounts[1]
+                }
+            };
+            localStorage.setItem('gesturequiz_auth', JSON.stringify(authData));
+            
+            // Create analytics data
+            const analyticsData = {
+                totalUsers: 3,
+                totalClasses: 3,
+                totalQuizzes: 3,
+                totalAttempts: 4,
+                averageScore: 89.2,
+                activeUsers: 3,
+                lastUpdated: new Date().toISOString()
+            };
+            localStorage.setItem('gesturequiz_analytics', JSON.stringify(analyticsData));
+            
+            updateStatus('✅ Complete test data created successfully!<br>👥 3 User accounts created<br>🏫 3 Classes created<br>📝 3 Quizzes created<br>📊 Analytics data generated', 'success');
+        }
                             explanation: 'A variable is a storage location with an associated name that contains data.'
                         },
                         {
