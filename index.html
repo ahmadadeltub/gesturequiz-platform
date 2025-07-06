@@ -52,6 +52,14 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            transition: opacity 0.3s ease;
+            cursor: pointer;
+        }
+
+        .logo:hover {
+            opacity: 0.9;
         }
 
         .nav-links {
@@ -652,10 +660,10 @@
     <!-- Header -->
     <header class="header">
         <div class="nav-container">
-            <div class="logo">
+            <a href="#" class="logo" onclick="window.location.reload(); return false;">
                 <i class="fas fa-graduation-cap"></i>
                 GestureQuiz
-            </div>
+            </a>
             <nav class="nav-links">
                 <a href="#features">Features</a>
                 <a href="#how-it-works">How It Works</a>
