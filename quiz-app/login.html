@@ -188,47 +188,7 @@
             to { transform: rotate(360deg); }
         }
 
-        .demo-accounts {
-            background: #f8f9ff;
-            border: 1px solid #e1e5e9;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-
-        .demo-accounts h4 {
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .demo-account {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid #e1e5e9;
-        }
-
-        .demo-account:last-child {
-            border-bottom: none;
-        }
-
-        .demo-account span {
-            font-size: 12px;
-            color: #666;
-        }
-
-        .demo-btn {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            cursor: pointer;
-        }
+        /* Demo account styles removed - production mode */
 
         @media (max-width: 480px) {
             .login-container {
@@ -258,18 +218,7 @@
             <div id="errorMessage" class="error-message"></div>
             <div id="successMessage" class="success-message"></div>
 
-            <!-- Demo Accounts (Remove in production) -->
-            <div class="demo-accounts">
-                <h4><i class="fas fa-info-circle"></i> Demo Accounts</h4>
-                <div class="demo-account">
-                    <span>👨‍🏫 Teacher: teacher@gesturequiz.com</span>
-                    <button class="demo-btn" onclick="fillDemo('teacher@gesturequiz.com', 'teacher2025')">Use</button>
-                </div>
-                <div class="demo-account">
-                    <span>👨‍🎓 Student: student@gesturequiz.com</span>
-                    <button class="demo-btn" onclick="fillDemo('student@gesturequiz.com', 'student2025')">Use</button>
-                </div>
-            </div>
+            <!-- Production mode - no demo accounts -->
 
             <form id="loginForm">
                 <div class="form-group">
@@ -438,9 +387,9 @@
             }
         }
 
+        // Production mode - no demo account filling
         function fillDemo(email, password) {
-            document.getElementById('email').value = email;
-            document.getElementById('password').value = password;
+            console.log('Production mode: Demo accounts not available');
         }
 
         function showForgotPassword() {
