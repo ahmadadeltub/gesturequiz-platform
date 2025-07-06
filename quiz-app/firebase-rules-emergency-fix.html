@@ -178,6 +178,7 @@
                 <h3>Step 2: Replace Firestore Rules</h3>
                 <p>Copy and paste this exact rule configuration:</p>
                 <div class="code-block">rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
     // Allow any authenticated user to create their own user document
@@ -225,6 +226,7 @@ service cloud.firestore {
                 <p>1. Go to <strong>Storage</strong> → <strong>Rules</strong> tab</p>
                 <p>2. Replace with this configuration:</p>
                 <div class="code-block">rules_version = '2';
+
 service firebase.storage {
   match /b/{bucket}/o {
     // Allow authenticated users to read and write their own files
