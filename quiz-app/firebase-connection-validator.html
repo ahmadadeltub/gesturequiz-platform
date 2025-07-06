@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Connection Validator - GestureQuiz</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .validation-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 5px solid #3498db;
+        }
+        .test-button {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #cce7ff;
+            color: #004085;
+            border: 1px solid #b8daff;
+        }
+        .config-display {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .nav-buttons {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .nav-button {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            margin: 0 10px;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        .nav-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 Firebase Connection Validator</h1>
+        
+        <div class="validation-section">
+            <h2>📋 Project Configuration</h2>
+            <div class="config-display">
+                <strong>Project Details:</strong><br>
+                • Project Name: gesturequiz-platform<br>
+                • Project ID: gesturequiz-platform-429dd<br>
+                • Project Number: 911639818705<br>
+                • App ID: 1:911639818705:web:22d5bf2845c469185e70f0<br>
+                • Environment: Production<br>
+                • Support Email: ahmadadeltub@gmail.com
+            </div>
+            
+            <h3>🔧 Firebase Configuration</h3>
+            <div class="config-display" id="configDisplay">
+                Loading configuration...
+            </div>
+        </div>
+
+        <div class="validation-section">
+            <h2>🧪 Connection Tests</h2>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+            
+            <button class="test-button" onclick="runAllTests()">🚀 Run All Validation Tests</button>
+            <button class="test-button" onclick="testFirebaseConnection()">🔗 Test Firebase Connection</button>
+            <button class="test-button" onclick="testAuthentication()">🔐 Test Authentication</button>
+            <button class="test-button" onclick="testFirestore()">🗄️ Test Firestore</button>
+            <button class="test-button" onclick="testStorage()">💾 Test Storage</button>
+            <button class="test-button" onclick="testAnalytics()">📊 Test Analytics</button>
+            
+            <div id="results"></div>
+        </div>
+
+        <div class="validation-section">
+            <h2>📊 Validation Results</h2>
+            <div id="validationSummary">
+                <p>Click "Run All Validation Tests" to begin comprehensive testing.</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="testing-dashboard.html" class="nav-button">🎯 Testing Dashboard</a>
+            <a href="firebase-auto-test.html" class="nav-button">🤖 Auto Test Suite</a>
+            <a href="../index.html" class="nav-button">🏠 Home</a>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-analytics.js"></script>
+
+    <script>
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAMGOSAICQQbbduHDBvLzhcdImJkTrlTmc",
+            authDomain: "gesturequiz-platform-429dd.firebaseapp.com",
+            projectId: "gesturequiz-platform-429dd",
+            storageBucket: "gesturequiz-platform-429dd.firebasestorage.app",
+            messagingSenderId: "911639818705",
+            appId: "1:911639818705:web:22d5bf2845c469185e70f0",
+            measurementId: "G-Z8W4H5WDG7"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        const storage = firebase.storage();
+        const analytics = firebase.analytics();
+
+        // Display configuration
+        document.getElementById('configDisplay').innerHTML = `
+            <strong>Active Firebase Configuration:</strong><br>
+            • API Key: ${firebaseConfig.apiKey.substring(0, 20)}...<br>
+            • Auth Domain: ${firebaseConfig.authDomain}<br>
+            • Project ID: ${firebaseConfig.projectId}<br>
+            • Storage Bucket: ${firebaseConfig.storageBucket}<br>
+            • Messaging Sender ID: ${firebaseConfig.messagingSenderId}<br>
+            • App ID: ${firebaseConfig.appId}<br>
+            • Measurement ID: ${firebaseConfig.measurementId}
+        `;
+
+        let testResults = [];
+        let testProgress = 0;
+        const totalTests = 6;
+
+        function addResult(message, type = 'info') {
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `result ${type}`;
+            resultDiv.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+            document.getElementById('results').appendChild(resultDiv);
+            
+            // Scroll to bottom
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function updateProgress() {
+            testProgress++;
+            const progressPercent = (testProgress / totalTests) * 100;
+            document.getElementById('progressBar').style.width = progressPercent + '%';
+        }
+
+        function updateSummary() {
+            const successCount = testResults.filter(r => r.success).length;
+            const failedCount = testResults.filter(r => !r.success).length;
+            
+            document.getElementById('validationSummary').innerHTML = `
+                <div class="success">✅ Tests Passed: ${successCount}</div>
+                <div class="error">❌ Tests Failed: ${failedCount}</div>
+                <div class="info">📊 Total Tests: ${testResults.length}</div>
+                <div class="info">🎯 Success Rate: ${testResults.length ? Math.round((successCount / testResults.length) * 100) : 0}%</div>
+            `;
+        }
+
+        async function testFirebaseConnection() {
+            addResult('🔗 Testing Firebase connection...', 'info');
+            
+            try {
+                // Test if Firebase is initialized
+                const app = firebase.app();
+                addResult(`✅ Firebase app initialized successfully`, 'success');
+                addResult(`📋 Project ID: ${app.options.projectId}`, 'success');
+                addResult(`🌐 Auth Domain: ${app.options.authDomain}`, 'success');
+                
+                testResults.push({ test: 'Firebase Connection', success: true });
+                updateProgress();
+                return true;
+            } catch (error) {
+                addResult(`❌ Firebase connection failed: ${error.message}`, 'error');
+                testResults.push({ test: 'Firebase Connection', success: false, error: error.message });
+                updateProgress();
+                return false;
+            }
+        }
+
+        async function testAuthentication() {
+            addResult('🔐 Testing Authentication service...', 'info');
+            
+            try {
+                // Test auth service
+                const currentUser = auth.currentUser;
+                addResult(`✅ Firebase Auth service accessible`, 'success');
+                addResult(`👤 Current user: ${currentUser ? currentUser.email : 'Not logged in'}`, 'info');
+                
+                testResults.push({ test: 'Authentication', success: true });
+                updateProgress();
+                return true;
+            } catch (error) {
+                addResult(`❌ Authentication test failed: ${error.message}`, 'error');
+                testResults.push({ test: 'Authentication', success: false, error: error.message });
+                updateProgress();
+                return false;
+            }
+        }
+
+        async function testFirestore() {
+            addResult('🗄️ Testing Firestore database...', 'info');
+            
+            try {
+                // Test Firestore connection
+                const testDoc = db.collection('test').doc('connection-test');
+                const timestamp = new Date().toISOString();
+                
+                await testDoc.set({
+                    test: true,
+                    timestamp: timestamp,
+                    message: 'Connection test successful'
+                });
+                
+                const doc = await testDoc.get();
+                if (doc.exists) {
+                    addResult(`✅ Firestore write/read successful`, 'success');
+                    addResult(`📝 Test document created at: ${doc.data().timestamp}`, 'success');
+                    
+                    // Clean up test document
+                    await testDoc.delete();
+                    addResult(`🗑️ Test document cleaned up`, 'success');
+                } else {
+                    throw new Error('Test document not found after creation');
+                }
+                
+                testResults.push({ test: 'Firestore', success: true });
+                updateProgress();
+                return true;
+            } catch (error) {
+                addResult(`❌ Firestore test failed: ${error.message}`, 'error');
+                testResults.push({ test: 'Firestore', success: false, error: error.message });
+                updateProgress();
+                return false;
+            }
+        }
+
+        async function testStorage() {
+            addResult('💾 Testing Firebase Storage...', 'info');
+            
+            try {
+                // Test storage service
+                const storageRef = storage.ref();
+                const testRef = storageRef.child('test/connection-test.txt');
+                
+                // Create a test file
+                const testData = `Connection test: ${new Date().toISOString()}`;
+                const blob = new Blob([testData], { type: 'text/plain' });
+                
+                await testRef.put(blob);
+                addResult(`✅ Storage upload successful`, 'success');
+                
+                // Get download URL
+                const downloadURL = await testRef.getDownloadURL();
+                addResult(`🔗 Download URL generated: ${downloadURL.substring(0, 50)}...`, 'success');
+                
+                // Clean up test file
+                await testRef.delete();
+                addResult(`🗑️ Test file cleaned up`, 'success');
+                
+                testResults.push({ test: 'Storage', success: true });
+                updateProgress();
+                return true;
+            } catch (error) {
+                addResult(`❌ Storage test failed: ${error.message}`, 'error');
+                testResults.push({ test: 'Storage', success: false, error: error.message });
+                updateProgress();
+                return false;
+            }
+        }
+
+        async function testAnalytics() {
+            addResult('📊 Testing Firebase Analytics...', 'info');
+            
+            try {
+                // Test analytics service
+                analytics.logEvent('test_event', {
+                    test_parameter: 'connection_validation',
+                    timestamp: new Date().toISOString()
+                });
+                
+                addResult(`✅ Analytics event logged successfully`, 'success');
+                addResult(`📈 Test event: 'test_event' sent to Analytics`, 'success');
+                
+                testResults.push({ test: 'Analytics', success: true });
+                updateProgress();
+                return true;
+            } catch (error) {
+                addResult(`❌ Analytics test failed: ${error.message}`, 'error');
+                testResults.push({ test: 'Analytics', success: false, error: error.message });
+                updateProgress();
+                return false;
+            }
+        }
+
+        async function testRealTimeFeatures() {
+            addResult('⚡ Testing Real-time features...', 'info');
+            
+            try {
+                // Test real-time listener
+                const testCollection = db.collection('test-realtime');
+                const testDoc = testCollection.doc('realtime-test');
+                
+                // Set up listener
+                const unsubscribe = testDoc.onSnapshot((doc) => {
+                    if (doc.exists) {
+                        addResult(`✅ Real-time listener triggered`, 'success');
+                        addResult(`📡 Real-time data: ${JSON.stringify(doc.data())}`, 'success');
+                    }
+                });
+                
+                // Write test data
+                await testDoc.set({
+                    test: true,
+                    timestamp: new Date().toISOString(),
+                    message: 'Real-time test'
+                });
+                
+                // Clean up after 2 seconds
+                setTimeout(async () => {
+                    unsubscribe();
+                    await testDoc.delete();
+                    addResult(`🗑️ Real-time test cleaned up`, 'success');
+                }, 2000);
+                
+                testResults.push({ test: 'Real-time Features', success: true });
+                updateProgress();
+                return true;
+            } catch (error) {
+                addResult(`❌ Real-time features test failed: ${error.message}`, 'error');
+                testResults.push({ test: 'Real-time Features', success: false, error: error.message });
+                updateProgress();
+                return false;
+            }
+        }
+
+        async function runAllTests() {
+            addResult('🚀 Starting comprehensive Firebase validation...', 'info');
+            testResults = [];
+            testProgress = 0;
+            document.getElementById('progressBar').style.width = '0%';
+            
+            // Run all tests
+            await testFirebaseConnection();
+            await testAuthentication();
+            await testFirestore();
+            await testStorage();
+            await testAnalytics();
+            await testRealTimeFeatures();
+            
+            addResult('✅ All validation tests completed!', 'success');
+            updateSummary();
+            
+            // Log summary
+            const successCount = testResults.filter(r => r.success).length;
+            const totalCount = testResults.length;
+            addResult(`📊 Final Results: ${successCount}/${totalCount} tests passed`, 'info');
+            
+            if (successCount === totalCount) {
+                addResult('🎉 All Firebase services are working perfectly!', 'success');
+            } else {
+                addResult('⚠️ Some tests failed. Please check the configuration.', 'error');
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            addResult('🔥 Firebase Connection Validator initialized', 'info');
+            addResult('📋 Using official Firebase configuration', 'info');
+            addResult('🎯 Ready to run validation tests', 'info');
+        });
+    </script>
+</body>
+</html>
