@@ -1,0 +1,1789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard - GestureQuiz</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-600: #0284c7;
+            --primary-700: #0369a1;
+            --primary-50: #f0f9ff;
+            --primary-100: #e0f2fe;
+            --accent-100: #e0e7ff;
+            --accent-500: #8b5cf6;
+            --accent-600: #7c3aed;
+            --accent-50: #f5f3ff;
+            --success-500: #22c55e;
+            --success-600: #16a34a;
+            --success-50: #f0fdf4;
+            --warning-500: #f59e0b;
+            --warning-50: #fffbeb;
+            --danger-500: #ef4444;
+            --danger-50: #fef2f2;
+            --neutral-50: #fafafa;
+            --neutral-100: #f5f5f5;
+            --neutral-200: #e5e5e5;
+            --neutral-300: #d4d4d4;
+            --neutral-400: #a3a3a3;
+            --neutral-500: #737373;
+            --neutral-600: #525252;
+            --neutral-700: #404040;
+            --neutral-800: #262626;
+            --neutral-900: #171717;
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-5: 1.25rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --space-10: 2.5rem;
+            --space-12: 3rem;
+            --space-16: 4rem;
+            --space-20: 5rem;
+            --radius-sm: 0.25rem;
+            --radius-md: 0.375rem;
+            --radius-lg: 0.5rem;
+            --radius-xl: 0.75rem;
+            --radius-2xl: 1rem;
+            --radius-3xl: 1.5rem;
+            --radius-full: 9999px;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --transition-base: 300ms ease;
+            --transition-fast: 150ms ease;
+            --glass-bg: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--primary-50) 0%, var(--accent-50) 100%);
+            color: var(--neutral-800);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Modern Header */
+        .header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: var(--space-4) 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 var(--space-6);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--neutral-900);
+        }
+
+        .logo-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary-600), var(--accent-500));
+            border-radius: var(--radius-xl);
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: var(--space-6);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-500), var(--accent-600));
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            box-shadow: var(--shadow-md);
+            cursor: pointer;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--neutral-900);
+            font-size: 0.95rem;
+        }
+
+        .user-role {
+            font-size: 0.85rem;
+            color: var(--neutral-600);
+            background: var(--accent-50);
+            padding: var(--space-1) var(--space-2);
+            border-radius: var(--radius-sm);
+            margin-top: var(--space-1);
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--space-8) var(--space-6);
+        }
+
+        /* Welcome Section */
+        .welcome-section {
+            text-align: center;
+            margin-bottom: var(--space-12);
+        }
+
+        .welcome-title {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--neutral-900);
+            margin-bottom: var(--space-4);
+            background: linear-gradient(135deg, var(--primary-600), var(--accent-500));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .welcome-subtitle {
+            font-size: 1.25rem;
+            color: var(--neutral-600);
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-6);
+            margin-bottom: var(--space-12);
+        }
+
+        .stat-card {
+            background: white;
+            padding: var(--space-8);
+            border-radius: var(--radius-3xl);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--neutral-200);
+            transition: all var(--transition-base);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, var(--primary-600), var(--accent-500));
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--space-4);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary-100), var(--accent-100));
+            border-radius: var(--radius-xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-600);
+            font-size: 1.5rem;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--neutral-900);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.95rem;
+            color: var(--neutral-600);
+            font-weight: 500;
+        }
+
+        .stat-change {
+            font-size: 0.85rem;
+            margin-top: var(--space-2);
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+        }
+
+        .stat-change.positive {
+            color: var(--success-600);
+        }
+
+        .stat-change.negative {
+            color: var(--danger-500);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            background: white;
+            padding: var(--space-8);
+            border-radius: var(--radius-3xl);
+            box-shadow: var(--shadow-lg);
+            margin-bottom: var(--space-12);
+            border: 1px solid var(--neutral-200);
+        }
+
+        .quick-actions-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--neutral-900);
+            margin-bottom: var(--space-6);
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-6);
+        }
+
+        .action-card {
+            background: linear-gradient(135deg, var(--neutral-50), white);
+            border: 2px solid var(--neutral-200);
+            border-radius: var(--radius-2xl);
+            padding: var(--space-6);
+            transition: all var(--transition-base);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-2xl);
+            border-color: var(--primary-600);
+        }
+
+        .action-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--primary-600), var(--accent-500));
+            opacity: 0;
+            transition: opacity var(--transition-base);
+        }
+
+        .action-card:hover::before {
+            opacity: 0.08;
+        }
+
+        .action-card:hover .action-icon {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .action-card:hover .action-title {
+            color: var(--primary-600);
+        }
+
+        .action-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            margin-bottom: var(--space-4);
+        }
+
+        .action-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--primary-600), var(--accent-500));
+            border-radius: var(--radius-2xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: var(--shadow-lg);
+            transition: all var(--transition-base);
+        }
+
+        .action-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--neutral-900);
+            margin-bottom: var(--space-1);
+        }
+
+        .action-description {
+            color: var(--neutral-600);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: var(--space-5);
+        }
+
+        .action-button {
+            width: 100%;
+            padding: var(--space-3) var(--space-4);
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+            color: white;
+            border: none;
+            border-radius: var(--radius-xl);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+        }
+
+        .action-button:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Action Card Stats */
+        .action-stats {
+            display: flex;
+            gap: var(--space-4);
+            margin: var(--space-3) 0;
+            padding: var(--space-3);
+            background: var(--neutral-50);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--neutral-200);
+        }
+
+        .mini-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .mini-stat-number {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-600);
+            margin-bottom: var(--space-1);
+            transition: all var(--transition-base);
+        }
+
+        .mini-stat-label {
+            font-size: 0.75rem;
+            color: var(--neutral-600);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .action-card:hover .mini-stat-number {
+            color: var(--accent-600);
+            transform: scale(1.1);
+        }
+
+        /* Enhanced Class Management Card */
+        .action-card:has(.action-title:contains("Manage Classes")) {
+            border: 2px solid var(--primary-200);
+            background: linear-gradient(135deg, var(--primary-50), white);
+        }
+
+        .action-card:has(.action-title:contains("Manage Classes")):hover {
+            border-color: var(--primary-600);
+            background: linear-gradient(135deg, var(--primary-100), white);
+        }
+
+        /* Recent Activity */
+        .recent-activity {
+            background: white;
+            padding: var(--space-8);
+            border-radius: var(--radius-3xl);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--neutral-200);
+        }
+
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-6);
+        }
+
+        .activity-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--neutral-900);
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            padding: var(--space-4);
+            border-radius: var(--radius-xl);
+            background: var(--neutral-50);
+            transition: all var(--transition-base);
+        }
+
+        .activity-item:hover {
+            background: var(--primary-50);
+            transform: translateX(4px);
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-500), var(--accent-600));
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-text {
+            font-weight: 500;
+            color: var(--neutral-900);
+            margin-bottom: var(--space-1);
+        }
+
+        .activity-time {
+            font-size: 0.85rem;
+            color: var(--neutral-600);
+        }
+
+        /* Utility Classes */
+        .btn {
+            padding: var(--space-3) var(--space-6);
+            border-radius: var(--radius-xl);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            text-decoration: none;
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--neutral-700);
+            border: 2px solid var(--neutral-300);
+        }
+
+        .btn-outline:hover {
+            background: var(--neutral-50);
+            border-color: var(--neutral-400);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+            color: white;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .btn-small {
+            padding: var(--space-2) var(--space-3);
+            font-size: 0.8rem;
+            border-radius: var(--radius-lg);
+        }
+
+        /* Modern Badge */
+        .modern-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--accent-500), var(--accent-600));
+            color: white;
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: var(--radius-md);
+            margin-left: var(--space-2);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: var(--shadow-md);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Class Management Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius-2xl);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-2xl);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-6);
+            border-bottom: 1px solid var(--neutral-200);
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--neutral-900);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--neutral-500);
+            cursor: pointer;
+            padding: var(--space-2);
+            border-radius: var(--radius-lg);
+            transition: all var(--transition-base);
+        }
+
+        .close-btn:hover {
+            background: var(--neutral-100);
+            color: var(--neutral-700);
+        }
+
+        .modal-body {
+            padding: var(--space-6);
+        }
+
+        .form-group {
+            margin-bottom: var(--space-5);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: var(--space-2);
+            font-weight: 500;
+            color: var(--neutral-700);
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: var(--space-3);
+            border: 1px solid var(--neutral-300);
+            border-radius: var(--radius-lg);
+            font-size: 0.9rem;
+            transition: all var(--transition-base);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-600);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: var(--space-3);
+            justify-content: flex-end;
+            margin-top: var(--space-6);
+            padding-top: var(--space-6);
+            border-top: 1px solid var(--neutral-200);
+        }
+
+        .class-list {
+            margin-top: var(--space-6);
+        }
+
+        .class-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-4);
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-3);
+            transition: all var(--transition-base);
+        }
+
+        .class-item:hover {
+            background: var(--neutral-50);
+            border-color: var(--primary-600);
+        }
+
+        .class-info h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--neutral-900);
+            margin-bottom: var(--space-1);
+        }
+
+        .class-info p {
+            font-size: 0.9rem;
+            color: var(--neutral-600);
+        }
+
+        .class-actions {
+            display: flex;
+            gap: var(--space-2);
+        }
+
+        .btn-small {
+            padding: var(--space-2) var(--space-3);
+            font-size: 0.8rem;
+            border-radius: var(--radius-md);
+        }
+
+        .btn-danger {
+            background: var(--danger-500);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: var(--danger-600);
+        }
+
+        /* Student Management Styles */
+        .student-management {
+            margin-top: var(--space-6);
+            padding-top: var(--space-6);
+            border-top: 1px solid var(--neutral-200);
+        }
+
+        .student-form {
+            background: var(--neutral-50);
+            padding: var(--space-4);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-4);
+        }
+
+        .student-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .student-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-3);
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-2);
+            background: white;
+        }
+
+        .student-info h4 {
+            margin: 0;
+            font-size: 1rem;
+            color: var(--neutral-900);
+        }
+
+        .student-info p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--neutral-600);
+        }
+
+        .student-actions {
+            display: flex;
+            gap: var(--space-2);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: var(--space-4);
+            }
+            
+            .main-content {
+                padding: var(--space-4);
+            }
+            
+            .welcome-title {
+                font-size: 2.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: var(--space-4);
+            }
+
+            .quick-actions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .user-info {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .welcome-title {
+                font-size: 1.75rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                GestureQuiz
+            </div>
+            
+            <div class="header-nav">
+                <div class="nav-actions">
+                    <button class="btn btn-primary" onclick="navigateToClassManagement()" title="Open Modern Class Manager">
+                        <i class="fas fa-users"></i>
+                        Class Manager
+                    </button>
+                </div>
+                <div class="user-menu">
+                    <div class="user-info">
+                        <div class="user-name" id="userName">Teacher</div>
+                        <div class="user-role">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            Educator
+                        </div>
+                    </div>
+                    <div class="user-avatar" id="userAvatar" onclick="openProfileModal()" title="Click to edit profile">
+                        👨‍🏫
+                    </div>
+                    <button class="btn btn-outline" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="welcome-section">
+            <h1 class="welcome-title" id="welcomeText">Welcome to Your Dashboard</h1>
+            <p class="welcome-subtitle">Create engaging quizzes, track student progress, and revolutionize learning with gesture-based interactions</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                </div>
+                <div class="stat-number" id="totalQuizzes">0</div>
+                <div class="stat-label">Total Quizzes</div>
+                <div class="stat-change" id="totalQuizzesChange">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>All your quizzes</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+                <div class="stat-number" id="totalClasses">0</div>
+                <div class="stat-label">Total Classes</div>
+                <div class="stat-change" id="totalClassesChange">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>All your classes</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                </div>
+                <div class="stat-number" id="publishedQuizzes">0</div>
+                <div class="stat-label">Published Quizzes</div>
+                <div class="stat-change positive" id="publishedQuizzesChange">
+                    <i class="fas fa-check"></i>
+                    <span>Live for students</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+                <div class="stat-number">4.8</div>
+                <div class="stat-label">Student Rating</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-thumbs-up"></i>
+                    <span>Excellent feedback</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <h2 class="quick-actions-title">
+                <i class="fas fa-bolt"></i>
+                Quick Actions
+            </h2>
+            <div class="quick-actions-grid">
+                <div class="action-card" onclick="manageQuizzes()">
+                    <div class="action-header">
+                        <div class="action-icon">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <div>
+                            <h3 class="action-title">Manage Quizzes</h3>
+                        </div>
+                    </div>
+                    <p class="action-description">
+                        View, edit, and organize your existing quizzes. Monitor performance, update content, and track student engagement.
+                    </p>
+                    <button class="action-button" onclick="event.stopPropagation(); manageQuizzes();">
+                        <i class="fas fa-cog"></i>
+                        Manage Content
+                    </button>
+                </div>
+
+                <div class="action-card" onclick="navigateToClassManagement()">
+                    <div class="action-header">
+                        <div class="action-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div>
+                            <h3 class="action-title">
+                                Manage Classes
+                                <span class="modern-badge">NEW</span>
+                            </h3>
+                        </div>
+                    </div>
+                    <p class="action-description">
+                        Create and organize your classes with our modern interface. Add students, track progress, and manage educational content seamlessly.
+                    </p>
+                    <div class="action-stats">
+                        <div class="mini-stat">
+                            <span class="mini-stat-number" id="dashboardClassCount">0</span>
+                            <span class="mini-stat-label">Classes</span>
+                        </div>
+                        <div class="mini-stat">
+                            <span class="mini-stat-number" id="dashboardStudentCount">0</span>
+                            <span class="mini-stat-label">Students</span>
+                        </div>
+                    </div>
+                    <button class="action-button" onclick="event.stopPropagation(); navigateToClassManagement();">
+                        <i class="fas fa-external-link-alt"></i>
+                        Open Class Manager
+                    </button>
+                </div>
+
+                <div class="action-card" onclick="viewAnalytics()">
+                    <div class="action-header">
+                        <div class="action-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div>
+                            <h3 class="action-title">View Analytics</h3>
+                        </div>
+                    </div>
+                    <p class="action-description">
+                        Dive deep into student performance data. Analyze trends, identify learning gaps, and optimize your teaching strategies.
+                    </p>
+                    <button class="action-button" onclick="event.stopPropagation(); viewAnalytics();">
+                        <i class="fas fa-chart-bar"></i>
+                        View Reports
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="recent-activity">
+            <div class="activity-header">
+                <h2 class="activity-title">
+                    <i class="fas fa-users"></i>
+                    Your Classes
+                </h2>
+                <button class="btn btn-outline" onclick="navigateToClassManagement()">
+                    <i class="fas fa-external-link-alt"></i>
+                    Manage All
+                </button>
+            </div>
+            <div class="activity-list" id="recentClassesList">
+                <!-- Classes will be populated here -->
+            </div>
+        </div>
+
+        <div class="recent-activity">
+            <div class="activity-header">
+                <h2 class="activity-title">
+                    <i class="fas fa-clock"></i>
+                    Recent Activity
+                </h2>
+                <button class="btn btn-outline" onclick="viewAllActivity()">
+                    View All
+                </button>
+            </div>
+            <div class="activity-list">
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-text">New student enrolled in "Basic Hand Gestures" class</div>
+                        <div class="activity-time">2 hours ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-text">Sarah achieved 100% on "Advanced Gestures" quiz</div>
+                        <div class="activity-time">4 hours ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-text">Class "Communication Skills" was updated</div>
+                        <div class="activity-time">1 day ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-text">Class average improved by 12% this week</div>
+                        <div class="activity-time">3 days ago</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Class Management Modal -->
+    <div id="classModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Manage Classes</h2>
+                <button class="close-btn" onclick="closeClassModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="classForm">
+                    <div class="form-group">
+                        <label for="className">Class Name</label>
+                        <input type="text" id="className" name="className" required placeholder="e.g., Computer Science 101">
+                    </div>
+                    <div class="form-group">
+                        <label for="classDescription">Description</label>
+                        <textarea id="classDescription" name="classDescription" rows="3" placeholder="Brief description of the class..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="classSubject">Subject</label>
+                        <select id="classSubject" name="classSubject" required>
+                            <option value="">Select Subject</option>
+                            <option value="computer-science">Computer Science</option>
+                            <option value="mathematics">Mathematics</option>
+                            <option value="physics">Physics</option>
+                            <option value="chemistry">Chemistry</option>
+                            <option value="biology">Biology</option>
+                            <option value="history">History</option>
+                            <option value="english">English</option>
+                            <option value="art">Art</option>
+                            <option value="music">Music</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="classGrade">Grade Level</label>
+                        <select id="classGrade" name="classGrade">
+                            <option value="">Select Grade</option>
+                            <option value="k">Kindergarten</option>
+                            <option value="1">1st Grade</option>
+                            <option value="2">2nd Grade</option>
+                            <option value="3">3rd Grade</option>
+                            <option value="4">4th Grade</option>
+                            <option value="5">5th Grade</option>
+                            <option value="6">6th Grade</option>
+                            <option value="7">7th Grade</option>
+                            <option value="8">8th Grade</option>
+                            <option value="9">9th Grade</option>
+                            <option value="10">10th Grade</option>
+                            <option value="11">11th Grade</option>
+                            <option value="12">12th Grade</option>
+                            <option value="college">College</option>
+                            <option value="university">University</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" onclick="closeClassModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus"></i>
+                            Create Class
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Student Management Section -->
+                <div id="studentManagement" class="student-management" style="display: none;">
+                    <h3>Manage Students</h3>
+                    <div class="student-form">
+                        <div class="form-group">
+                            <label for="studentName">Student Name</label>
+                            <input type="text" id="studentName" placeholder="Enter student name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="studentEmail">Student Email</label>
+                            <input type="email" id="studentEmail" placeholder="Enter student email" required>
+                        </div>
+                        <button type="button" class="btn btn-outline" onclick="addStudent()">
+                            <i class="fas fa-user-plus"></i>
+                            Add Student
+                        </button>
+                    </div>
+                    <div class="student-list" id="studentList">
+                        <!-- Students will be populated here -->
+                    </div>
+                </div>
+
+                <div class="class-list" id="classList">
+                    <h3>Your Classes</h3>
+                    <div id="classItems">
+                        <!-- Classes will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/live-data-manager.js"></script>
+    <script src="../js/api-simulator.js"></script>
+    <script src="../js/notification-system.js"></script>
+    <script>
+        let currentEditingClassId = null;
+        let dataManager = null;
+        let apiClient = null;
+
+        // Initialize data
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSystem();
+        });
+
+        async function initializeSystem() {
+            // Initialize data management systems
+            dataManager = new LiveDataManager();
+            apiClient = new APISimulator();
+            
+            // Setup real-time updates
+            setupRealTimeUpdates();
+            
+            // Load initial data
+            await loadUserData();
+            await loadDashboardStats();
+            await loadClasses();
+            
+            // Setup auto-refresh
+            setInterval(refreshDashboard, 30000); // Refresh every 30 seconds
+        }
+
+        function setupRealTimeUpdates() {
+            // Listen for data updates
+            document.addEventListener('dataUpdate', function(event) {
+                const { type, data } = event.detail;
+                handleDataUpdate(type, data);
+            });
+            
+            // Subscribe to real-time updates
+            apiClient.subscribeToUpdates(handleRealTimeUpdate);
+        }
+
+        function handleDataUpdate(type, data) {
+            switch(type) {
+                case 'classes':
+                    loadClasses();
+                    break;
+                case 'quizzes':
+                    loadDashboardStats();
+                    break;
+                case 'submissions':
+                    loadDashboardStats();
+                    break;
+            }
+        }
+
+        function handleRealTimeUpdate(updates) {
+            updates.forEach(update => {
+                handleDataUpdate(update.type, update.data);
+            });
+        }
+
+        async function loadUserData() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            if (currentUser.name) {
+                document.getElementById('welcomeText').textContent = `Welcome back, ${currentUser.name}!`;
+                document.getElementById('userName').textContent = currentUser.name;
+                
+                // Update user avatar with initials
+                const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                document.getElementById('userAvatar').textContent = initials;
+            }
+            
+            // Check if user is logged in
+            if (!currentUser.email) {
+                window.location.href = '../index.html';
+            }
+        }
+
+        async function loadDashboardStats() {
+            try {
+                // Get analytics data from API
+                const analyticsResponse = await apiClient.getAnalytics('dashboard');
+                const analytics = analyticsResponse.data;
+                
+                // Update main stats
+                document.getElementById('totalQuizzes').textContent = analytics.overview.totalQuizzes;
+                document.getElementById('totalClasses').textContent = analytics.overview.totalClasses;
+                document.getElementById('publishedQuizzes').textContent = analytics.overview.totalQuizzes; // All quizzes are considered published in simulation
+                
+                // Update mini-stats in action cards
+                const dashboardClassCount = document.getElementById('dashboardClassCount');
+                const dashboardStudentCount = document.getElementById('dashboardStudentCount');
+                if (dashboardClassCount) dashboardClassCount.textContent = analytics.overview.totalClasses;
+                if (dashboardStudentCount) dashboardStudentCount.textContent = analytics.overview.totalStudents;
+                
+                // Load recent classes
+                await loadRecentClasses();
+                
+                // Update performance metrics
+                updatePerformanceMetrics(analytics);
+                
+            } catch (error) {
+                console.error('Error loading dashboard stats:', error);
+                showNotification('Error loading dashboard stats', 'error');
+            }
+        }
+
+        async function loadRecentClasses() {
+            try {
+                const classesResponse = await apiClient.getClasses();
+                const classes = classesResponse.data;
+                
+                const recentClassesList = document.getElementById('recentClassesList');
+                if (!recentClassesList) return;
+                
+                // Sort classes by creation date (most recent first) and take first 3
+                const recentClasses = classes
+                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                    .slice(0, 3);
+                
+                if (recentClasses.length === 0) {
+                    recentClassesList.innerHTML = `
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-plus"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-text">No classes created yet</div>
+                                <div class="activity-time">
+                                    <button class="btn btn-outline btn-small" onclick="navigateToClassManagement()">
+                                        <i class="fas fa-plus"></i>
+                                    Create First Class
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                recentClassesList.innerHTML = '';
+                
+                recentClasses.forEach(cls => {
+                    const studentCount = cls.students ? cls.students.length : 0;
+                    const subjectDisplay = cls.subject ? cls.subject.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'General';
+                    const timeAgo = getTimeAgo(cls.createdAt);
+                    
+                    const classItem = document.createElement('div');
+                    classItem.className = 'activity-item';
+                    classItem.style.cursor = 'pointer';
+                    classItem.onclick = () => navigateToClassManagement();
+                    
+                    classItem.innerHTML = `
+                        <div class="activity-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-text">${cls.name} • ${subjectDisplay}</div>
+                            <div class="activity-time">${studentCount} students • Created ${timeAgo}</div>
+                        </div>
+                    `;
+                    
+                    recentClassesList.appendChild(classItem);
+                });
+            } catch (error) {
+                console.error('Error loading recent classes:', error);
+                if (recentClassesList) {
+                    recentClassesList.innerHTML = `
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-text">Error loading classes</div>
+                                <div class="activity-time">Please try refreshing the page</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        function getTimeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffInMinutes = Math.floor((now - date) / (1000 * 60));
+            
+            if (diffInMinutes < 1) return 'just now';
+            if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+            
+            const diffInHours = Math.floor(diffInMinutes / 60);
+            if (diffInHours < 24) return `${diffInHours}h ago`;
+            
+            const diffInDays = Math.floor(diffInHours / 24);
+            if (diffInDays < 30) return `${diffInDays}d ago`;
+            
+            const diffInMonths = Math.floor(diffInDays / 30);
+            return `${diffInMonths}mo ago`;
+        }
+
+        function loadClasses() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+            const teacherClasses = classes.filter(cls => cls.createdBy === currentUser.email);
+            
+            const classItems = document.getElementById('classItems');
+            classItems.innerHTML = '';
+            
+            if (teacherClasses.length === 0) {
+                classItems.innerHTML = '<p style="text-align: center; color: var(--neutral-600); padding: var(--space-4);">No classes created yet. Create your first class above!</p>';
+                return;
+            }
+            
+            teacherClasses.forEach(cls => {
+                const classItem = document.createElement('div');
+                classItem.className = 'class-item';
+                classItem.innerHTML = `
+                    <div class="class-info">
+                        <h3>${cls.name}</h3>
+                        <p>${cls.description || 'No description'} • ${cls.subject} • ${cls.grade ? `Grade ${cls.grade}` : 'No grade'}</p>
+                    </div>
+                    <div class="class-actions">
+                        <button class="btn btn-outline btn-small" onclick="editClass('${cls.id}')">
+                            <i class="fas fa-edit"></i>
+                            Edit
+                        </button>
+                        <button class="btn btn-outline btn-small" onclick="manageStudents('${cls.id}')">
+                            <i class="fas fa-users"></i>
+                            Students
+                        </button>
+                        <button class="btn btn-danger btn-small" onclick="deleteClass('${cls.id}')">
+                            <i class="fas fa-trash"></i>
+                            Delete
+                        </button>
+                    </div>
+                `;
+                classItems.appendChild(classItem);
+            });
+        }
+
+        // Navigation functions
+        function manageQuizzes() {
+            window.location.href = 'quiz-management.html';
+        }
+
+        function viewAnalytics() {
+            window.location.href = 'analytics.html';
+        }
+
+        function navigateToClassManagement() {
+            window.location.href = 'class-management.html';
+        }
+
+        function viewAllActivity() {
+            alert('📋 Activity log feature coming soon! This will show a comprehensive history of all activities.');
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = '../index.html';
+        }
+
+        function openProfileModal() {
+            // Profile modal functionality (simplified for this example)
+            alert('Profile editing feature available in the full version!');
+        }
+
+        // Class management functions
+        function openClassModal() {
+            document.getElementById('classModal').classList.add('active');
+            loadClasses(); // Refresh the class list
+        }
+
+        function closeClassModal() {
+            document.getElementById('classModal').classList.remove('active');
+            document.getElementById('classForm').reset();
+            
+            // Reset the form state
+            const submitButton = document.querySelector('#classForm button[type="submit"]');
+            submitButton.innerHTML = '<i class="fas fa-plus"></i> Create Class';
+            delete document.getElementById('classForm').dataset.editingId;
+            
+            // Reset view state
+            document.getElementById('classForm').style.display = 'block';
+            document.getElementById('classList').style.display = 'block';
+            document.getElementById('studentManagement').style.display = 'none';
+            document.querySelector('#classModal .modal-header h2').textContent = 'Manage Classes';
+            
+            // Clear student form
+            document.getElementById('studentName').value = '';
+            document.getElementById('studentEmail').value = '';
+            currentEditingClassId = null;
+        }
+
+        // Handle class form submission
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('classForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(e.target);
+                const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                const editingId = this.dataset.editingId;
+                
+                // Get existing classes
+                const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+                
+                if (editingId) {
+                    // Update existing class
+                    const classIndex = classes.findIndex(cls => cls.id === editingId);
+                    if (classIndex !== -1) {
+                        classes[classIndex] = {
+                            ...classes[classIndex],
+                            name: formData.get('className'),
+                            description: formData.get('classDescription'),
+                            subject: formData.get('classSubject'),
+                            grade: formData.get('classGrade'),
+                            updatedAt: new Date().toISOString()
+                        };
+                        
+                        // Save to localStorage
+                        localStorage.setItem('teacherClasses', JSON.stringify(classes));
+                        
+                        // Reset form and refresh
+                        document.getElementById('classForm').reset();
+                        delete this.dataset.editingId;
+                        loadClasses();
+                        loadDashboardStats();
+                        closeClassModal();
+                        
+                        // Show success message
+                        alert('Class updated successfully!');
+                    }
+                } else {
+                    // Create new class
+                    const newClass = {
+                        id: 'class_' + Date.now(),
+                        name: formData.get('className'),
+                        description: formData.get('classDescription'),
+                        subject: formData.get('classSubject'),
+                        grade: formData.get('classGrade'),
+                        createdBy: currentUser.email,
+                        createdAt: new Date().toISOString(),
+                        students: []
+                    };
+                    
+                    classes.push(newClass);
+                    
+                    // Save to localStorage
+                    localStorage.setItem('teacherClasses', JSON.stringify(classes));
+                    
+                    // Reset form and refresh
+                    document.getElementById('classForm').reset();
+                    loadClasses();
+                    loadDashboardStats();
+                    
+                    // Show success message
+                    alert('Class created successfully!');
+                }
+            });
+        });
+
+        function editClass(classId) {
+            const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+            const classToEdit = classes.find(cls => cls.id === classId);
+            
+            if (!classToEdit) {
+                alert('Class not found!');
+                return;
+            }
+            
+            // Populate the form with existing data
+            document.getElementById('className').value = classToEdit.name;
+            document.getElementById('classDescription').value = classToEdit.description || '';
+            document.getElementById('classSubject').value = classToEdit.subject || '';
+            document.getElementById('classGrade').value = classToEdit.grade || '';
+            
+            // Update the form submit button and track editing state
+            const submitButton = document.querySelector('#classForm button[type="submit"]');
+            submitButton.textContent = 'Update Class';
+            submitButton.innerHTML = '<i class="fas fa-save"></i> Update Class';
+            
+            // Store the class ID for updating
+            document.getElementById('classForm').dataset.editingId = classId;
+            
+            // Open the modal
+            document.getElementById('classModal').classList.add('active');
+        }
+
+        // Student Management Functions
+        function manageStudents(classId) {
+            currentEditingClassId = classId;
+            const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+            const classData = classes.find(cls => cls.id === classId);
+            
+            if (!classData) {
+                alert('Class not found!');
+                return;
+            }
+            
+            // Hide class form and list, show student management
+            document.getElementById('classForm').style.display = 'none';
+            document.getElementById('classList').style.display = 'none';
+            document.getElementById('studentManagement').style.display = 'block';
+            
+            // Update modal header
+            document.querySelector('#classModal .modal-header h2').textContent = `Manage Students - ${classData.name}`;
+            
+            // Load students for this class
+            loadStudentsForClass(classId);
+            
+            // Open modal
+            document.getElementById('classModal').classList.add('active');
+        }
+
+        function loadStudentsForClass(classId) {
+            const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+            const classData = classes.find(cls => cls.id === classId);
+            
+            if (!classData) return;
+            
+            const studentList = document.getElementById('studentList');
+            studentList.innerHTML = '';
+            
+            if (!classData.students || classData.students.length === 0) {
+                studentList.innerHTML = '<p style="text-align: center; color: var(--neutral-600); padding: var(--space-4);">No students added yet.</p>';
+                return;
+            }
+            
+            classData.students.forEach(student => {
+                const studentItem = document.createElement('div');
+                studentItem.className = 'student-item';
+                studentItem.innerHTML = `
+                    <div class="student-info">
+                        <h4>${student.name}</h4>
+                        <p>${student.email}</p>
+                    </div>
+                    <div class="student-actions">
+                        <button class="btn btn-danger btn-small" onclick="removeStudent('${classId}', '${student.id}')">
+                            <i class="fas fa-trash"></i>
+                            Remove
+                        </button>
+                    </div>
+                `;
+                studentList.appendChild(studentItem);
+            });
+        }
+
+        function addStudent() {
+            const studentName = document.getElementById('studentName').value.trim();
+            const studentEmail = document.getElementById('studentEmail').value.trim();
+            
+            if (!studentName || !studentEmail) {
+                alert('Please enter both student name and email.');
+                return;
+            }
+            
+            const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+            const classIndex = classes.findIndex(cls => cls.id === currentEditingClassId);
+            
+            if (classIndex === -1) {
+                alert('Class not found!');
+                return;
+            }
+            
+            // Check if student already exists
+            if (classes[classIndex].students && classes[classIndex].students.some(s => s.email === studentEmail)) {
+                alert('A student with this email already exists in the class.');
+                return;
+            }
+            
+            // Add student
+            if (!classes[classIndex].students) {
+                classes[classIndex].students = [];
+            }
+            
+            const newStudent = {
+                id: 'student_' + Date.now(),
+                name: studentName,
+                email: studentEmail,
+                addedAt: new Date().toISOString()
+            };
+            
+            classes[classIndex].students.push(newStudent);
+            
+            // Save to localStorage
+            localStorage.setItem('teacherClasses', JSON.stringify(classes));
+            
+            // Clear form
+            document.getElementById('studentName').value = '';
+            document.getElementById('studentEmail').value = '';
+            
+            // Reload student list
+            loadStudentsForClass(currentEditingClassId);
+            
+            alert('Student added successfully!');
+        }
+
+        function removeStudent(classId, studentId) {
+            if (!confirm('Are you sure you want to remove this student from the class?')) {
+                return;
+            }
+            
+            const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+            const classIndex = classes.findIndex(cls => cls.id === classId);
+            
+            if (classIndex === -1) {
+                alert('Class not found!');
+                return;
+            }
+            
+            // Remove student
+            classes[classIndex].students = classes[classIndex].students.filter(s => s.id !== studentId);
+            
+            // Save to localStorage
+            localStorage.setItem('teacherClasses', JSON.stringify(classes));
+            
+            // Reload student list
+            loadStudentsForClass(classId);
+            
+            alert('Student removed successfully!');
+        }
+
+        function deleteClass(classId) {
+            if (confirm('Are you sure you want to delete this class? This action cannot be undone.')) {
+                const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+                const updatedClasses = classes.filter(cls => cls.id !== classId);
+                localStorage.setItem('teacherClasses', JSON.stringify(updatedClasses));
+                
+                loadClasses();
+                loadDashboardStats();
+                alert('Class deleted successfully!');
+            }
+        }
+
+        function updatePerformanceMetrics(analytics) {
+            // Update performance indicators
+            const avgScore = analytics.overview.averageScore || 0;
+            const engagementRate = analytics.engagement.completionRate || 0;
+            
+            // You can add more performance metric updates here
+            console.log('Performance metrics updated:', { avgScore, engagementRate });
+        }
+
+        async function refreshDashboard() {
+            await loadDashboardStats();
+            await loadClasses();
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('classModal');
+            if (e.target === modal) {
+                closeClassModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && document.getElementById('classModal').classList.contains('active')) {
+                closeClassModal();
+            }
+        });
+
+        // Initialize test data if not present
+        if (!localStorage.getItem('currentUser')) {
+            const testUser = {
+                email: 'test@teacher.com',
+                name: 'Test Teacher',
+                role: 'teacher'
+            };
+            localStorage.setItem('currentUser', JSON.stringify(testUser));
+        }
+        
+        if (!localStorage.getItem('gestureQuizzes')) {
+            const testQuizzes = [
+                {
+                    id: 'quiz1',
+                    title: 'Sample Quiz 1',
+                    createdBy: 'test@teacher.com',
+                    status: 'published',
+                    questions: []
+                },
+                {
+                    id: 'quiz2',
+                    title: 'Sample Quiz 2',
+                    createdBy: 'test@teacher.com',
+                    status: 'draft',
+                    questions: []
+                }
+            ];
+            localStorage.setItem('gestureQuizzes', JSON.stringify(testQuizzes));
+        }
+    </script>
+</body>
+</html>

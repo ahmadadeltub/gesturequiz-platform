@@ -1,0 +1,13 @@
+<svg width="192" height="192" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" rx="24" fill="url(#bg)"/>
+  <circle cx="96" cy="76" r="32" fill="white" opacity="0.9"/>
+  <text x="96" y="88" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" fill="#667eea">✋</text>
+  <text x="96" y="140" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="white">GestureQuiz</text>
+  <text x="96" y="158" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="white" opacity="0.8">Interactive Learning</text>
+</svg>

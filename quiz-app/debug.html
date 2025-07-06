@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GestureQuiz - Debug Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #0284c7, #7c3aed);
+            color: white;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 40px;
+        }
+        .btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+            font-size: 16px;
+        }
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>GestureQuiz - Debug Test</h1>
+        <p>If you can see this, the basic HTML/CSS is working.</p>
+        <button class="btn" onclick="testJS()">Test JavaScript</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function testJS() {
+            document.getElementById('result').innerHTML = '<p>JavaScript is working!</p>';
+        }
+        
+        console.log('Debug page loaded successfully');
+    </script>
+</body>
+</html>

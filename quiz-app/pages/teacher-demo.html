@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Demo - GestureQuiz</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-600: #0284c7;
+            --primary-700: #0369a1;
+            --accent-500: #8b5cf6;
+            --accent-600: #7c3aed;
+            --neutral-50: #fafafa;
+            --neutral-100: #f5f5f5;
+            --neutral-200: #e5e5e5;
+            --neutral-600: #525252;
+            --neutral-700: #404040;
+            --neutral-800: #262626;
+            --neutral-900: #171717;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --space-12: 3rem;
+            --radius-lg: 0.5rem;
+            --radius-xl: 0.75rem;
+            --radius-2xl: 1rem;
+            --radius-3xl: 1.5rem;
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --transition-base: 300ms ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--neutral-50);
+            color: var(--neutral-800);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: white;
+            border-bottom: 1px solid var(--neutral-200);
+            padding: var(--space-4) 0;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .header-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 var(--space-6);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--neutral-900);
+        }
+
+        .logo-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-600), var(--accent-500));
+            border-radius: var(--radius-xl);
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .teacher-badge {
+            background: linear-gradient(135deg, var(--accent-500), var(--accent-600));
+            color: white;
+            padding: var(--space-2) var(--space-4);
+            border-radius: var(--radius-xl);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .main-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: var(--space-8) var(--space-6);
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: var(--space-12);
+        }
+
+        .dashboard-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--neutral-900);
+            margin-bottom: var(--space-4);
+        }
+
+        .dashboard-header p {
+            font-size: 1.2rem;
+            color: var(--neutral-600);
+            margin-bottom: var(--space-8);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-6);
+            margin-bottom: var(--space-12);
+        }
+
+        .dashboard-card {
+            background: white;
+            border-radius: var(--radius-2xl);
+            padding: var(--space-6);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--neutral-200);
+            transition: all var(--transition-base);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            margin-bottom: var(--space-4);
+        }
+
+        .card-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary-600), var(--accent-500));
+            border-radius: var(--radius-xl);
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--neutral-900);
+        }
+
+        .card-description {
+            color: var(--neutral-600);
+            margin-bottom: var(--space-4);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-3) var(--space-6);
+            border: none;
+            border-radius: var(--radius-xl);
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+            color: white;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary-600);
+            border: 2px solid var(--neutral-200);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-600);
+            color: white;
+            border-color: var(--primary-600);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-4);
+            margin-bottom: var(--space-8);
+        }
+
+        .stat-card {
+            background: white;
+            padding: var(--space-4);
+            border-radius: var(--radius-xl);
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-600);
+            display: block;
+        }
+
+        .stat-label {
+            color: var(--neutral-600);
+            font-size: 0.9rem;
+        }
+
+        .back-section {
+            text-align: center;
+            padding-top: var(--space-8);
+            border-top: 1px solid var(--neutral-200);
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header h1 {
+                font-size: 2rem;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-hand-paper"></i>
+                </div>
+                <span>GestureQuiz</span>
+            </div>
+            
+            <div class="teacher-badge">
+                <i class="fas fa-chalkboard-teacher"></i>
+                Teacher Demo
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="dashboard-header">
+            <h1>👨‍🏫 Teacher Dashboard</h1>
+            <p>Create engaging quizzes and track student progress with gesture-based interactions</p>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number">12</span>
+                    <span class="stat-label">Active Quizzes</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">156</span>
+                    <span class="stat-label">Students</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">89%</span>
+                    <span class="stat-label">Avg. Score</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">4.8</span>
+                    <span class="stat-label">Rating</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <h3 class="card-title">Create New Quiz</h3>
+                </div>
+                <p class="card-description">
+                    Build interactive quizzes with gesture-based answers. Add questions, set gestures, and customize difficulty levels.
+                </p>
+                <button class="btn btn-primary" onclick="createQuiz()">
+                    <i class="fas fa-plus"></i>
+                    Create Quiz
+                </button>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-list"></i>
+                    </div>
+                    <h3 class="card-title">Manage Quizzes</h3>
+                </div>
+                <p class="card-description">
+                    View, edit, and organize your existing quizzes. Monitor student participation and results.
+                </p>
+                <button class="btn btn-primary" onclick="manageQuizzes()">
+                    <i class="fas fa-cog"></i>
+                    Manage
+                </button>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h3 class="card-title">Analytics</h3>
+                </div>
+                <p class="card-description">
+                    Detailed insights into student performance, gesture accuracy, and learning patterns.
+                </p>
+                <button class="btn btn-primary" onclick="viewAnalytics()">
+                    <i class="fas fa-chart-line"></i>
+                    View Analytics
+                </button>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="card-title">Student Management</h3>
+                </div>
+                <p class="card-description">
+                    Manage your classes, track individual student progress, and provide personalized feedback.
+                </p>
+                <button class="btn btn-primary" onclick="manageStudents()">
+                    <i class="fas fa-user-graduate"></i>
+                    Manage Students
+                </button>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-hand-paper"></i>
+                    </div>
+                    <h3 class="card-title">Gesture Training</h3>
+                </div>
+                <p class="card-description">
+                    Configure gesture recognition settings and train the AI to better recognize hand movements.
+                </p>
+                <button class="btn btn-primary" onclick="gestureTraining()">
+                    <i class="fas fa-brain"></i>
+                    Configure
+                </button>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-share-alt"></i>
+                    </div>
+                    <h3 class="card-title">Share & Collaborate</h3>
+                </div>
+                <p class="card-description">
+                    Share quizzes with other teachers, export results, and collaborate on quiz creation.
+                </p>
+                <button class="btn btn-primary" onclick="shareQuizzes()">
+                    <i class="fas fa-share"></i>
+                    Share
+                </button>
+            </div>
+        </div>
+
+        <div class="back-section">
+            <h3 style="margin-bottom: var(--space-4);">Ready to explore more?</h3>
+            <div style="display: flex; gap: var(--space-4); justify-content: center; flex-wrap: wrap;">
+                <button class="btn btn-outline" onclick="tryStudentDemo()">
+                    <i class="fas fa-user-graduate"></i>
+                    Try Student Demo
+                </button>
+                <button class="btn btn-outline" onclick="goHome()">
+                    <i class="fas fa-home"></i>
+                    Back to Home
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function createQuiz() {
+            alert('🎯 Create Quiz Feature:\n\n• Add multiple choice questions\n• Assign gestures to answers\n• Set difficulty levels\n• Add multimedia content\n\nThis feature would open the quiz creation wizard!');
+        }
+
+        function manageQuizzes() {
+            alert('📊 Manage Quizzes Feature:\n\n• View all your quizzes\n• Edit existing questions\n• Monitor student responses\n• Archive completed quizzes\n\nThis would show your quiz management dashboard!');
+        }
+
+        function viewAnalytics() {
+            alert('📈 Analytics Feature:\n\n• Student performance metrics\n• Gesture accuracy rates\n• Learning pattern analysis\n• Detailed progress reports\n\nThis would open comprehensive analytics!');
+        }
+
+        function manageStudents() {
+            alert('👥 Student Management Feature:\n\n• View enrolled students\n• Track individual progress\n• Send personalized feedback\n• Manage class groups\n\nThis would open student management tools!');
+        }
+
+        function gestureTraining() {
+            alert('🤖 Gesture Training Feature:\n\n• Configure gesture recognition\n• Train AI models\n• Test gesture accuracy\n• Customize sensitivity\n\nThis would open gesture configuration panel!');
+        }
+
+        function shareQuizzes() {
+            alert('🤝 Share & Collaborate Feature:\n\n• Share quizzes with teachers\n• Export quiz results\n• Collaborate on creation\n• Public quiz library\n\nThis would open sharing options!');
+        }
+
+        function tryStudentDemo() {
+            window.location.href = 'student-demo.html';
+        }
+
+        function goHome() {
+            window.location.href = '../index.html';
+        }
+
+        // Add interactive animations
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.dashboard-card');
+            
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+                card.style.animation = 'fadeInUp 0.6s ease-out forwards';
+            });
+        });
+    </script>
+</body>
+</html>

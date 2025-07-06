@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Test Data - GestureQuiz</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #1e293b;
+            margin-bottom: 20px;
+        }
+        
+        .test-users {
+            margin: 20px 0;
+        }
+        
+        .user-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .user-type {
+            font-weight: 600;
+            color: #3b82f6;
+        }
+        
+        .user-type.student {
+            color: #10b981;
+        }
+        
+        .credentials {
+            font-family: 'Courier New', monospace;
+            background: #1e293b;
+            color: #f1f5f9;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        
+        .btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            margin: 10px 5px;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #2563eb;
+        }
+        
+        .btn.success {
+            background: #10b981;
+        }
+        
+        .btn.success:hover {
+            background: #059669;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-weight: 500;
+        }
+        
+        .status.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        
+        .instructions {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .quick-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .quick-links a {
+            background: #6366f1;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        
+        .quick-links a:hover {
+            background: #4f46e5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 GestureQuiz Test Users Setup</h1>
+        
+        <div class="instructions">
+            <strong>📋 How to Test:</strong>
+            <br>1. Click "Setup Test Data" to create sample classes and quizzes
+            <br>2. Use the credentials below to login as different user types
+            <br>3. The system accepts any email/password for demo purposes
+        </div>
+        
+        <button class="btn" onclick="setupTestData()">Setup Test Data</button>
+        <button class="btn success" onclick="clearAllData()">Clear All Data</button>
+        
+        <div id="status"></div>
+        
+        <div class="test-users">
+            <h2>👥 Test User Credentials</h2>
+            
+            <div class="user-card">
+                <div class="user-type">🧑‍🏫 TEACHER</div>
+                <div class="credentials">
+                    Email: teacher@test.com<br>
+                    Password: teacher123<br>
+                    Name: John Smith
+                </div>
+            </div>
+            
+            <div class="user-card">
+                <div class="user-type student">👨‍🎓 STUDENT</div>
+                <div class="credentials">
+                    Email: student@test.com<br>
+                    Password: student123<br>
+                    Name: Alex Wilson
+                </div>
+            </div>
+            
+            <div class="user-card">
+                <div class="user-type student">👩‍🎓 STUDENT</div>
+                <div class="credentials">
+                    Email: emma@test.com<br>
+                    Password: student123<br>
+                    Name: Emma Davis
+                </div>
+            </div>
+        </div>
+        
+        <div class="quick-links">
+            <a href="../" target="_blank">🏠 Main App</a>
+            <a href="../pages/teacher-dashboard.html" target="_blank">👨‍🏫 Teacher Dashboard</a>
+            <a href="../pages/student-dashboard.html" target="_blank">👩‍🎓 Student Dashboard</a>
+            <a href="../pages/class-management.html" target="_blank">📚 Class Management</a>
+            <a href="../pages/analytics.html" target="_blank">📊 Analytics</a>
+        </div>
+    </div>
+
+    <script>
+        function setupTestData() {
+            // Create sample classes with more comprehensive data
+            const sampleClasses = [
+                {
+                    id: 'class_demo_1',
+                    name: 'Introduction to Computer Science',
+                    subject: 'computer-science',
+                    grade: '9th Grade',
+                    room: 'Room 101',
+                    code: 'CS101A',
+                    description: 'Basic concepts of programming and computer science',
+                    createdBy: 'teacher@test.com',
+                    createdAt: new Date().toISOString(),
+                    students: [
+                        {
+                            id: 'student_1',
+                            name: 'Alex Wilson',
+                            email: 'student@test.com',
+                            addedAt: new Date().toISOString()
+                        },
+                        {
+                            id: 'student_2',
+                            name: 'Emma Davis',
+                            email: 'emma@test.com',
+                            addedAt: new Date().toISOString()
+                        },
+                        {
+                            id: 'student_3',
+                            name: 'Michael Brown',
+                            email: 'mike@test.com',
+                            addedAt: new Date().toISOString()
+                        }
+                    ]
+                },
+                {
+                    id: 'class_demo_2',
+                    name: 'Advanced Mathematics',
+                    subject: 'mathematics',
+                    grade: '10th Grade',
+                    room: 'Room 205',
+                    code: 'MATH10',
+                    description: 'Advanced algebra and geometry concepts',
+                    createdBy: 'teacher@test.com',
+                    createdAt: new Date().toISOString(),
+                    students: [
+                        {
+                            id: 'student_4',
+                            name: 'Sarah Johnson',
+                            email: 'sarah@test.com',
+                            addedAt: new Date().toISOString()
+                        },
+                        {
+                            id: 'student_5',
+                            name: 'David Miller',
+                            email: 'david@test.com',
+                            addedAt: new Date().toISOString()
+                        }
+                    ]
+                },
+                {
+                    id: 'class_demo_3',
+                    name: 'Physics Fundamentals',
+                    subject: 'physics',
+                    grade: '11th Grade',
+                    room: 'Lab 301',
+                    code: 'PHY11',
+                    description: 'Introduction to physics principles and experiments',
+                    createdBy: 'teacher@test.com',
+                    createdAt: new Date().toISOString(),
+                    students: [
+                        {
+                            id: 'student_6',
+                            name: 'Lisa Chen',
+                            email: 'lisa@test.com',
+                            addedAt: new Date().toISOString()
+                        }
+                    ]
+                }
+            ];
+            
+            // Create sample quizzes with more detailed structure
+            const sampleQuizzes = [
+                {
+                    id: 'quiz_demo_1',
+                    title: 'Basic Programming Concepts',
+                    description: 'Test your knowledge of basic programming concepts',
+                    classId: 'class_demo_1',
+                    createdBy: 'teacher@test.com',
+                    createdAt: new Date().toISOString(),
+                    published: true,
+                    publishedAt: new Date().toISOString(),
+                    questions: [
+                        {
+                            id: 'q1',
+                            question: 'What is a variable in programming?',
+                            options: [
+                                'A storage location with a name',
+                                'A type of loop',
+                                'A function parameter',
+                                'A programming language'
+                            ],
+                            correctAnswer: 0,
+                            explanation: 'A variable is a storage location with an associated name that contains data.'
+                        },
+                        {
+                            id: 'q2',
+                            question: 'Which of the following is a programming language?',
+                            options: ['HTML', 'CSS', 'Python', 'JSON'],
+                            correctAnswer: 2,
+                            explanation: 'Python is a programming language. HTML and CSS are markup languages, JSON is a data format.'
+                        },
+                        {
+                            id: 'q3',
+                            question: 'What does "IDE" stand for?',
+                            options: [
+                                'Integrated Development Environment',
+                                'Internet Data Exchange',
+                                'Interactive Design Element',
+                                'Internal Documentation Engine'
+                            ],
+                            correctAnswer: 0,
+                            explanation: 'IDE stands for Integrated Development Environment, a software application for software development.'
+                        }
+                    ],
+                    settings: {
+                        timeLimit: 300,
+                        allowReview: true,
+                        shuffleQuestions: false,
+                        passingScore: 70
+                    }
+                },
+                {
+                    id: 'quiz_demo_2',
+                    title: 'Mathematical Equations',
+                    description: 'Solve various mathematical equations and problems',
+                    classId: 'class_demo_2',
+                    createdBy: 'teacher@test.com',
+                    createdAt: new Date().toISOString(),
+                    published: true,
+                    publishedAt: new Date().toISOString(),
+                    questions: [
+                        {
+                            id: 'q1',
+                            question: 'What is the value of 2x + 5 when x = 3?',
+                            options: ['8', '11', '13', '16'],
+                            correctAnswer: 1,
+                            explanation: '2(3) + 5 = 6 + 5 = 11'
+                        },
+                        {
+                            id: 'q2',
+                            question: 'What is the area of a circle with radius 4?',
+                            options: ['8π', '16π', '32π', '64π'],
+                            correctAnswer: 1,
+                            explanation: 'Area = πr² = π(4)² = 16π'
+                        }
+                    ],
+                    settings: {
+                        timeLimit: 600,
+                        allowReview: true,
+                        shuffleQuestions: true,
+                        passingScore: 75
+                    }
+                },
+                {
+                    id: 'quiz_demo_3',
+                    title: 'Force and Motion',
+                    description: 'Understanding Newton\'s laws and basic physics principles',
+                    classId: 'class_demo_3',
+                    createdBy: 'teacher@test.com',
+                    createdAt: new Date().toISOString(),
+                    published: true,
+                    publishedAt: new Date().toISOString(),
+                    questions: [
+                        {
+                            id: 'q1',
+                            question: 'What is Newton\'s first law of motion?',
+                            options: [
+                                'F = ma',
+                                'An object at rest stays at rest unless acted upon by force',
+                                'For every action there is an equal and opposite reaction',
+                                'Energy cannot be created or destroyed'
+                            ],
+                            correctAnswer: 1,
+                            explanation: 'Newton\'s first law states that an object at rest stays at rest and an object in motion stays in motion unless acted upon by an external force.'
+                        }
+                    ],
+                    settings: {
+                        timeLimit: 450,
+                        allowReview: false,
+                        shuffleQuestions: false,
+                        passingScore: 80
+                    }
+                }
+            ];
+            
+            // Save to localStorage with new structure
+            localStorage.setItem('teacherClasses', JSON.stringify(sampleClasses));
+            localStorage.setItem('teacherQuizzes', JSON.stringify(sampleQuizzes));
+            
+            // Create comprehensive student progress data
+            const studentProgress = [
+                {
+                    id: 'progress_1',
+                    studentId: 'student_1',
+                    studentEmail: 'student@test.com',
+                    studentName: 'Alex Wilson',
+                    quizId: 'quiz_demo_1',
+                    classId: 'class_demo_1',
+                    quizTitle: 'Basic Programming Concepts',
+                    score: 85,
+                    totalQuestions: 3,
+                    correctAnswers: 2,
+                    completedAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+                    timeSpent: 120000 // 2 minutes
+                },
+                {
+                    id: 'progress_2',
+                    studentId: 'student_2',
+                    studentEmail: 'emma@test.com',
+                    studentName: 'Emma Davis',
+                    quizId: 'quiz_demo_1',
+                    classId: 'class_demo_1',
+                    quizTitle: 'Basic Programming Concepts',
+                    score: 95,
+                    totalQuestions: 3,
+                    correctAnswers: 3,
+                    completedAt: new Date(Date.now() - 43200000).toISOString(), // 12 hours ago
+                    timeSpent: 180000 // 3 minutes
+                },
+                {
+                    id: 'progress_3',
+                    studentId: 'student_4',
+                    studentEmail: 'sarah@test.com',
+                    studentName: 'Sarah Johnson',
+                    quizId: 'quiz_demo_2',
+                    classId: 'class_demo_2',
+                    quizTitle: 'Mathematical Equations',
+                    score: 75,
+                    totalQuestions: 2,
+                    correctAnswers: 1,
+                    completedAt: new Date(Date.now() - 7200000).toISOString(), // 2 hours ago
+                    timeSpent: 240000 // 4 minutes
+                }
+            ];
+            
+            localStorage.setItem('studentProgress', JSON.stringify(studentProgress));
+            
+            // Create detailed quiz results for analytics
+            const quizResults = studentProgress.map(progress => ({
+                id: 'result_' + progress.id,
+                ...progress,
+                submittedAt: progress.completedAt,
+                answers: Array.from({ length: progress.totalQuestions }, (_, i) => ({
+                    questionId: `q${i + 1}`,
+                    selectedAnswer: i < progress.correctAnswers ? 0 : 1, // Mock answers
+                    correct: i < progress.correctAnswers,
+                    timeSpent: Math.random() * 30000 + 10000 // Random time between 10-40 seconds
+                }))
+            }));
+            
+            localStorage.setItem('quizResults', JSON.stringify(quizResults));
+            
+            // Create sample users
+            const sampleUsers = [
+                {
+                    id: 'user_teacher_1',
+                    name: 'John Smith',
+                    email: 'teacher@test.com',
+                    type: 'teacher',
+                    createdAt: new Date().toISOString(),
+                    status: 'active'
+                },
+                {
+                    id: 'user_student_1',
+                    name: 'Alex Wilson',
+                    email: 'student@test.com',
+                    type: 'student',
+                    createdAt: new Date().toISOString(),
+                    status: 'active'
+                },
+                {
+                    id: 'user_student_2',
+                    name: 'Emma Davis',
+                    email: 'emma@test.com',
+                    type: 'student',
+                    createdAt: new Date().toISOString(),
+                    status: 'active'
+                }
+            ];
+            
+            localStorage.setItem('users', JSON.stringify(sampleUsers));
+            
+            // Set last sync time
+            localStorage.setItem('lastSync', Date.now().toString());
+            
+            showStatus('✅ Complete test data setup successful! The website is now ready for full testing with real-time sync, analytics, and live features.', 'success');
+        }
+        
+        function clearAllData() {
+            localStorage.removeItem('teacherClasses');
+            localStorage.removeItem('teacherQuizzes');
+            localStorage.removeItem('studentProgress');
+            localStorage.removeItem('gestureQuizUser');
+            localStorage.removeItem('currentUser');
+            
+            showStatus('🗑️ All test data cleared successfully!', 'success');
+        }
+        
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+            
+            setTimeout(() => {
+                statusDiv.innerHTML = '';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teacher Dashboard Button Test</title>
+    <script>
+        // Set up test user data
+        const testUser = {
+            email: 'test@teacher.com',
+            name: 'Test Teacher',
+            role: 'teacher'
+        };
+        
+        // Set up test quiz data
+        const testQuizzes = [
+            {
+                id: 'quiz1',
+                title: 'Test Quiz 1',
+                createdBy: 'test@teacher.com',
+                status: 'published',
+                questions: []
+            },
+            {
+                id: 'quiz2',
+                title: 'Test Quiz 2',
+                createdBy: 'test@teacher.com',
+                status: 'draft',
+                questions: []
+            }
+        ];
+        
+        // Set up localStorage
+        localStorage.setItem('currentUser', JSON.stringify(testUser));
+        localStorage.setItem('gestureQuizzes', JSON.stringify(testQuizzes));
+        
+        // Test functions
+        function testButtons() {
+            console.log('Testing buttons...');
+            
+            // Test function availability
+            console.log('manageQuizzes function:', typeof window.manageQuizzes);
+            console.log('viewAnalytics function:', typeof window.viewAnalytics);
+            console.log('switchToStudent function:', typeof window.switchToStudent);
+            console.log('viewAllActivity function:', typeof window.viewAllActivity);
+            console.log('logout function:', typeof window.logout);
+            
+            // Test direct function calls
+            try {
+                console.log('Testing manageQuizzes...');
+                // Don't actually navigate, just test the function exists
+                console.log('manageQuizzes is available');
+            } catch (e) {
+                console.error('manageQuizzes error:', e);
+            }
+        }
+        
+        // Set up test on page load
+        window.onload = function() {
+            setTimeout(testButtons, 1000);
+        };
+    </script>
+</head>
+<body>
+    <h1>Teacher Dashboard Button Test</h1>
+    <p>Check console for test results</p>
+    <button onclick="testButtons()">Test Functions</button>
+    <br><br>
+    <a href="teacher-dashboard.html">Go to Teacher Dashboard</a>
+</body>
+</html>

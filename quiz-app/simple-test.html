@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GestureQuiz - Simple Test</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Basic CSS variables and styles */
+        :root {
+            --primary-500: #0ea5e9;
+            --primary-600: #0284c7;
+            --accent-500: #8b5cf6;
+            --accent-600: #7c3aed;
+            --neutral-50: #fafafa;
+            --neutral-900: #171717;
+            --space-4: 1rem;
+            --space-6: 1.5rem;
+            --radius-xl: 0.75rem;
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --transition-base: 300ms ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--primary-600), var(--accent-600));
+            color: white;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--space-6);
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .hero-content h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: var(--space-4);
+        }
+
+        .hero-content p {
+            font-size: 1.25rem;
+            margin-bottom: var(--space-6);
+            opacity: 0.9;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: var(--space-4) var(--space-6);
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: var(--radius-xl);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all var(--transition-base);
+            cursor: pointer;
+            margin: 0.5rem;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-4);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            max-width: 400px;
+            width: 100%;
+            color: var(--neutral-900);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-4);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .role-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-4);
+        }
+
+        .role-card {
+            padding: var(--space-4);
+            border: 2px solid #e5e5e5;
+            border-radius: var(--radius-xl);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .role-card:hover {
+            border-color: var(--primary-500);
+            background: #f0f9ff;
+        }
+
+        .role-icon {
+            font-size: 2rem;
+            margin-bottom: var(--space-4);
+            color: var(--primary-500);
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Welcome to GestureQuiz</h1>
+                <p>Interactive Learning with Hand Gestures</p>
+                <button class="btn" onclick="showModal()">
+                    <i class="fas fa-rocket"></i>
+                    Get Started
+                </button>
+                <button class="btn" onclick="demoLogin()">
+                    <i class="fas fa-play"></i>
+                    Try Demo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Choose Your Role</h2>
+                <button class="close-btn" onclick="hideModal()">&times;</button>
+            </div>
+            <div class="role-cards">
+                <div class="role-card" onclick="selectRole('teacher')">
+                    <div class="role-icon">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <h3>Teacher</h3>
+                    <p>Create quizzes and manage students</p>
+                </div>
+                <div class="role-card" onclick="selectRole('student')">
+                    <div class="role-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <h3>Student</h3>
+                    <p>Take quizzes with gestures</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showModal() {
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function hideModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        function selectRole(role) {
+            alert(`You selected: ${role}`);
+            hideModal();
+        }
+
+        function demoLogin() {
+            alert('Demo mode activated!');
+        }
+
+        console.log('Simple test page loaded successfully');
+    </script>
+</body>
+</html>

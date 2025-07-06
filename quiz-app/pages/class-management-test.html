@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Management Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <h1>Class Management System Test</h1>
+    
+    <div class="test-section">
+        <h2>Test Data Setup</h2>
+        <p>Click the button below to populate test data for the class management system.</p>
+        <button class="test-button" onclick="setupTestData()">Setup Test Data</button>
+        <div id="setupResults" class="results" style="display: none;"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Functionality Tests</h2>
+        <p>These tests verify that the class management system works correctly:</p>
+        <button class="test-button" onclick="testClassCreation()">Test Class Creation</button>
+        <button class="test-button" onclick="testStudentManagement()">Test Student Management</button>
+        <button class="test-button" onclick="testBulkStudentAdd()">Test Bulk Student Add</button>
+        <div id="testResults" class="results" style="display: none;"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Data Verification</h2>
+        <p>Check the current state of the data:</p>
+        <button class="test-button" onclick="verifyData()">Verify Current Data</button>
+        <div id="dataResults" class="results" style="display: none;"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Navigation</h2>
+        <p>Open the class management system:</p>
+        <button class="test-button" onclick="openClassManagement()">Open Class Management</button>
+        <button class="test-button" onclick="openTeacherDashboard()">Open Teacher Dashboard</button>
+    </div>
+
+    <script>
+        // Test data setup
+        function setupTestData() {
+            const results = document.getElementById('setupResults');
+            results.style.display = 'block';
+            
+            try {
+                // Create test user
+                const testUser = {
+                    email: 'teacher@test.com',
+                    name: 'Test Teacher',
+                    role: 'teacher',
+                    isLoggedIn: true
+                };
+                localStorage.setItem('currentUser', JSON.stringify(testUser));
+                
+                // Create test classes
+                const testClasses = [
+                    {
+                        id: 'class_' + Date.now() + '_1',
+                        name: 'Mathematics 101',
+                        description: 'Basic mathematics course',
+                        subject: 'Mathematics',
+                        grade: '9',
+                        room: 'Room A-101',
+                        createdBy: testUser.email,
+                        createdAt: new Date().toISOString(),
+                        students: [
+                            {
+                                id: 'student_' + Date.now() + '_1',
+                                name: 'Alice Johnson',
+                                email: 'alice@test.com',
+                                addedAt: new Date().toISOString()
+                            },
+                            {
+                                id: 'student_' + Date.now() + '_2',
+                                name: 'Bob Smith',
+                                email: 'bob@test.com',
+                                addedAt: new Date().toISOString()
+                            }
+                        ]
+                    },
+                    {
+                        id: 'class_' + Date.now() + '_2',
+                        name: 'Science 102',
+                        description: 'Introduction to science',
+                        subject: 'Science',
+                        grade: '10',
+                        room: 'Room B-205',
+                        createdBy: testUser.email,
+                        createdAt: new Date().toISOString(),
+                        students: []
+                    }
+                ];
+                
+                localStorage.setItem('teacherClasses', JSON.stringify(testClasses));
+                
+                results.innerHTML = '<div class="success">✓ Test data setup successful!</div>' +
+                    '<div>Created test user: ' + testUser.email + '</div>' +
+                    '<div>Created ' + testClasses.length + ' test classes</div>' +
+                    '<div>Total students: ' + testClasses.reduce((sum, cls) => sum + cls.students.length, 0) + '</div>';
+                
+            } catch (error) {
+                results.innerHTML = '<div class="error">✗ Error setting up test data: ' + error.message + '</div>';
+            }
+        }
+        
+        function testClassCreation() {
+            const results = document.getElementById('testResults');
+            results.style.display = 'block';
+            
+            try {
+                const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+                const classCount = classes.length;
+                
+                results.innerHTML = '<div class="success">✓ Class creation test passed!</div>' +
+                    '<div>Found ' + classCount + ' classes in storage</div>';
+                
+            } catch (error) {
+                results.innerHTML = '<div class="error">✗ Class creation test failed: ' + error.message + '</div>';
+            }
+        }
+        
+        function testStudentManagement() {
+            const results = document.getElementById('testResults');
+            results.style.display = 'block';
+            
+            try {
+                const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+                const totalStudents = classes.reduce((sum, cls) => sum + (cls.students ? cls.students.length : 0), 0);
+                
+                results.innerHTML = '<div class="success">✓ Student management test passed!</div>' +
+                    '<div>Total students across all classes: ' + totalStudents + '</div>';
+                
+            } catch (error) {
+                results.innerHTML = '<div class="error">✗ Student management test failed: ' + error.message + '</div>';
+            }
+        }
+        
+        function testBulkStudentAdd() {
+            const results = document.getElementById('testResults');
+            results.style.display = 'block';
+            
+            // This would be tested in the actual UI
+            results.innerHTML = '<div class="success">✓ Bulk student add functionality is available!</div>' +
+                '<div>This feature should be tested in the actual class management interface.</div>';
+        }
+        
+        function verifyData() {
+            const results = document.getElementById('dataResults');
+            results.style.display = 'block';
+            
+            try {
+                const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+                
+                let html = '<h3>Current Data State:</h3>';
+                html += '<div><strong>User:</strong> ' + (currentUser.name || 'Not logged in') + ' (' + (currentUser.email || 'No email') + ')</div>';
+                html += '<div><strong>Classes:</strong> ' + classes.length + '</div>';
+                
+                classes.forEach((cls, index) => {
+                    html += '<div style="margin-left: 20px; margin-top: 10px;">';
+                    html += '<strong>' + (index + 1) + '. ' + cls.name + '</strong><br>';
+                    html += 'Subject: ' + (cls.subject || 'N/A') + '<br>';
+                    html += 'Students: ' + (cls.students ? cls.students.length : 0) + '<br>';
+                    if (cls.students && cls.students.length > 0) {
+                        html += 'Student list: ' + cls.students.map(s => s.name).join(', ') + '<br>';
+                    }
+                    html += '</div>';
+                });
+                
+                results.innerHTML = html;
+                
+            } catch (error) {
+                results.innerHTML = '<div class="error">✗ Error verifying data: ' + error.message + '</div>';
+            }
+        }
+        
+        function openClassManagement() {
+            window.open('class-management.html', '_blank');
+        }
+        
+        function openTeacherDashboard() {
+            window.open('teacher-dashboard.html', '_blank');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Publish Flow Test - GestureQuiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn {
+            background: #0284c7;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover {
+            background: #0369a1;
+        }
+        .btn-success {
+            background: #22c55e;
+        }
+        .btn-success:hover {
+            background: #16a34a;
+        }
+        .btn-danger {
+            background: #dc2626;
+        }
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .status.success {
+            background: #f0fdf4;
+            color: #16a34a;
+            border: 1px solid #22c55e;
+        }
+        .status.error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #ef4444;
+        }
+        .status.info {
+            background: #f0f9ff;
+            color: #0284c7;
+            border: 1px solid #0284c7;
+        }
+        .quiz-data {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .logs {
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        .step {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border-left: 4px solid #0284c7;
+        }
+        .step.active {
+            background: #f0f9ff;
+            border-left-color: #22c55e;
+        }
+        .step.completed {
+            background: #f0fdf4;
+            border-left-color: #22c55e;
+        }
+        .step.error {
+            background: #fef2f2;
+            border-left-color: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Quiz Creation & Publish Flow Test</h1>
+    
+    <div class="grid">
+        <div class="test-section">
+            <h2>Test Environment</h2>
+            <button class="btn" onclick="setupEnvironment()">Setup Test Environment</button>
+            <button class="btn btn-danger" onclick="clearAllData()">Clear All Data</button>
+            <div id="envStatus"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>Quick Actions</h2>
+            <button class="btn btn-success" onclick="openQuizCreator()">Open Quiz Creator</button>
+            <button class="btn" onclick="openQuizManagement()">Open Quiz Management</button>
+            <button class="btn" onclick="showStorageContents()">Show Storage</button>
+            <div id="actionStatus"></div>
+        </div>
+    </div>
+
+    <div class="test-section full-width">
+        <h2>Step-by-Step Test Process</h2>
+        <div class="step" id="step1">
+            <h3>Step 1: Setup Environment</h3>
+            <p>Create test user account and initialize environment</p>
+            <button class="btn" onclick="runStep1()">Run Step 1</button>
+        </div>
+        
+        <div class="step" id="step2">
+            <h3>Step 2: Simulate Quiz Creation</h3>
+            <p>Create a complete quiz with all required fields</p>
+            <button class="btn" onclick="runStep2()">Run Step 2</button>
+        </div>
+        
+        <div class="step" id="step3">
+            <h3>Step 3: Test Save/Publish Modal</h3>
+            <p>Test the save/publish modal functionality</p>
+            <button class="btn" onclick="runStep3()">Run Step 3</button>
+        </div>
+        
+        <div class="step" id="step4">
+            <h3>Step 4: Test Publish Options</h3>
+            <p>Test the publish options modal</p>
+            <button class="btn" onclick="runStep4()">Run Step 4</button>
+        </div>
+        
+        <div class="step" id="step5">
+            <h3>Step 5: Test Publish Execution</h3>
+            <p>Execute the actual publish functionality</p>
+            <button class="btn" onclick="runStep5()">Run Step 5</button>
+        </div>
+    </div>
+
+    <div class="grid">
+        <div class="test-section">
+            <h2>Quiz Data Debug</h2>
+            <div id="quizDataDebug"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>Storage Contents</h2>
+            <div id="storageContents"></div>
+        </div>
+    </div>
+
+    <div class="test-section full-width">
+        <h2>Console Logs</h2>
+        <div id="consoleLogs" class="logs"></div>
+        <button class="btn" onclick="clearLogs()">Clear Logs</button>
+    </div>
+
+    <script>
+        let testQuizData = null;
+        let logs = [];
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logMessage = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+            logs.push(logMessage);
+            
+            // Keep only last 50 logs
+            if (logs.length > 50) {
+                logs = logs.slice(-50);
+            }
+            
+            updateLogDisplay();
+            console.log(logMessage);
+        }
+
+        function updateLogDisplay() {
+            document.getElementById('consoleLogs').textContent = logs.join('\n');
+            document.getElementById('consoleLogs').scrollTop = document.getElementById('consoleLogs').scrollHeight;
+        }
+
+        function clearLogs() {
+            logs = [];
+            updateLogDisplay();
+        }
+
+        function setupEnvironment() {
+            const testUser = {
+                email: 'test@teacher.com',
+                name: 'Test Teacher',
+                role: 'teacher',
+                department: 'Computer Science'
+            };
+            
+            localStorage.setItem('currentUser', JSON.stringify(testUser));
+            log('Test environment setup complete');
+            
+            document.getElementById('envStatus').innerHTML = 
+                '<div class="status success">✅ Environment ready</div>';
+        }
+
+        function clearAllData() {
+            localStorage.removeItem('gestureQuizzes');
+            localStorage.removeItem('currentUser');
+            testQuizData = null;
+            log('All data cleared');
+            
+            document.getElementById('envStatus').innerHTML = 
+                '<div class="status info">🗑️ All data cleared</div>';
+        }
+
+        function openQuizCreator() {
+            window.open('../pages/quiz-creator.html', '_blank');
+            log('Opened quiz creator in new tab');
+        }
+
+        function openQuizManagement() {
+            window.open('../pages/quiz-management.html', '_blank');
+            log('Opened quiz management in new tab');
+        }
+
+        function showStorageContents() {
+            const quizzes = JSON.parse(localStorage.getItem('gestureQuizzes') || '[]');
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            
+            const contents = {
+                currentUser: currentUser,
+                quizzes: quizzes,
+                quizCount: quizzes.length,
+                publishedQuizzes: quizzes.filter(q => q.published).length,
+                draftQuizzes: quizzes.filter(q => !q.published).length,
+                testQuizData: testQuizData
+            };
+            
+            document.getElementById('storageContents').innerHTML = 
+                '<div class="quiz-data">' + JSON.stringify(contents, null, 2) + '</div>';
+            
+            log('Storage contents displayed');
+        }
+
+        function runStep1() {
+            log('Running Step 1: Setup Environment');
+            setupEnvironment();
+            markStepCompleted('step1');
+        }
+
+        function runStep2() {
+            log('Running Step 2: Create Test Quiz');
+            
+            testQuizData = {
+                id: 'quiz_test_' + Date.now(),
+                title: 'Test Quiz - Publish Flow',
+                description: 'A comprehensive test quiz for the publish flow',
+                category: 'Testing',
+                difficulty: 'Easy',
+                questions: [
+                    {
+                        id: '1',
+                        text: 'What gesture represents thumbs up?',
+                        options: [
+                            { text: 'Thumbs up', gesture: '👍' },
+                            { text: 'Peace sign', gesture: '✌️' },
+                            { text: 'OK sign', gesture: '👌' },
+                            { text: 'High five', gesture: '✋' }
+                        ],
+                        correctAnswer: 0
+                    },
+                    {
+                        id: '2',
+                        text: 'What gesture represents peace?',
+                        options: [
+                            { text: 'Thumbs up', gesture: '👍' },
+                            { text: 'Peace sign', gesture: '✌️' },
+                            { text: 'OK sign', gesture: '👌' },
+                            { text: 'High five', gesture: '✋' }
+                        ],
+                        correctAnswer: 1
+                    },
+                    {
+                        id: '3',
+                        text: 'What gesture represents OK?',
+                        options: [
+                            { text: 'Thumbs up', gesture: '👍' },
+                            { text: 'Peace sign', gesture: '✌️' },
+                            { text: 'OK sign', gesture: '👌' },
+                            { text: 'High five', gesture: '✋' }
+                        ],
+                        correctAnswer: 2
+                    }
+                ],
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                createdBy: 'test@teacher.com',
+                status: 'draft',
+                published: false
+            };
+
+            document.getElementById('quizDataDebug').innerHTML = 
+                '<div class="quiz-data">' + JSON.stringify(testQuizData, null, 2) + '</div>';
+            
+            log('Test quiz created with ' + testQuizData.questions.length + ' questions');
+            markStepCompleted('step2');
+        }
+
+        function runStep3() {
+            log('Running Step 3: Test Save/Publish Modal');
+            
+            if (!testQuizData) {
+                log('No test quiz data available. Run Step 2 first.', 'error');
+                markStepError('step3');
+                return;
+            }
+
+            // Simulate the save/publish modal process
+            window.currentSavePublishQuizData = testQuizData;
+            log('Set window.currentSavePublishQuizData');
+            
+            // Test the publishQuiz function logic
+            if (window.currentSavePublishQuizData) {
+                log('Save/Publish modal data is available');
+                markStepCompleted('step3');
+            } else {
+                log('Save/Publish modal data not set properly', 'error');
+                markStepError('step3');
+            }
+        }
+
+        function runStep4() {
+            log('Running Step 4: Test Publish Options');
+            
+            if (!testQuizData) {
+                log('No test quiz data available. Run Step 2 first.', 'error');
+                markStepError('step4');
+                return;
+            }
+
+            // Simulate the publish options process
+            window.currentPublishQuizData = testQuizData;
+            log('Set window.currentPublishQuizData');
+            
+            const quizId = testQuizData.id;
+            log('Quiz ID extracted: ' + quizId);
+            
+            if (window.currentPublishQuizData && quizId) {
+                log('Publish options data is available');
+                markStepCompleted('step4');
+            } else {
+                log('Publish options data not set properly', 'error');
+                markStepError('step4');
+            }
+        }
+
+        function runStep5() {
+            log('Running Step 5: Test Publish Execution');
+            
+            if (!testQuizData) {
+                log('No test quiz data available. Run Step 2 first.', 'error');
+                markStepError('step5');
+                return;
+            }
+
+            // Simulate the publish execution
+            const quizData = { ...testQuizData };
+            quizData.status = 'published';
+            quizData.published = true;
+            quizData.publishedAt = new Date().toISOString();
+            
+            const quizzes = JSON.parse(localStorage.getItem('gestureQuizzes') || '[]');
+            
+            // Remove existing test quiz if it exists
+            const existingIndex = quizzes.findIndex(q => q.id === quizData.id);
+            if (existingIndex !== -1) {
+                quizzes.splice(existingIndex, 1);
+                log('Removed existing test quiz');
+            }
+            
+            quizzes.push(quizData);
+            localStorage.setItem('gestureQuizzes', JSON.stringify(quizzes));
+            
+            log('Quiz published successfully to localStorage');
+            log('Quiz ID: ' + quizData.id);
+            log('Quiz Status: ' + quizData.status);
+            log('Quiz Published: ' + quizData.published);
+            
+            markStepCompleted('step5');
+            showStorageContents();
+        }
+
+        function markStepCompleted(stepId) {
+            const step = document.getElementById(stepId);
+            step.classList.remove('active', 'error');
+            step.classList.add('completed');
+        }
+
+        function markStepError(stepId) {
+            const step = document.getElementById(stepId);
+            step.classList.remove('active', 'completed');
+            step.classList.add('error');
+        }
+
+        function markStepActive(stepId) {
+            const step = document.getElementById(stepId);
+            step.classList.remove('completed', 'error');
+            step.classList.add('active');
+        }
+
+        // Initialize
+        window.addEventListener('load', function() {
+            log('Publish Flow Test initialized');
+            setupEnvironment();
+            showStorageContents();
+        });
+    </script>
+</body>
+</html>

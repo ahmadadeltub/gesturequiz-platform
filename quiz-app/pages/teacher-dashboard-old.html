@@ -1,0 +1,2763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard - GestureQuiz</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-600: #0284c7;
+            --primary-700: #0369a1;
+            --primary-50: #f0f9ff;
+            --primary-100: #e0f2fe;
+            --accent-100: #e0e7ff;
+            --accent-500: #8b5cf6;
+            --accent-600: #7c3aed;
+            --accent-50: #f5f3ff;
+            --success-500: #22c55e;
+            --success-600: #16a34a;
+            --success-50: #f0fdf4;
+            --warning-500: #f59e0b;
+            --warning-50: #fffbeb;
+            --danger-500: #ef4444;
+            --danger-50: #fef2f2;
+            --neutral-50: #fafafa;
+            --neutral-100: #f5f5f5;
+            --neutral-200: #e5e5e5;
+            --neutral-300: #d4d4d4;
+            --neutral-400: #a3a3a3;
+            --neutral-500: #737373;
+            --neutral-600: #525252;
+            --neutral-700: #404040;
+            --neutral-800: #262626;
+            --neutral-900: #171717;
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-5: 1.25rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --space-10: 2.5rem;
+            --space-12: 3rem;
+            --space-16: 4rem;
+            --space-20: 5rem;
+            --radius-sm: 0.25rem;
+            --radius-md: 0.375rem;
+            --radius-lg: 0.5rem;
+            --radius-xl: 0.75rem;
+            --radius-2xl: 1rem;
+            --radius-3xl: 1.5rem;
+            --radius-full: 9999px;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --transition-base: 300ms ease;
+            --transition-fast: 150ms ease;
+            --glass-bg: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--primary-50) 0%, var(--accent-50) 100%);
+            color: var(--neutral-800);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Modern Header */
+        .header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: var(--space-4) 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 var(--space-6);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--neutral-900);
+        }
+
+        .logo-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary-600), var(--accent-500));
+            border-radius: var(--radius-xl);
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: var(--space-6);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-500), var(--accent-600));
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--neutral-900);
+            font-size: 0.95rem;
+        }
+
+        .user-role {
+            font-size: 0.85rem;
+            color: var(--neutral-600);
+            background: var(--accent-50);
+            padding: var(--space-1) var(--space-2);
+            border-radius: var(--radius-sm);
+            margin-top: var(--space-1);
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--space-8) var(--space-6);
+        }
+
+        /* Welcome Section */
+        .welcome-section {
+            text-align: center;
+            margin-bottom: var(--space-12);
+        }
+
+        .welcome-title {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--neutral-900);
+            margin-bottom: var(--space-4);
+            background: linear-gradient(135deg, var(--primary-600), var(--accent-500));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .welcome-subtitle {
+            font-size: 1.25rem;
+            color: var(--neutral-600);
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-6);
+            margin-bottom: var(--space-12);
+        }
+
+        .stat-card {
+            background: white;
+            padding: var(--space-8);
+            border-radius: var(--radius-3xl);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--neutral-200);
+            transition: all var(--transition-base);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, var(--primary-600), var(--accent-500));
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--space-4);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary-100), var(--accent-100));
+            border-radius: var(--radius-xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-600);
+            font-size: 1.5rem;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--neutral-900);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.95rem;
+            color: var(--neutral-600);
+            font-weight: 500;
+        }
+
+        .stat-change {
+            font-size: 0.85rem;
+            margin-top: var(--space-2);
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+        }
+
+        .stat-change.positive {
+            color: var(--success-600);
+        }
+
+        .stat-change.negative {
+            color: var(--danger-500);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            background: white;
+            padding: var(--space-8);
+            border-radius: var(--radius-3xl);
+            box-shadow: var(--shadow-lg);
+            margin-bottom: var(--space-12);
+            border: 1px solid var(--neutral-200);
+        }
+
+        .quick-actions-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--neutral-900);
+            margin-bottom: var(--space-6);
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-6);
+        }
+
+        .action-card {
+            background: linear-gradient(135deg, var(--neutral-50), white);
+            border: 2px solid var(--neutral-200);
+            border-radius: var(--radius-2xl);
+            padding: var(--space-6);
+            transition: all var(--transition-base);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-2xl);
+            border-color: var(--primary-600);
+        }
+
+        .action-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--primary-600), var(--accent-500));
+            opacity: 0;
+            transition: opacity var(--transition-base);
+        }
+
+        .action-card:hover::before {
+            opacity: 0.08;
+        }
+
+        .action-card:hover .action-icon {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .action-card:hover .action-title {
+            color: var(--primary-600);
+        }
+
+        .action-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            margin-bottom: var(--space-4);
+        }
+
+        .action-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--primary-600), var(--accent-500));
+            border-radius: var(--radius-2xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: var(--shadow-lg);
+            transition: all var(--transition-base);
+        }
+
+        .action-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--neutral-900);
+            margin-bottom: var(--space-1);
+        }
+
+        .action-description {
+            color: var(--neutral-600);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: var(--space-5);
+        }
+
+        .action-button {
+            width: 100%;
+            padding: var(--space-3) var(--space-4);
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+            color: white;
+            border: none;
+            border-radius: var(--radius-xl);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+        }
+
+        .action-button:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Recent Activity */
+        .recent-activity {
+            background: white;
+            padding: var(--space-8);
+            border-radius: var(--radius-3xl);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--neutral-200);
+        }
+
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-6);
+        }
+
+        .activity-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--neutral-900);
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            padding: var(--space-4);
+            border-radius: var(--radius-xl);
+            background: var(--neutral-50);
+            transition: all var(--transition-base);
+        }
+
+        .activity-item:hover {
+            background: var(--primary-50);
+            transform: translateX(4px);
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-500), var(--accent-600));
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-text {
+            font-weight: 500;
+            color: var(--neutral-900);
+            margin-bottom: var(--space-1);
+        }
+
+        .activity-time {
+            font-size: 0.85rem;
+            color: var(--neutral-600);
+        }
+
+        /* Utility Classes */
+        .btn {
+            padding: var(--space-3) var(--space-6);
+            border-radius: var(--radius-xl);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            text-decoration: none;
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--neutral-700);
+            border: 2px solid var(--neutral-300);
+        }
+
+        .btn-outline:hover {
+            background: var(--neutral-50);
+            border-color: var(--neutral-400);
+            transform: translateY(-1px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: var(--space-4);
+            }
+            
+            .main-content {
+                padding: var(--space-4);
+            }
+            
+            .welcome-title {
+                font-size: 2.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: var(--space-4);
+            }
+
+            .quick-actions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .user-info {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .welcome-title {
+                font-size: 1.75rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-3) var(--space-6);
+            border: none;
+            border-radius: var(--radius-xl);
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            white-space: nowrap;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary-600);
+            border: 2px solid var(--neutral-200);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-600);
+            color: white;
+            border-color: var(--primary-600);
+        }
+
+        .main-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: var(--space-8) var(--space-6);
+        }
+
+        .welcome-section {
+            text-align: center;
+            margin-bottom: var(--space-12);
+        }
+
+        .welcome-section h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--neutral-900);
+            margin-bottom: var(--space-4);
+        }
+
+        .welcome-section p {
+            font-size: 1.2rem;
+            color: var(--neutral-600);
+            margin-bottom: var(--space-8);
+        }
+
+        .setup-notice {
+            background: linear-gradient(135deg, var(--accent-500), var(--accent-600));
+            color: white;
+            padding: var(--space-6);
+            border-radius: var(--radius-2xl);
+            text-align: center;
+            margin-bottom: var(--space-8);
+        }
+
+        .setup-notice h2 {
+            margin-bottom: var(--space-2);
+        }
+
+        .setup-notice p {
+            opacity: 0.9;
+        }
+
+        .demo-navigation {
+            display: flex;
+            gap: var(--space-4);
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+            color: white;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .btn-demo {
+            background: linear-gradient(135deg, var(--accent-500), var(--accent-600));
+            color: white;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-demo:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: var(--space-6);
+            border-radius: var(--radius-2xl);
+            max-width: 500px;
+            width: 90%;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-4);
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--neutral-900);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--neutral-500);
+            cursor: pointer;
+            padding: var(--space-2);
+            border-radius: var(--radius-lg);
+            transition: all var(--transition-base);
+        }
+
+        .close-btn:hover {
+            background: var(--neutral-100);
+            color: var(--neutral-700);
+        }
+
+        .modal-body {
+            padding: var(--space-6);
+        }
+
+        .form-group {
+            margin-bottom: var(--space-5);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: var(--space-2);
+            font-weight: 500;
+            color: var(--neutral-700);
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: var(--space-3);
+            border: 1px solid var(--neutral-300);
+            border-radius: var(--radius-lg);
+            font-size: 0.9rem;
+            transition: all var(--transition-base);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-600);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+        }
+
+        .photo-upload {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        .photo-preview {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+
+        .current-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .change-photo-btn {
+            background: var(--neutral-100);
+            color: var(--neutral-700);
+            border: 1px solid var(--neutral-300);
+            padding: var(--space-2) var(--space-3);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all var(--transition-base);
+        }
+
+        .change-photo-btn:hover {
+            background: var(--neutral-200);
+        }
+
+        .photo-options {
+            display: none;
+            gap: var(--space-4);
+        }
+
+        .photo-options.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .emoji-options {
+            display: flex;
+            gap: var(--space-2);
+            flex-wrap: wrap;
+        }
+
+        .emoji-btn {
+            width: 50px;
+            height: 50px;
+            border: 2px solid var(--neutral-300);
+            border-radius: var(--radius-lg);
+            background: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .emoji-btn:hover,
+        .emoji-btn.selected {
+            border-color: var(--primary-600);
+            background: var(--primary-50);
+        }
+
+        .initials-option {
+            margin-top: var(--space-2);
+        }
+
+        .initials-btn {
+            padding: var(--space-2) var(--space-4);
+            background: var(--accent-50);
+            color: var(--accent-600);
+            border: 1px solid var(--accent-300);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all var(--transition-base);
+        }
+
+        .initials-btn:hover {
+            background: var(--accent-100);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: var(--space-3);
+            justify-content: flex-end;
+            margin-top: var(--space-6);
+            padding-top: var(--space-6);
+            border-top: 1px solid var(--neutral-200);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .stats-overview {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: var(--space-4);
+            }
+            
+            .main-content {
+                padding: var(--space-4);
+            }
+            
+            .welcome-title {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Profile Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius-2xl);
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-2xl);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-6);
+            border-bottom: 1px solid var(--neutral-200);
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--neutral-900);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--neutral-500);
+            cursor: pointer;
+            padding: var(--space-2);
+            border-radius: var(--radius-lg);
+            transition: all var(--transition-base);
+        }
+
+        .close-btn:hover {
+            background: var(--neutral-100);
+            color: var(--neutral-700);
+        }
+
+        .modal-body {
+            padding: var(--space-6);
+        }
+
+        .form-group {
+            margin-bottom: var(--space-5);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: var(--space-2);
+            font-weight: 500;
+            color: var(--neutral-700);
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: var(--space-3);
+            border: 1px solid var(--neutral-300);
+            border-radius: var(--radius-lg);
+            font-size: 0.9rem;
+            transition: all var(--transition-base);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-600);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+        }
+
+        .photo-upload {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        .photo-preview {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+
+        .current-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .change-photo-btn {
+            background: var(--neutral-100);
+            color: var(--neutral-700);
+            border: 1px solid var(--neutral-300);
+            padding: var(--space-2) var(--space-3);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all var(--transition-base);
+        }
+
+        .change-photo-btn:hover {
+            background: var(--neutral-200);
+        }
+
+        .photo-options {
+            display: none;
+            gap: var(--space-4);
+        }
+
+        .photo-options.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .emoji-options {
+            display: flex;
+            gap: var(--space-2);
+            flex-wrap: wrap;
+        }
+
+        .emoji-btn {
+            width: 50px;
+            height: 50px;
+            border: 2px solid var(--neutral-300);
+            border-radius: var(--radius-lg);
+            background: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .emoji-btn:hover,
+        .emoji-btn.selected {
+            border-color: var(--primary-600);
+            background: var(--primary-50);
+        }
+
+        .initials-option {
+            margin-top: var(--space-2);
+        }
+
+        .initials-btn {
+            padding: var(--space-2) var(--space-4);
+            background: var(--accent-50);
+            color: var(--accent-600);
+            border: 1px solid var(--accent-300);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all var(--transition-base);
+        }
+
+        .initials-btn:hover {
+            background: var(--accent-100);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: var(--space-3);
+            justify-content: flex-end;
+            margin-top: var(--space-6);
+            padding-top: var(--space-6);
+            border-top: 1px solid var(--neutral-200);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .stats-overview {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: var(--space-4);
+            }
+            
+            .main-content {
+                padding: var(--space-4);
+            }
+            
+            .welcome-title {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Profile Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius-2xl);
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-2xl);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-6);
+            border-bottom: 1px solid var(--neutral-200);
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--neutral-900);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--neutral-500);
+            cursor: pointer;
+            padding: var(--space-2);
+            border-radius: var(--radius-lg);
+            transition: all var(--transition-base);
+        }
+
+        .close-btn:hover {
+            background: var(--neutral-100);
+            color: var(--neutral-700);
+        }
+
+        .modal-body {
+            padding: var(--space-6);
+        }
+
+        .form-group {
+            margin-bottom: var(--space-5);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: var(--space-2);
+            font-weight: 500;
+            color: var(--neutral-700);
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: var(--space-3);
+            border: 1px solid var(--neutral-300);
+            border-radius: var(--radius-lg);
+            font-size: 0.9rem;
+            transition: all var(--transition-base);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-600);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+        }
+
+        .photo-upload {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        .photo-preview {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+
+        .current-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .change-photo-btn {
+            background: var(--neutral-100);
+            color: var(--neutral-700);
+            border: 1px solid var(--neutral-300);
+            padding: var(--space-2) var(--space-3);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all var(--transition-base);
+        }
+
+        .change-photo-btn:hover {
+            background: var(--neutral-200);
+        }
+
+        .photo-options {
+            display: none;
+            gap: var(--space-4);
+        }
+
+        .photo-options.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .emoji-options {
+            display: flex;
+            gap: var(--space-2);
+            flex-wrap: wrap;
+        }
+
+        .emoji-btn {
+            width: 50px;
+            height: 50px;
+            border: 2px solid var(--neutral-300);
+            border-radius: var(--radius-lg);
+            background: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .emoji-btn:hover,
+        .emoji-btn.selected {
+            border-color: var(--primary-600);
+            background: var(--primary-50);
+        }
+
+        .initials-option {
+            margin-top: var(--space-2);
+        }
+
+        .initials-btn {
+            padding: var(--space-2) var(--space-4);
+            background: var(--accent-50);
+            color: var(--accent-600);
+            border: 1px solid var(--accent-300);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all var(--transition-base);
+        }
+
+        .initials-btn:hover {
+            background: var(--accent-100);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: var(--space-3);
+            justify-content: flex-end;
+            margin-top: var(--space-6);
+            padding-top: var(--space-6);
+            border-top: 1px solid var(--neutral-200);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .stats-overview {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: var(--space-4);
+            }
+            
+            .main-content {
+                padding: var(--space-4);
+            }
+            
+            .welcome-title {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Profile Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius-2xl);
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-2xl);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-6);
+            border-bottom: 1px solid var(--neutral-200);
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--neutral-900);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--neutral-500);
+            cursor: pointer;
+            padding: var(--space-2);
+            border-radius: var(--radius-lg);
+            transition: all var(--transition-base);
+        }
+
+        .close-btn:hover {
+            background: var(--neutral-100);
+            color: var(--neutral-700);
+        }
+
+        .modal-body {
+            padding: var(--space-6);
+        }
+
+        .form-group {
+            margin-bottom: var(--space-5);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: var(--space-2);
+            font-weight: 500;
+            color: var(--neutral-700);
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: var(--space-3);
+            border: 1px solid var(--neutral-300);
+            border-radius: var(--radius-lg);
+            font-size: 0.9rem;
+            transition: all var(--transition-base);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-600);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+        }
+
+        .photo-upload {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        .photo-preview {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+
+        .current-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .change-photo-btn {
+            background: var(--neutral-100);
+            color: var(--neutral-700);
+            border: 1px solid var(--neutral-300);
+            padding: var(--space-2) var(--space-3);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all var(--transition-base);
+        }
+
+        .change-photo-btn:hover {
+            background: var(--neutral-200);
+        }
+
+        .photo-options {
+            display: none;
+            gap: var(--space-4);
+        }
+
+        .photo-options.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .emoji-options {
+            display: flex;
+            gap: var(--space-2);
+            flex-wrap: wrap;
+        }
+
+        .emoji-btn {
+            width: 50px;
+            height: 50px;
+            border: 2px solid var(--neutral-300);
+            border-radius: var(--radius-lg);
+            background: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .emoji-btn:hover,
+        .emoji-btn.selected {
+            border-color: var(--primary-600);
+            background: var(--primary-50);
+        }
+
+        .initials-option {
+            margin-top: var(--space-2);
+        }
+
+        .initials-btn {
+            padding: var(--space-2) var(--space-4);
+            background: var(--accent-50);
+            color: var(--accent-600);
+            border: 1px solid var(--accent-300);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all var(--transition-base);
+        }
+
+        .initials-btn:hover {
+            background: var(--accent-100);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: var(--space-3);
+            justify-content: flex-end;
+            margin-top: var(--space-6);
+            padding-top: var(--space-6);
+            border-top: 1px solid var(--neutral-200);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .stats-overview {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: var(--space-4);
+            }
+            
+            .main-content {
+                padding: var(--space-4);
+            }
+            
+            .welcome-title {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Profile Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius-2xl);
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-2xl);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-6);
+            border-bottom: 1px solid var(--neutral-200);
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--neutral-900);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--neutral-500);
+            cursor: pointer;
+            padding: var(--space-2);
+            border-radius: var(--radius-lg);
+            transition: all var(--transition-base);
+        }
+
+        .close-btn:hover {
+            background: var(--neutral-100);
+            color: var(--neutral-700);
+        }
+
+        .modal-body {
+            padding: var(--space-6);
+        }
+
+        .form-group {
+            margin-bottom: var(--space-5);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: var(--space-2);
+            font-weight: 500;
+            color: var(--neutral-700);
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: var(--space-3);
+            border: 1px solid var(--neutral-300);
+            border-radius: var(--radius-lg);
+            font-size: 0.9rem;
+            transition: all var(--transition-base);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-600);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+        }
+
+        .photo-upload {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        .photo-preview {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+
+        .current-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .change-photo-btn {
+            background: var(--neutral-100);
+            color: var(--neutral-700);
+            border: 1px solid var(--neutral-300);
+            padding: var(--space-2) var(--space-3);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all var(--transition-base);
+        }
+
+        .change-photo-btn:hover {
+            background: var(--neutral-200);
+        }
+
+        .photo-options {
+            display: none;
+            gap: var(--space-4);
+        }
+
+        .photo-options.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .emoji-options {
+            display: flex;
+            gap: var(--space-2);
+            flex-wrap: wrap;
+        }
+
+        .emoji-btn {
+            width: 50px;
+            height: 50px;
+            border: 2px solid var(--neutral-300);
+            border-radius: var(--radius-lg);
+            background: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .emoji-btn:hover,
+        .emoji-btn.selected {
+            border-color: var(--primary-600);
+            background: var(--primary-50);
+        }
+
+        .initials-option {
+            margin-top: var(--space-2);
+        }
+
+        .initials-btn {
+            padding: var(--space-2) var(--space-4);
+            background: var(--accent-50);
+            color: var(--accent-600);
+            border: 1px solid var(--accent-300);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all var(--transition-base);
+        }
+
+        .initials-btn:hover {
+            background: var(--accent-100);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: var(--space-3);
+            justify-content: flex-end;
+            margin-top: var(--space-6);
+            padding-top: var(--space-6);
+            border-top: 1px solid var(--neutral-200);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .stats-overview {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: var(--space-4);
+            }
+            
+            .main-content {
+                padding: var(--space-4);
+            }
+            
+            .welcome-title {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Profile Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius-2xl);
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-2xl);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-6);
+            border-bottom: 1px solid var(--neutral-200);
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--neutral-900);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--neutral-500);
+            cursor: pointer;
+            padding: var(--space-2);
+            border-radius: var(--radius-lg);
+            transition: all var(--transition-base);
+        }
+
+        .close-btn:hover {
+            background: var(--neutral-100);
+            color: var(--neutral-700);
+        }
+
+        .modal-body {
+            padding: var(--space-6);
+        }
+
+        .form-group {
+            margin-bottom: var(--space-5);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: var(--space-2);
+            font-weight: 500;
+            color: var(--neutral-700);
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: var(--space-3);
+            border: 1px solid var(--neutral-300);
+            border-radius: var(--radius-lg);
+            font-size: 0.9rem;
+            transition: all var(--transition-base);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-600);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+        }
+
+        .photo-upload {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        .photo-preview {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+
+        .current-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .change-photo-btn {
+            background: var(--neutral-100);
+            color: var(--neutral-700);
+            border: 1px solid var(--neutral-300);
+            padding: var(--space-2) var(--space-3);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all var(--transition-base);
+        }
+
+        .change-photo-btn:hover {
+            background: var(--neutral-200);
+        }
+
+        .photo-options {
+            display: none;
+            gap: var(--space-4);
+        }
+
+        .photo-options.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .emoji-options {
+            display: flex;
+            gap: var(--space-2);
+            flex-wrap: wrap;
+        }
+
+        .emoji-btn {
+            width: 50px;
+            height: 50px;
+            border: 2px solid var(--neutral-300);
+            border-radius: var(--radius-lg);
+            background: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .emoji-btn:hover,
+        .emoji-btn.selected {
+            border-color: var(--primary-600);
+            background: var(--primary-50);
+        }
+
+        .initials-option {
+            margin-top: var(--space-2);
+        }
+
+        .initials-btn {
+            padding: var(--space-2) var(--space-4);
+            background: var(--accent-50);
+            color: var(--accent-600);
+            border: 1px solid var(--accent-300);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all var(--transition-base);
+        }
+
+        .initials-btn:hover {
+            background: var(--accent-100);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: var(--space-3);
+            justify-content: flex-end;
+            margin-top: var(--space-6);
+            padding-top: var(--space-6);
+            border-top: 1px solid var(--neutral-200);
+        }
+
+        /* Scrollbar Styles */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--neutral-100);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-600);
+            border-radius: var(--radius-md);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-700);
+        }
+
+        /* Responsive Modal */
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                margin: 5% auto;
+                padding: var(--space-4);
+            }
+
+            .modal-header h2 {
+                font-size: 1.25rem;
+            }
+
+            .close-btn {
+                font-size: 1rem;
+            }
+
+            .form-group label {
+                font-size: 0.85rem;
+            }
+
+            .form-group input,
+            .form-group textarea {
+                font-size: 0.85rem;
+            }
+
+            .photo-preview {
+                width: 48px;
+                height: 48px;
+            }
+
+            .change-photo-btn {
+                width: 24px;
+                height: 24px;
+                font-size: 1rem;
+            }
+
+            .emoji-btn {
+                font-size: 1.25rem;
+            }
+
+            .initials-btn {
+                padding: var(--space-1) var(--space-3);
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Notification Styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--primary-600);
+            color: white;
+            padding: var(--space-3) var(--space-4);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            z-index: 1001;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .notification-success {
+            background: var(--success-500);
+        }
+
+        .notification-info {
+            background: var(--primary-600);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                GestureQuiz
+            </div>
+            
+            <div class="header-nav">
+                <div class="user-menu">
+                    <div class="user-info">
+                        <div class="user-name" id="userName">Teacher</div>
+                        <div class="user-role">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            Educator
+                        </div>
+                    </div>
+                    <div class="user-avatar" id="userAvatar" onclick="openProfileModal()" style="cursor: pointer;" title="Click to edit profile">
+                        👨‍🏫
+                    </div>
+                    <button class="btn btn-outline" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="welcome-section">
+            <h1 class="welcome-title" id="welcomeText">Welcome to Your Dashboard</h1>
+            <p class="welcome-subtitle">Create engaging quizzes, track student progress, and revolutionize learning with gesture-based interactions</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                </div>
+                <div class="stat-number" id="totalQuizzes">0</div>
+                <div class="stat-label">Total Quizzes</div>
+                <div class="stat-change" id="totalQuizzesChange">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>All your quizzes</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                </div>
+                <div class="stat-number" id="draftQuizzes">0</div>
+                <div class="stat-label">Draft Quizzes</div>
+                <div class="stat-change" id="draftQuizzesChange">
+                    <i class="fas fa-clock"></i>
+                    <span>Awaiting publish</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                </div>
+                <div class="stat-number" id="publishedQuizzes">0</div>
+                <div class="stat-label">Published Quizzes</div>
+                <div class="stat-change positive" id="publishedQuizzesChange">
+                    <i class="fas fa-check"></i>
+                    <span>Live for students</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+                <div class="stat-number">4.8</div>
+                <div class="stat-label">Student Rating</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-thumbs-up"></i>
+                    <span>Excellent feedback</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <h2 class="quick-actions-title">
+                <i class="fas fa-bolt"></i>
+                Quick Actions
+            </h2>
+            <div class="quick-actions-grid">
+                <div class="action-card" onclick="manageQuizzes()">
+                    <div class="action-header">
+                        <div class="action-icon">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <div>
+                            <h3 class="action-title">Manage Quizzes</h3>
+                        </div>
+                    </div>
+                    <p class="action-description">
+                        View, edit, and organize your existing quizzes. Monitor performance, update content, and track student engagement.
+                    </p>
+                    <button class="action-button" onclick="event.stopPropagation(); manageQuizzes();">
+                        <i class="fas fa-cog"></i>
+                        Manage Content
+                    </button>
+                </div>
+
+                <div class="action-card" onclick="manageClasses()">
+                    <div class="action-header">
+                        <div class="action-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div>
+                            <h3 class="action-title">Manage Classes</h3>
+                        </div>
+                    </div>
+                    <p class="action-description">
+                        Create and organize your classes. Add students, manage class assignments, and track class performance.
+                    </p>
+                    <button class="action-button" onclick="event.stopPropagation(); manageClasses();">
+                        <i class="fas fa-users"></i>
+                        Manage Classes
+                    </button>
+                </div>
+
+                <div class="action-card" onclick="viewAnalytics()">
+                    <div class="action-header">
+                        <div class="action-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div>
+                            <h3 class="action-title">View Analytics</h3>
+                        </div>
+                    </div>
+                    <p class="action-description">
+                        Dive deep into student performance data. Analyze trends, identify learning gaps, and optimize your teaching strategies.
+                    </p>
+                    <button class="action-button" onclick="event.stopPropagation(); viewAnalytics();">
+                        <i class="fas fa-chart-bar"></i>
+                        View Reports
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="recent-activity">
+            <div class="activity-header">
+                <h2 class="activity-title">
+                    <i class="fas fa-clock"></i>
+                    Recent Activity
+                </h2>
+                <button class="btn btn-outline" onclick="viewAllActivity()">
+                    View All
+                </button>
+            </div>
+            <div class="activity-list">
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-text">New student enrolled in "Basic Hand Gestures" quiz</div>
+                        <div class="activity-time">2 hours ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-text">Sarah achieved 100% on "Advanced Gestures" quiz</div>
+                        <div class="activity-time">4 hours ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-text">Quiz "Communication Skills" was updated</div>
+                        <div class="activity-time">1 day ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-text">Class average improved by 12% this week</div>
+                        <div class="activity-time">3 days ago</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Profile Edit Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Profile</h2>
+                <button class="close-btn" onclick="closeProfileModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="profileForm">
+                    <div class="form-group">
+                        <label for="profileName">Full Name</label>
+                        <input type="text" id="profileName" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="profileEmail">Email</label>
+                        <input type="email" id="profileEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="profilePhone">Phone Number</label>
+                        <input type="tel" id="profilePhone" name="phone">
+                    </div>
+                    <div class="form-group">
+                        <label for="profileDepartment">Department</label>
+                        <input type="text" id="profileDepartment" name="department" placeholder="e.g., Computer Science">
+                    </div>
+                    <div class="form-group">
+                        <label for="profileBio">Bio</label>
+                        <textarea id="profileBio" name="bio" rows="3" placeholder="Tell us about yourself..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Profile Photo</label>
+                        <div class="photo-upload">
+                            <div class="photo-preview">
+                                <div class="current-photo" id="currentPhoto">
+                                    👨‍🏫
+                                </div>
+                                <button type="button" class="change-photo-btn" onclick="changePhoto()">
+                                    <i class="fas fa-camera"></i>
+                                    Change Photo
+                                </button>
+                            </div>
+                            <div class="photo-options">
+                                <div class="emoji-options">
+                                    <button type="button" class="emoji-btn" onclick="selectEmoji('👨‍🏫')">👨‍🏫</button>
+                                    <button type="button" class="emoji-btn" onclick="selectEmoji('👩‍🏫')">👩‍🏫</button>
+                                    <button type="button" class="emoji-btn" onclick="selectEmoji('🧑‍🏫')">🧑‍🏫</button>
+                                    <button type="button" class="emoji-btn" onclick="selectEmoji('👨‍💻')">👨‍💻</button>
+                                    <button type="button" class="emoji-btn" onclick="selectEmoji('👩‍💻')">👩‍💻</button>
+                                    <button type="button" class="emoji-btn" onclick="selectEmoji('🧑‍🔬')">🧑‍🔬</button>
+                                    <button type="button" class="emoji-btn" onclick="selectEmoji('📚')">📚</button>
+                                    <button type="button" class="emoji-btn" onclick="selectEmoji('🎓')">🎓</button>
+                                </div>
+                                <div class="initials-option">
+                                    <button type="button" class="initials-btn" onclick="useInitials()">Use Initials</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" onclick="closeProfileModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set up test data if not present
+        if (!localStorage.getItem('currentUser')) {
+            const testUser = {
+                email: 'test@teacher.com',
+                name: 'Test Teacher',
+                role: 'teacher'
+            };
+            localStorage.setItem('currentUser', JSON.stringify(testUser));
+            console.log('Test user data set up');
+        }
+        
+        if (!localStorage.getItem('gestureQuizzes')) {
+            const testQuizzes = [
+                {
+                    id: 'quiz1',
+                    title: 'Sample Quiz 1',
+                    createdBy: 'test@teacher.com',
+                    status: 'published',
+                    questions: []
+                },
+                {
+                    id: 'quiz2',
+                    title: 'Sample Quiz 2',
+                    createdBy: 'test@teacher.com',
+                    status: 'draft',
+                    questions: []
+                }
+            ];
+            localStorage.setItem('gestureQuizzes', JSON.stringify(testQuizzes));
+            console.log('Test quiz data set up');
+        }
+
+        // Load user data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            if (currentUser.name) {
+                document.getElementById('welcomeText').textContent = `Welcome back, ${currentUser.name}!`;
+                document.getElementById('userName').textContent = currentUser.name;
+                
+                // Update user avatar with initials
+                const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                document.getElementById('userAvatar').textContent = initials;
+            }
+            
+            // Check if user is logged in
+            if (!currentUser.email) {
+                window.location.href = '../index.html';
+            }
+            
+            // Update quiz count
+            updateQuizCount();
+        });
+
+        function updateQuizCount() {
+            const quizzes = JSON.parse(localStorage.getItem('gestureQuizzes') || '[]');
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const userQuizzes = quizzes.filter(q => q.createdBy === currentUser.email);
+            document.getElementById('totalQuizzes').textContent = userQuizzes.length;
+        }
+
+
+
+        // Debug logging functions
+        function debugLog(message) {
+            console.log('[Teacher Dashboard]', message);
+        }
+
+        function manageQuizzes() {
+            debugLog('manageQuizzes button clicked');
+            try {
+                window.location.href = 'quiz-management.html';
+            } catch (error) {
+                debugLog('Error navigating to quiz management: ' + error.message);
+                alert('Error navigating to quiz management. Please try again.');
+            }
+        }
+
+        function viewAnalytics() {
+            debugLog('viewAnalytics button clicked');
+            window.location.href = 'analytics.html';
+        }
+
+        function viewAllActivity() {
+            debugLog('viewAllActivity button clicked');
+            alert('📋 Activity log feature coming soon! This will show a comprehensive history of all activities.');
+        }
+
+        function logout() {
+            debugLog('logout button clicked');
+                                    </div>
+                                </div>
+                                <div class="progress-stat">currentUser');
+                                    <div class="stat-icon">indow.location.href = '../index.html';
+                                        <i class="fas fa-trophy"></i>
+                                    </div>atch (error) {
+                                    <div class="stat-info">    debugLog('Error during logout: ' + error.message);
+                                        <div class="stat-number" id="topPerformers">0</div>t. Please try again.');
+                                        <div class="stat-label">Top Performers</div>
+                                    </div>
+                                </div>
+                            </div>real statistics
+                            <div class="progress-chart">
+                                <canvas id="progressChart" width="400" height="200"></canvas>(localStorage.getItem('currentUser') || '{}');
+                            </div>(localStorage.getItem('gestureQuizzes') || '[]');
+                        </div>
+                    </div>
+                </div>lter quizzes by current teacher
+            </div>onst teacherQuizzes = quizzes.filter(quiz => quiz.createdBy === currentUser.email);
+        </div>   
+    </div>            // Calculate stats with better categorization
+
+    <script>r(quiz => quiz.status === 'draft' || !quiz.status).length;
+        // Set up test data if not present'published').length;
+        if (!localStorage.getItem('currentUser')) {s = teacherQuizzes.filter(quiz => quiz.status === 'scheduled').length;
+            const testUser = { 
+                email: 'test@teacher.com',            // Calculate average score from all teacher's quiz results
+                name: 'Test Teacher',q => q.id);
+                role: 'teacher' => teacherQuizIds.includes(result.quizId));
+            };
+            localStorage.setItem('currentUser', JSON.stringify(testUser));
+            console.log('Test user data set up');uizzes', totalQuizzes);
+        }nimateStatNumber('draftQuizzes', draftQuizzes);
+         animateStatNumber('publishedQuizzes', publishedQuizzes);
+        if (!localStorage.getItem('gestureQuizzes')) {            
+            const testQuizzes = [helpful information
+                {yId('totalQuizzesChange').innerHTML = `
+                    id: 'quiz1',pboard-list"></i>
+                    title: 'Sample Quiz 1',izzes</span>
+                    createdBy: 'test@teacher.com',
+                    status: 'published',            
+                    questions: []TML = `
+                },/i>
+                {es} ready to publish` : 'No drafts'}</span>
+                    id: 'quiz2',`;
+                    title: 'Sample Quiz 2',
+                    createdBy: 'test@teacher.com',izzesChange').innerHTML = `
+                    status: 'draft',
+                    questions: []es} live ${scheduledQuizzes > 0 ? `+ ${scheduledQuizzes} scheduled` : ''}` : scheduledQuizzes > 0 ? `${scheduledQuizzes} scheduled` : 'None published yet'}</span>
+                }s.length} student attempts` : 'No attempts yet'}</span>
+            ];
+            localStorage.setItem('gestureQuizzes', JSON.stringify(testQuizzes));
+            console.log('Test quiz data set up');
+        }Value, suffix = '') {
+document.getElementById(elementId);
+        // Load user data on page load  const startValue = 0;
+        document.addEventListener('DOMContentLoaded', function() {            const duration = 1000; // 1 second
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            if (currentUser.name) {
+                document.getElementById('welcomeText').textContent = `Welcome back, ${currentUser.name}!`;
+                document.getElementById('userName').textContent = currentUser.name;    const currentTime = Date.now();
+                tTime) / duration, 1);
+                // Update user avatar with initials
+                const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                document.getElementById('userAvatar').textContent = initials;
+            }
+            
+            // Check if user is logged inrequestAnimationFrame(updateValue);
+            if (!currentUser.email) {
+                window.location.href = '../index.html';
+            }
+            
+            // Update quiz count
+            updateQuizCount();Value);
+        });
+
+        function updateQuizCount() {ialize dashboard
+            const quizzes = JSON.parse(localStorage.getItem('gestureQuizzes') || '[]');ment.addEventListener('DOMContentLoaded', function() {
+            // Check for scheduled quizzes and auto-publish if needed
+            checkScheduledQuizzes();
+            
+            // Load real dashboard statistics
+            loadDashboardStats();
+            
+            // Set up periodic check for scheduled quizzes (every 5 minutes)
+            setInterval(checkScheduledQuizzes, 5 * 60 * 1000);
+        });
+
+        function checkScheduledQuizzes() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const quizzes = JSON.parse(localStorage.getItem('gestureQuizzes') || '[]');
+            const now = new Date();
+            
+            const teacherQuizzes = quizzes.filter(quiz => 
+                quiz.createdBy === currentUser.email && 
+                quiz.status === 'scheduled' && 
+                quiz.scheduledPublishAt
+            );
+            
+            let autoPublishedCount = 0;
+            
+            teacherQuizzes.forEach(quiz => {
+                const scheduledTime = new Date(quiz.scheduledPublishAt);
+                if (scheduledTime <= now) {
+                    // Time to publish this quiz
+                    const quizIndex = quizzes.findIndex(q => q.id === quiz.id);
+                    if (quizIndex !== -1) {
+                        quizzes[quizIndex].status = 'published';
+                        quizzes[quizIndex].published = true;
+                        quizzes[quizIndex].publishedAt = new Date().toISOString();
+                        // Keep the scheduled time for record
+                        quizzes[quizIndex].wasScheduledFor = quiz.scheduledPublishAt;
+                        delete quizzes[quizIndex].scheduledPublishAt;
+                        autoPublishedCount++;
+                    }
+                }
+            });
+            
+            if (autoPublishedCount > 0) {
+                localStorage.setItem('gestureQuizzes', JSON.stringify(quizzes));
+                // Refresh stats if any quizzes were auto-published
+                loadDashboardStats();
+                
+                // Show notification if user is active (optional - only show if they're on the page)
+                if (document.hasFocus()) {
+                    setTimeout(() => {
+                        alert(`🎉 ${autoPublishedCount} scheduled quiz${autoPublishedCount > 1 ? 'es have' : ' has'} been automatically published!`);
+                    }, 1000);
+                }
+            }
+        }
+
+        // Refresh dashboard stats when returning from quiz management
+        window.addEventListener('focus', function() {
+            // Reload stats when window gets focus (user returns from another page)
+            loadDashboardStats();
+        });
+
+        // Listen for storage changes from other pages
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'gestureQuizzes') {
+                // Quiz data changed, reload stats
+                loadDashboardStats();
+            }
+        });
+
+        // Also check for updates every 30 seconds
+        setInterval(function() {
+            checkScheduledQuizzes();
+            loadDashboardStats();
+        }, 30000);
+
+        // Test function that can be called from browser console
+        window.testButtons = function() {
+            debugLog('Testing all button functions...');
+            
+            // Test that all functions are available
+            console.log('Functions available:');
+            console.log('manageQuizzes:', typeof manageQuizzes);
+            console.log('viewAnalytics:', typeof viewAnalytics);
+            console.log('viewAllActivity:', typeof viewAllActivity);
+            console.log('logout:', typeof logout);
+            
+            // Test analytics function (safe to call)
+            console.log('Testing viewAnalytics...');
+            viewAnalytics();
+        };
+
+        // Add click event listeners as backup
+        document.addEventListener('DOMContentLoaded', function() {
+            debugLog('DOM loaded, setting up backup event listeners...');
+            
+            // Get all action buttons and add click listeners
+            const actionButtons = document.querySelectorAll('.action-button');
+            actionButtons.forEach((button, index) => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    debugLog(`Action button ${index} clicked`);
+                    
+                    // Determine which function to call based on button content
+                    const buttonText = button.textContent.trim();
+                    if (buttonText.includes('Manage')) {
+                        manageQuizzes();
+                    } else if (buttonText.includes('View Reports')) {
+                        viewAnalytics();
+                    }
+                });
+            });
+            
+            // Add listener for View All button
+            const viewAllButton = document.querySelector('.activity-header button');
+            if (viewAllButton) {
+                viewAllButton.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    debugLog('View All button clicked');
+                    viewAllActivity();
+                });
+            }
+            
+            // Add listener for logout button
+            const logoutButton = document.querySelector('.header-content button');
+            if (logoutButton) {
+                logoutButton.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    debugLog('Logout button clicked');
+                    logout();
+                });
+            }
+        });
+
+        // Profile modal functions
+        function openProfileModal() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            
+            // Populate form with current user data
+            document.getElementById('profileName').value = currentUser.name || '';
+            document.getElementById('profileEmail').value = currentUser.email || '';
+            document.getElementById('profilePhone').value = currentUser.phone || '';
+            document.getElementById('profileDepartment').value = currentUser.department || '';
+            document.getElementById('profileBio').value = currentUser.bio || '';
+            
+            // Update current photo display
+            const currentPhoto = document.getElementById('currentPhoto');
+            if (currentUser.avatar) {
+                currentPhoto.textContent = currentUser.avatar;
+            } else if (currentUser.name) {
+                const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                currentPhoto.textContent = initials;
+            }
+            
+            // Show modal
+            document.getElementById('profileModal').classList.add('active');
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profileModal').classList.remove('active');
+            document.querySelector('.photo-options').classList.remove('active');
+        }
+
+        function changePhoto() {
+            const photoOptions = document.querySelector('.photo-options');
+            photoOptions.classList.toggle('active');
+        }
+
+        function selectEmoji(emoji) {
+            document.getElementById('currentPhoto').textContent = emoji;
+            
+            // Remove selected class from all emoji buttons
+            document.querySelectorAll('.emoji-btn').forEach(btn => btn.classList.remove('selected'));
+            
+            // Add selected class to clicked button
+            event.target.classList.add('selected');
+        }
+
+        function useInitials() {
+            const name = document.getElementById('profileName').value;
+            if (name) {
+                const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
+                document.getElementById('currentPhoto').textContent = initials;
+            }
+        }
+
+        // Handle profile form submission
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('profileForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(e.target);
+                const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                
+                // Update user data
+                currentUser.name = formData.get('name');
+                currentUser.email = formData.get('email');
+                currentUser.phone = formData.get('phone');
+                currentUser.department = formData.get('department');
+                currentUser.bio = formData.get('bio');
+                currentUser.avatar = document.getElementById('currentPhoto').textContent;
+                
+                // Save to localStorage
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                // Update UI
+                document.getElementById('userName').textContent = currentUser.name;
+                document.getElementById('userAvatar').textContent = currentUser.avatar;
+                document.getElementById('welcomeText').textContent = `Welcome back, ${currentUser.name}!`;
+                
+                // Close modal
+                closeProfileModal();
+                
+                // Show success message
+                showNotification('Profile updated successfully!', 'success');
+            });
+        });
+
+        // Notification function
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? 'var(--success-500)' : 'var(--primary-600)'};
+                color: white;
+                padding: var(--space-3) var(--space-4);
+                border-radius: var(--radius-lg);
+                box-shadow: var(--shadow-lg);
+                z-index: 1001;
+                opacity: 0;
+                transform: translateX(100%);
+                transition: all 0.3s ease;
+                font-weight: 500;
+                display: flex;
+                align-items: center;
+                gap: var(--space-2);
+            `;
+            
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i>
+                ${message}
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Animate in
+            setTimeout(() => {
+                notification.style.opacity = '1';
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            // Animate out and remove
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('profileModal');
+            if (e.target === modal) {
+                closeProfileModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && document.getElementById('profileModal').classList.contains('active')) {
+                closeProfileModal();
+            }
+        });
+    </script>
+</body>
+</html>

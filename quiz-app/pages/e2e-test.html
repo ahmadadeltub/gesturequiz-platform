@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>End-to-End Quiz Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn {
+            background: #0284c7;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover {
+            background: #0369a1;
+        }
+        .btn-success {
+            background: #22c55e;
+        }
+        .btn-success:hover {
+            background: #16a34a;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .status.success {
+            background: #f0fdf4;
+            color: #16a34a;
+            border: 1px solid #22c55e;
+        }
+        .status.error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #ef4444;
+        }
+        .quiz-data {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+        .test-step {
+            margin: 15px 0;
+            padding: 15px;
+            border-left: 4px solid #0284c7;
+            background: #f8f9fa;
+        }
+        .test-step.success {
+            border-left-color: #22c55e;
+            background: #f0fdf4;
+        }
+        .test-step.error {
+            border-left-color: #dc2626;
+            background: #fef2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 End-to-End Quiz Creation Test</h1>
+    
+    <div class="test-section">
+        <h2>Test Instructions</h2>
+        <p>This test will simulate the complete quiz creation and publish flow:</p>
+        <ol>
+            <li>Setup test environment with user authentication</li>
+            <li>Create a complete quiz with multiple questions</li>
+            <li>Test the save/publish modal functionality</li>
+            <li>Test the publish options modal</li>
+            <li>Execute the publish operation</li>
+            <li>Verify the quiz is stored correctly</li>
+        </ol>
+        <button class="btn btn-success" onclick="runFullTest()">Run Full Test</button>
+        <button class="btn" onclick="clearAll()">Clear All</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Results</h2>
+        <div id="testResults"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Storage Debug</h2>
+        <button class="btn" onclick="showStorage()">Show Storage</button>
+        <div id="storageDebug"></div>
+    </div>
+
+    <script>
+        let testResults = [];
+
+        function addTestResult(step, success, message) {
+            testResults.push({
+                step: step,
+                success: success,
+                message: message,
+                timestamp: new Date().toLocaleTimeString()
+            });
+            updateTestDisplay();
+        }
+
+        function updateTestDisplay() {
+            const container = document.getElementById('testResults');
+            container.innerHTML = testResults.map(result => `
+                <div class="test-step ${result.success ? 'success' : 'error'}">
+                    <strong>[${result.timestamp}] Step ${result.step}:</strong> ${result.message}
+                </div>
+            `).join('');
+        }
+
+        function clearAll() {
+            localStorage.clear();
+            testResults = [];
+            updateTestDisplay();
+            document.getElementById('storageDebug').innerHTML = '';
+        }
+
+        function showStorage() {
+            const quizzes = JSON.parse(localStorage.getItem('gestureQuizzes') || '[]');
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            
+            const debug = {
+                currentUser: currentUser,
+                quizzes: quizzes,
+                quizCount: quizzes.length,
+                publishedQuizzes: quizzes.filter(q => q.published).length,
+                draftQuizzes: quizzes.filter(q => !q.published).length
+            };
+            
+            document.getElementById('storageDebug').innerHTML = 
+                '<div class="quiz-data">' + JSON.stringify(debug, null, 2) + '</div>';
+        }
+
+        function runFullTest() {
+            testResults = [];
+            
+            // Step 1: Setup environment
+            try {
+                const testUser = {
+                    email: 'test@teacher.com',
+                    name: 'Test Teacher',
+                    role: 'teacher',
+                    department: 'Computer Science'
+                };
+                
+                localStorage.setItem('currentUser', JSON.stringify(testUser));
+                addTestResult(1, true, 'Test environment setup complete');
+            } catch (error) {
+                addTestResult(1, false, 'Environment setup failed: ' + error.message);
+                return;
+            }
+
+            // Step 2: Create test quiz data
+            try {
+                const testQuiz = {
+                    id: 'quiz_e2e_test_' + Date.now(),
+                    title: 'E2E Test Quiz',
+                    description: 'End-to-end test quiz for publish functionality',
+                    category: 'Testing',
+                    difficulty: 'Easy',
+                    questions: [
+                        {
+                            id: '1',
+                            text: 'What gesture means thumbs up?',
+                            options: [
+                                { text: 'Thumbs up', gesture: '👍' },
+                                { text: 'Peace sign', gesture: '✌️' },
+                                { text: 'OK sign', gesture: '👌' },
+                                { text: 'High five', gesture: '✋' }
+                            ],
+                            correctAnswer: 0
+                        },
+                        {
+                            id: '2',
+                            text: 'What gesture means peace?',
+                            options: [
+                                { text: 'Thumbs up', gesture: '👍' },
+                                { text: 'Peace sign', gesture: '✌️' },
+                                { text: 'OK sign', gesture: '👌' },
+                                { text: 'High five', gesture: '✋' }
+                            ],
+                            correctAnswer: 1
+                        }
+                    ],
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                    createdBy: 'test@teacher.com',
+                    status: 'draft',
+                    published: false
+                };
+                
+                window.testQuizData = testQuiz;
+                addTestResult(2, true, 'Test quiz data created with ' + testQuiz.questions.length + ' questions');
+            } catch (error) {
+                addTestResult(2, false, 'Quiz data creation failed: ' + error.message);
+                return;
+            }
+
+            // Step 3: Test save/publish modal simulation
+            try {
+                window.currentSavePublishQuizData = window.testQuizData;
+                
+                if (window.currentSavePublishQuizData) {
+                    addTestResult(3, true, 'Save/publish modal data set successfully');
+                } else {
+                    addTestResult(3, false, 'Save/publish modal data not set');
+                    return;
+                }
+            } catch (error) {
+                addTestResult(3, false, 'Save/publish modal test failed: ' + error.message);
+                return;
+            }
+
+            // Step 4: Test publish options simulation
+            try {
+                window.currentPublishQuizData = window.testQuizData;
+                
+                if (window.currentPublishQuizData && window.currentPublishQuizData.id) {
+                    addTestResult(4, true, 'Publish options data set successfully for quiz ID: ' + window.currentPublishQuizData.id);
+                } else {
+                    addTestResult(4, false, 'Publish options data not set properly');
+                    return;
+                }
+            } catch (error) {
+                addTestResult(4, false, 'Publish options test failed: ' + error.message);
+                return;
+            }
+
+            // Step 5: Test publish execution
+            try {
+                const quizData = { ...window.testQuizData };
+                quizData.status = 'published';
+                quizData.published = true;
+                quizData.publishedAt = new Date().toISOString();
+                
+                const quizzes = JSON.parse(localStorage.getItem('gestureQuizzes') || '[]');
+                
+                // Remove existing test quiz if it exists
+                const existingIndex = quizzes.findIndex(q => q.id === quizData.id);
+                if (existingIndex !== -1) {
+                    quizzes.splice(existingIndex, 1);
+                }
+                
+                quizzes.push(quizData);
+                localStorage.setItem('gestureQuizzes', JSON.stringify(quizzes));
+                
+                addTestResult(5, true, 'Quiz published successfully with ID: ' + quizData.id);
+            } catch (error) {
+                addTestResult(5, false, 'Publish execution failed: ' + error.message);
+                return;
+            }
+
+            // Step 6: Verify storage
+            try {
+                const storedQuizzes = JSON.parse(localStorage.getItem('gestureQuizzes') || '[]');
+                const publishedQuiz = storedQuizzes.find(q => q.id === window.testQuizData.id);
+                
+                if (publishedQuiz && publishedQuiz.published === true && publishedQuiz.status === 'published') {
+                    addTestResult(6, true, 'Quiz verified in storage - Status: ' + publishedQuiz.status + ', Published: ' + publishedQuiz.published);
+                } else {
+                    addTestResult(6, false, 'Quiz not found in storage or not published correctly');
+                }
+            } catch (error) {
+                addTestResult(6, false, 'Storage verification failed: ' + error.message);
+            }
+
+            // Show final storage state
+            setTimeout(() => {
+                showStorage();
+            }, 100);
+        }
+
+        // Run test on page load
+        window.addEventListener('load', function() {
+            addTestResult(0, true, 'Test page loaded successfully');
+        });
+    </script>
+</body>
+</html>

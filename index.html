@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hand Gesture Recognition</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤚 Hand Gesture Recognition</h1>
+            <p>Real-time gesture detection using MediaPipe Hands</p>
+        </header>
+        
+        <main>
+            <div class="video-container">
+                <video id="video" autoplay playsinline></video>
+                <canvas id="canvas"></canvas>
+                <div class="overlay">
+                    <div class="gesture-display">
+                        <h2 id="gesture-name">No gesture detected</h2>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" id="confidence-fill"></div>
+                        </div>
+                        <span class="confidence-text" id="confidence-text">0%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button id="start-btn" class="btn primary">Start Camera</button>
+                <button id="stop-btn" class="btn secondary" disabled>Stop Camera</button>
+                <button id="toggle-landmarks" class="btn secondary">Toggle Landmarks</button>
+            </div>
+            
+            <div class="info-panel">
+                <h3>Supported Gestures</h3>
+                <div class="gesture-list">
+                    <div class="gesture-item">
+                        <span class="gesture-emoji">✋</span>
+                        <span class="gesture-label">Open Palm</span>
+                    </div>
+                    <div class="gesture-item">
+                        <span class="gesture-emoji">✊</span>
+                        <span class="gesture-label">Fist</span>
+                    </div>
+                    <div class="gesture-item">
+                        <span class="gesture-emoji">👌</span>
+                        <span class="gesture-label">OK Sign</span>
+                    </div>
+                    <div class="gesture-item">
+                        <span class="gesture-emoji">👍</span>
+                        <span class="gesture-label">Thumbs Up</span>
+                    </div>
+                    <div class="gesture-item">
+                        <span class="gesture-emoji">☝️</span>
+                        <span class="gesture-label">Point Up</span>
+                    </div>
+                    <div class="gesture-item">
+                        <span class="gesture-emoji">✌️</span>
+                        <span class="gesture-label">Peace Sign</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <div class="status-bar">
+            <span id="status">Ready to start</span>
+            <span id="fps">FPS: 0</span>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    <script src="gesture-detector.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

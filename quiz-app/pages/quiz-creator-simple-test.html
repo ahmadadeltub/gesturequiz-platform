@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Creator Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-form {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .question-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+        .btn {
+            background: #0284c7;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover {
+            background: #0369a1;
+        }
+        .btn-success {
+            background: #22c55e;
+        }
+        .btn-success:hover {
+            background: #16a34a;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .status.success {
+            background: #f0fdf4;
+            color: #16a34a;
+            border: 1px solid #22c55e;
+        }
+        .status.error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #ef4444;
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Quiz Creator Test</h1>
+    
+    <div class="test-form">
+        <h2>Create Test Quiz</h2>
+        
+        <form id="quizForm" onsubmit="saveQuiz(event)">
+            <div class="form-group">
+                <label for="quizTitle">Quiz Title</label>
+                <input type="text" id="quizTitle" name="quizTitle" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="quizDescription">Description</label>
+                <textarea id="quizDescription" name="quizDescription" rows="3"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="quizCategory">Category</label>
+                <select id="quizCategory" name="quizCategory">
+                    <option value="General">General</option>
+                    <option value="Math">Math</option>
+                    <option value="Science">Science</option>
+                    <option value="Testing">Testing</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="quizDifficulty">Difficulty</label>
+                <select id="quizDifficulty" name="quizDifficulty">
+                    <option value="Easy">Easy</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Hard">Hard</option>
+                </select>
+            </div>
+            
+            <div id="questionsContainer">
+                <div class="question-item" data-question="1">
+                    <h4>Question 1</h4>
+                    <div class="form-group">
+                        <label>Question Text</label>
+                        <input type="text" name="question_1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Option 1</label>
+                        <input type="text" name="option_1_1" required>
+                        <input type="hidden" name="gesture_1_1" value="👍">
+                    </div>
+                    <div class="form-group">
+                        <label>Option 2</label>
+                        <input type="text" name="option_1_2" required>
+                        <input type="hidden" name="gesture_1_2" value="✌️">
+                    </div>
+                    <div class="form-group">
+                        <label>Option 3</label>
+                        <input type="text" name="option_1_3" required>
+                        <input type="hidden" name="gesture_1_3" value="👌">
+                    </div>
+                    <div class="form-group">
+                        <label>Option 4</label>
+                        <input type="text" name="option_1_4" required>
+                        <input type="hidden" name="gesture_1_4" value="✋">
+                    </div>
+                    <div class="form-group">
+                        <label>Correct Answer</label>
+                        <select name="correct_1" required>
+                            <option value="">Select correct answer</option>
+                            <option value="1">Option 1</option>
+                            <option value="2">Option 2</option>
+                            <option value="3">Option 3</option>
+                            <option value="4">Option 4</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="question-item" data-question="2">
+                    <h4>Question 2</h4>
+                    <div class="form-group">
+                        <label>Question Text</label>
+                        <input type="text" name="question_2" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Option 1</label>
+                        <input type="text" name="option_2_1" required>
+                        <input type="hidden" name="gesture_2_1" value="👍">
+                    </div>
+                    <div class="form-group">
+                        <label>Option 2</label>
+                        <input type="text" name="option_2_2" required>
+                        <input type="hidden" name="gesture_2_2" value="✌️">
+                    </div>
+                    <div class="form-group">
+                        <label>Option 3</label>
+                        <input type="text" name="option_2_3" required>
+                        <input type="hidden" name="gesture_2_3" value="👌">
+                    </div>
+                    <div class="form-group">
+                        <label>Option 4</label>
+                        <input type="text" name="option_2_4" required>
+                        <input type="hidden" name="gesture_2_4" value="✋">
+                    </div>
+                    <div class="form-group">
+                        <label>Correct Answer</label>
+                        <select name="correct_2" required>
+                            <option value="">Select correct answer</option>
+                            <option value="1">Option 1</option>
+                            <option value="2">Option 2</option>
+                            <option value="3">Option 3</option>
+                            <option value="4">Option 4</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-success">Save Quiz</button>
+        </form>
+    </div>
+
+    <div class="test-form">
+        <h2>Test Controls</h2>
+        <button class="btn" onclick="setupEnvironment()">Setup Environment</button>
+        <button class="btn" onclick="fillTestData()">Fill Test Data</button>
+        <button class="btn" onclick="showStorage()">Show Storage</button>
+        <button class="btn" onclick="clearStorage()">Clear Storage</button>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        // Setup test environment
+        function setupEnvironment() {
+            const testUser = {
+                email: 'test@teacher.com',
+                name: 'Test Teacher',
+                role: 'teacher',
+                department: 'Computer Science'
+            };
+            
+            localStorage.setItem('currentUser', JSON.stringify(testUser));
+            
+            document.getElementById('status').innerHTML = 
+                '<div class="status success">✅ Environment setup complete</div>';
+        }
+
+        // Fill test data
+        function fillTestData() {
+            document.getElementById('quizTitle').value = 'Test Quiz - Publish Flow';
+            document.getElementById('quizDescription').value = 'A test quiz to verify publish functionality';
+            document.getElementById('quizCategory').value = 'Testing';
+            document.getElementById('quizDifficulty').value = 'Easy';
+            
+            document.querySelector('[name="question_1"]').value = 'What gesture means thumbs up?';
+            document.querySelector('[name="option_1_1"]').value = 'Thumbs up';
+            document.querySelector('[name="option_1_2"]').value = 'Peace sign';
+            document.querySelector('[name="option_1_3"]').value = 'OK sign';
+            document.querySelector('[name="option_1_4"]').value = 'High five';
+            document.querySelector('[name="correct_1"]').value = '1';
+            
+            document.querySelector('[name="question_2"]').value = 'What gesture means peace?';
+            document.querySelector('[name="option_2_1"]').value = 'Thumbs up';
+            document.querySelector('[name="option_2_2"]').value = 'Peace sign';
+            document.querySelector('[name="option_2_3"]').value = 'OK sign';
+            document.querySelector('[name="option_2_4"]').value = 'High five';
+            document.querySelector('[name="correct_2"]').value = '2';
+            
+            document.getElementById('status').innerHTML = 
+                '<div class="status success">✅ Test data filled</div>';
+        }
+
+        // Show storage
+        function showStorage() {
+            const quizzes = JSON.parse(localStorage.getItem('gestureQuizzes') || '[]');
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            
+            const info = `
+Storage Contents:
+- Current User: ${currentUser.name || 'None'}
+- Quiz Count: ${quizzes.length}
+- Published Quizzes: ${quizzes.filter(q => q.published).length}
+- Draft Quizzes: ${quizzes.filter(q => !q.published).length}
+
+Latest Quiz: ${quizzes.length > 0 ? quizzes[quizzes.length - 1].title : 'None'}
+            `;
+            
+            document.getElementById('status').innerHTML = 
+                '<div class="status success">' + info.replace(/\n/g, '<br>') + '</div>';
+        }
+
+        // Clear storage
+        function clearStorage() {
+            localStorage.removeItem('gestureQuizzes');
+            
+            document.getElementById('status').innerHTML = 
+                '<div class="status success">✅ Storage cleared</div>';
+        }
+
+        // Save quiz function (simplified version of the main one)
+        function saveQuiz(event) {
+            event.preventDefault();
+            
+            console.log('Save Quiz function called');
+            
+            const formData = new FormData(event.target);
+            const quizData = {
+                id: 'quiz_' + Date.now(),
+                title: formData.get('quizTitle'),
+                description: formData.get('quizDescription'),
+                category: formData.get('quizCategory'),
+                difficulty: formData.get('quizDifficulty'),
+                questions: [],
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                createdBy: JSON.parse(localStorage.getItem('currentUser') || '{}').email,
+                status: 'draft',
+                published: false
+            };
+
+            console.log('Quiz data initialized:', quizData);
+
+            // Collect questions
+            const questionItems = document.querySelectorAll('.question-item');
+            console.log('Found question items:', questionItems.length);
+            
+            if (questionItems.length === 0) {
+                alert('Please add at least one question to your quiz.');
+                return;
+            }
+
+            // Collect and validate questions
+            let hasValidationErrors = false;
+            const questions = [];
+            
+            questionItems.forEach((item, index) => {
+                if (hasValidationErrors) return;
+                
+                const questionNum = item.dataset.question;
+                const question = {
+                    id: questionNum,
+                    text: document.querySelector(`[name="question_${questionNum}"]`).value,
+                    options: [
+                        {
+                            text: document.querySelector(`[name="option_${questionNum}_1"]`).value,
+                            gesture: document.querySelector(`[name="gesture_${questionNum}_1"]`).value
+                        },
+                        {
+                            text: document.querySelector(`[name="option_${questionNum}_2"]`).value,
+                            gesture: document.querySelector(`[name="gesture_${questionNum}_2"]`).value
+                        },
+                        {
+                            text: document.querySelector(`[name="option_${questionNum}_3"]`).value,
+                            gesture: document.querySelector(`[name="gesture_${questionNum}_3"]`).value
+                        },
+                        {
+                            text: document.querySelector(`[name="option_${questionNum}_4"]`).value,
+                            gesture: document.querySelector(`[name="gesture_${questionNum}_4"]`).value
+                        }
+                    ],
+                    correctAnswer: parseInt(document.querySelector(`[name="correct_${questionNum}"]`).value) - 1
+                };
+                
+                console.log('Processing question:', question);
+                
+                // Validate question
+                if (!question.text.trim()) {
+                    alert(`Question ${parseInt(questionNum)} is empty. Please fill in all questions.`);
+                    hasValidationErrors = true;
+                    return;
+                }
+                
+                // Validate options
+                const emptyOptions = question.options.filter(opt => !opt.text.trim());
+                if (emptyOptions.length > 0) {
+                    alert(`Question ${parseInt(questionNum)} has empty options. Please fill in all options.`);
+                    hasValidationErrors = true;
+                    return;
+                }
+                
+                // Validate correct answer
+                const correctAnswerElement = document.querySelector(`[name="correct_${questionNum}"]`);
+                if (!correctAnswerElement || !correctAnswerElement.value) {
+                    alert(`Question ${parseInt(questionNum)} is missing a correct answer selection.`);
+                    hasValidationErrors = true;
+                    return;
+                }
+                
+                questions.push(question);
+            });
+
+            // Check if we had validation errors
+            if (hasValidationErrors) {
+                console.log('Validation errors found, stopping quiz creation');
+                return;
+            }
+
+            // Add questions to quiz data
+            quizData.questions = questions;
+            
+            console.log('Quiz validation complete. Total questions:', quizData.questions.length);
+            
+            if (quizData.questions.length === 0) {
+                alert('No valid questions found. Please check your form.');
+                return;
+            }
+
+            console.log('Final quiz data:', quizData);
+            console.log('Showing save/publish modal');
+            
+            // Show save/publish modal
+            showSavePublishModal(quizData);
+        }
+
+        // Save/Publish modal
+        function showSavePublishModal(quizData) {
+            console.log('showSavePublishModal called with:', quizData);
+            
+            // Store quiz data globally for the modal
+            window.currentSavePublishQuizData = quizData;
+            
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>📝 Quiz Ready to Save</h3>
+                        <button class="close-btn" onclick="closeSavePublishModal()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <h4>${quizData.title}</h4>
+                        <p>Your quiz is ready! Choose how you'd like to proceed:</p>
+                        <div style="margin-top: 20px;">
+                            <button class="btn" onclick="saveAsDraft()">Save as Draft</button>
+                            <button class="btn btn-success" onclick="publishQuiz()">Publish</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            console.log('Modal added to body');
+        }
+
+        function closeSavePublishModal() {
+            const modal = document.querySelector('.modal-overlay');
+            if (modal) {
+                modal.remove();
+            }
+            
+            // Clean up global variable
+            if (window.currentSavePublishQuizData) {
+                delete window.currentSavePublishQuizData;
+            }
+        }
+
+        function saveAsDraft() {
+            let quizData = window.currentSavePublishQuizData;
+            
+            if (!quizData) {
+                alert('Quiz data not found.');
+                return;
+            }
+            
+            quizData.status = 'draft';
+            quizData.published = false;
+            
+            const quizzes = JSON.parse(localStorage.getItem('gestureQuizzes') || '[]');
+            quizzes.push(quizData);
+            localStorage.setItem('gestureQuizzes', JSON.stringify(quizzes));
+            
+            closeSavePublishModal();
+            
+            alert('✅ Quiz saved as draft successfully!');
+            
+            document.getElementById('status').innerHTML = 
+                '<div class="status success">✅ Quiz saved as draft</div>';
+        }
+
+        function publishQuiz() {
+            console.log('publishQuiz function called');
+            
+            let quizData = window.currentSavePublishQuizData;
+            console.log('Retrieved quiz data from global variable:', quizData);
+            
+            if (!quizData) {
+                console.error('Quiz data not found in global variable');
+                alert('Quiz data not found.');
+                return;
+            }
+            
+            console.log('Closing save/publish modal and showing publish options');
+            closeSavePublishModal();
+            showPublishOptions(quizData);
+        }
+
+        function showPublishOptions(quizData) {
+            console.log('showPublishOptions called with:', quizData);
+            
+            let quizId = quizData.id;
+            console.log('Extracted quizId:', quizId);
+            
+            // Store quiz data globally for the publish modal
+            window.currentPublishQuizData = quizData;
+            console.log('Set window.currentPublishQuizData to:', window.currentPublishQuizData);
+            
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>📅 Publish Quiz</h3>
+                        <button class="close-btn" onclick="closePublishModal()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <h4>When would you like to publish this quiz?</h4>
+                        
+                        <div style="margin: 20px 0;">
+                            <label>
+                                <input type="radio" name="publishTime" value="now" checked>
+                                Publish Now
+                            </label>
+                            <br><br>
+                            <label>
+                                <input type="radio" name="publishTime" value="later">
+                                Schedule for Later
+                            </label>
+                        </div>
+                        
+                        <div style="margin-top: 20px;">
+                            <button class="btn" onclick="closePublishModal()">Cancel</button>
+                            <button class="btn btn-success" onclick="confirmPublish('${quizId}')">Publish Quiz</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function closePublishModal() {
+            const modal = document.querySelector('.modal-overlay');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        function confirmPublish(quizId) {
+            console.log('confirmPublish called with quizId:', quizId);
+            console.log('window.currentPublishQuizData:', window.currentPublishQuizData);
+            
+            const publishTimeOption = document.querySelector('input[name="publishTime"]:checked').value;
+            
+            let quizzes = JSON.parse(localStorage.getItem('gestureQuizzes') || '[]');
+            let currentQuiz = null;
+            
+            console.log('Current quizzes in storage:', quizzes);
+            
+            // Use the globally stored quiz data
+            const quizData = window.currentPublishQuizData;
+            
+            // Handle new quiz data (from create flow)
+            if (quizData && typeof quizData === 'object') {
+                console.log('Using quiz data from create flow:', quizData);
+                currentQuiz = quizData;
+            } else {
+                console.log('Quiz data not found');
+                alert('Quiz data not found.');
+                return;
+            }
+            
+            console.log('Publishing quiz:', currentQuiz);
+            
+            if (publishTimeOption === 'now') {
+                currentQuiz.status = 'published';
+                currentQuiz.published = true;
+                currentQuiz.publishedAt = new Date().toISOString();
+                
+                console.log('Adding new quiz to storage');
+                quizzes.push(currentQuiz);
+                
+                localStorage.setItem('gestureQuizzes', JSON.stringify(quizzes));
+                console.log('Quiz published successfully, updated storage');
+                
+                closePublishModal();
+                alert('🎉 Quiz published successfully! Students can now access it.');
+                
+                document.getElementById('status').innerHTML = 
+                    '<div class="status success">✅ Quiz published successfully!</div>';
+            }
+            
+            // Clean up global variable
+            delete window.currentPublishQuizData;
+        }
+
+        // Initialize environment on page load
+        window.addEventListener('load', function() {
+            setupEnvironment();
+        });
+    </script>
+</body>
+</html>
