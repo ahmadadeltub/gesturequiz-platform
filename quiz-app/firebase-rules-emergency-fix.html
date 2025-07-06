@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Rules Quick Fix - GestureQuiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .step {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #007bff;
+        }
+
+        .step h3 {
+            color: #007bff;
+            margin-bottom: 15px;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-success:hover {
+            background: #1e7e34;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+
+        .checklist li {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .checklist li:before {
+            content: "☐ ";
+            color: #007bff;
+            font-size: 18px;
+            margin-right: 10px;
+        }
+
+        .checklist li.completed:before {
+            content: "✅ ";
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Firebase Rules Quick Fix</h1>
+            <p>Resolve "Missing or insufficient permissions" errors</p>
+        </div>
+        
+        <div class="content">
+            <div class="alert alert-danger">
+                <strong>⚠️ Permission Error Detected:</strong> Your Firebase rules are blocking user document creation. Follow these steps to fix it immediately.
+            </div>
+
+            <div class="step">
+                <h3>Step 1: Open Firebase Console</h3>
+                <p>1. Go to <a href="https://console.firebase.google.com/" target="_blank">Firebase Console</a></p>
+                <p>2. Select your project: <span class="highlight">gesturequiz-platform-live</span></p>
+                <p>3. Navigate to <strong>Firestore Database</strong> → <strong>Rules</strong> tab</p>
+            </div>
+
+            <div class="step">
+                <h3>Step 2: Replace Firestore Rules</h3>
+                <p>Copy and paste this exact rule configuration:</p>
+                <div class="code-block">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow any authenticated user to create their own user document
+    match /users/{userId} {
+      allow create: if request.auth != null;
+      allow read, update: if request.auth != null && request.auth.uid == userId;
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Allow authenticated users to create and manage classes
+    match /classes/{classId} {
+      allow create: if request.auth != null;
+      allow read, update, delete: if request.auth != null;
+    }
+    
+    // Allow authenticated users to create and manage quizzes
+    match /quizzes/{quizId} {
+      allow create: if request.auth != null;
+      allow read: if request.auth != null;
+      allow update, delete: if request.auth != null;
+    }
+    
+    // Allow authenticated users to create and manage submissions
+    match /submissions/{submissionId} {
+      allow create: if request.auth != null;
+      allow read, update: if request.auth != null;
+    }
+    
+    // Allow authenticated users to read and write analytics
+    match /analytics/{document=**} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Allow authenticated users to read and write test documents
+    match /test/{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}</div>
+                <p><strong>Important:</strong> Make sure to click <strong>"Publish"</strong> after pasting the rules!</p>
+            </div>
+
+            <div class="step">
+                <h3>Step 3: Update Storage Rules</h3>
+                <p>1. Go to <strong>Storage</strong> → <strong>Rules</strong> tab</p>
+                <p>2. Replace with this configuration:</p>
+                <div class="code-block">rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Allow authenticated users to read and write their own files
+    match /avatars/{userId}/{allPaths=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Allow authenticated users to read and write quiz media
+    match /quiz-media/{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Allow authenticated users to read and write class materials
+    match /class-materials/{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Allow authenticated users to read and write test files
+    match /test/{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // General authenticated access for all other files
+    match /{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}</div>
+                <p><strong>Important:</strong> Click <strong>"Publish"</strong> after pasting the storage rules!</p>
+            </div>
+
+            <div class="step">
+                <h3>Step 4: Verify Authentication Settings</h3>
+                <p>1. Go to <strong>Authentication</strong> → <strong>Sign-in method</strong></p>
+                <p>2. Make sure <strong>Email/Password</strong> is <span class="highlight">ENABLED</span></p>
+                <p>3. Go to <strong>Authentication</strong> → <strong>Settings</strong> → <strong>Authorized domains</strong></p>
+                <p>4. Verify these domains are listed:</p>
+                <ul>
+                    <li>localhost</li>
+                    <li>ahmadadeltub.github.io</li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <h3>Step 5: Test the Fix</h3>
+                <div class="alert alert-info">
+                    <strong>After updating the rules:</strong> Wait 1-2 minutes for the changes to propagate, then test user registration again.
+                </div>
+                <p>
+                    <a href="register.html" class="btn btn-success">Test Registration</a>
+                    <a href="firebase-new-project-verification.html" class="btn btn-warning">Run Verification</a>
+                </p>
+            </div>
+
+            <div class="step">
+                <h3>✅ Verification Checklist</h3>
+                <ul class="checklist">
+                    <li>Updated Firestore rules with permissive user creation</li>
+                    <li>Updated Storage rules for authenticated users</li>
+                    <li>Verified Email/Password authentication is enabled</li>
+                    <li>Confirmed authorized domains are set</li>
+                    <li>Waited 1-2 minutes for rules to propagate</li>
+                    <li>Tested user registration successfully</li>
+                </ul>
+            </div>
+
+            <div class="alert alert-success">
+                <strong>🎉 Success Expected:</strong> After following these steps, you should be able to create new users without any permission errors. The rules are now properly configured for your production environment.
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="testing-dashboard.html" class="btn">Back to Testing Dashboard</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
