@@ -477,17 +477,23 @@
             try {
                 console.log('🚀 Starting registration process for:', data.email);
 
-                // Check if user already exists in Firestore
-                const existingUserQuery = await db.collection('users').where('email', '==', data.email).get();
-                if (!existingUserQuery.empty) {
-                    throw new Error('An account with this email already exists in our system.');
-                }
-
-                // Create user with Firebase Auth
+                // Create user with Firebase Auth FIRST
                 const userCredential = await auth.createUserWithEmailAndPassword(data.email, data.password);
                 const user = userCredential.user;
 
                 console.log('✅ Firebase Auth account created. UID:', user.uid);
+                console.log('✅ User is now authenticated:', !!auth.currentUser);
+
+                // Wait for authentication state to properly set
+                await new Promise((resolve) => {
+                    const unsubscribe = auth.onAuthStateChanged((authUser) => {
+                        if (authUser && authUser.uid === user.uid) {
+                            console.log('✅ Authentication state confirmed:', authUser.uid);
+                            unsubscribe();
+                            resolve();
+                        }
+                    });
+                });
 
                 // Prepare user data
                 const userData = {
@@ -554,8 +560,10 @@
                     errorMessage = 'Password should be at least 6 characters.';
                 } else if (error.code === 'auth/network-request-failed') {
                     errorMessage = 'Network error. Please check your internet connection and try again.';
-                } else if (error.code === 'permission-denied') {
-                    errorMessage = 'Permission denied. Please check your internet connection and try again.';
+                } else if (error.code === 'permission-denied' || error.message.includes('Permission denied')) {
+                    errorMessage = 'Database permission denied. This usually means you need to wait a moment for authentication or check your internet connection.';
+                } else if (error.message.includes('Missing or insufficient permissions')) {
+                    errorMessage = 'Database permissions error. Please ensure you have a stable internet connection and try again.';
                 }
                 
                 showError(errorMessage);

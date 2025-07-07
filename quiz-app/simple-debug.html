@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Registration Debug - GestureQuiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #1e293b;
+            margin-bottom: 20px;
+        }
+        
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            margin: 10px 5px;
+        }
+        
+        .btn:hover {
+            background: #2563eb;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-weight: 500;
+        }
+        
+        .success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        
+        .info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #3b82f6;
+        }
+        
+        .log {
+            background: #1e293b;
+            color: #f1f5f9;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 14px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 15px 0;
+        }
+        
+        .form-group {
+            margin: 15px 0;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Simple Registration Debug</h1>
+        
+        <div class="section">
+            <h3>Current Status</h3>
+            <div id="status">Loading...</div>
+        </div>
+        
+        <div class="section">
+            <h3>Quick Test</h3>
+            <button class="btn" onclick="testRegistration()">🧪 Test Registration</button>
+            <button class="btn" onclick="clearLog()">Clear Log</button>
+        </div>
+        
+        <div class="section">
+            <h3>Simple Registration Form</h3>
+            <form id="testForm">
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="email" value="test@example.com">
+                </div>
+                
+                <div class="form-group">
+                    <label>Password:</label>
+                    <input type="password" id="password" value="password123">
+                </div>
+                
+                <div class="form-group">
+                    <label>Full Name:</label>
+                    <input type="text" id="fullName" value="Test User">
+                </div>
+                
+                <button type="button" class="btn" onclick="simpleRegistration()">✅ Simple Registration Test</button>
+            </form>
+        </div>
+        
+        <div class="section">
+            <h3>Debug Log</h3>
+            <div class="log" id="logContainer">
+                <div>Debug tool loaded successfully!</div>
+                <div>Ready to test registration...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAt4ByDMxZFT00a-zESwNHS8uv3DY08uhg",
+            authDomain: "gesturequiz-platform-live.firebaseapp.com",
+            projectId: "gesturequiz-platform-live",
+            storageBucket: "gesturequiz-platform-live.firebasestorage.app",
+            messagingSenderId: "794242095954",
+            appId: "1:794242095954:web:85868edc63c96d37ea388b",
+            measurementId: "G-Y7WPTJRVG6"
+        };
+
+        let db, auth;
+
+        // Initialize Firebase
+        function initFirebase() {
+            try {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
+                auth = firebase.auth();
+                
+                log("✅ Firebase initialized successfully");
+                log("📊 Project: " + firebaseConfig.projectId);
+                
+                document.getElementById('status').innerHTML = 
+                    '<div class="status success">✅ Firebase Connected</div>';
+                
+                return true;
+            } catch (error) {
+                log("❌ Firebase failed: " + error.message);
+                document.getElementById('status').innerHTML = 
+                    '<div class="status error">❌ Firebase Failed: ' + error.message + '</div>';
+                return false;
+            }
+        }
+
+        // Simple registration test
+        async function simpleRegistration() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const fullName = document.getElementById('fullName').value;
+            
+            log("🚀 Starting simple registration test...");
+            log("📧 Email: " + email);
+            log("👤 Name: " + fullName);
+            
+            try {
+                // Step 1: Create user
+                log("🔍 Creating Firebase Auth user...");
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                log("✅ Auth user created: " + user.uid);
+                
+                // Step 2: Save to Firestore
+                log("🔍 Saving to Firestore...");
+                await db.collection('users').doc(user.uid).set({
+                    name: fullName,
+                    email: email,
+                    role: 'student',
+                    createdAt: new Date().toISOString()
+                });
+                log("✅ User saved to Firestore");
+                
+                // Step 3: Verify
+                log("🔍 Verifying document...");
+                const doc = await db.collection('users').doc(user.uid).get();
+                if (doc.exists) {
+                    log("✅ Document verified!");
+                    log("📄 Data: " + JSON.stringify(doc.data()));
+                } else {
+                    log("❌ Document not found!");
+                }
+                
+                // Clean up
+                log("🧹 Cleaning up test user...");
+                await db.collection('users').doc(user.uid).delete();
+                await user.delete();
+                log("✅ Test user cleaned up");
+                
+                log("🎉 REGISTRATION TEST SUCCESSFUL!");
+                
+            } catch (error) {
+                log("❌ Registration failed: " + error.message);
+                log("🔍 Error code: " + (error.code || 'unknown'));
+                
+                // Try to clean up
+                if (auth.currentUser) {
+                    try {
+                        await auth.currentUser.delete();
+                        log("🧹 Cleaned up auth user");
+                    } catch (e) {
+                        log("❌ Cleanup failed: " + e.message);
+                    }
+                }
+            }
+        }
+
+        // Test just the connection
+        async function testRegistration() {
+            log("🔍 Testing Firebase connection...");
+            
+            try {
+                // Test basic connection
+                const testDoc = await db.collection('test').doc('connection').get();
+                log("✅ Firestore connection working");
+                
+                // Test auth
+                const currentUser = auth.currentUser;
+                log("✅ Auth service accessible");
+                
+                log("🎉 All services working!");
+                
+            } catch (error) {
+                log("❌ Connection test failed: " + error.message);
+            }
+        }
+
+        function log(message) {
+            const logContainer = document.getElementById('logContainer');
+            const time = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.textContent = `[${time}] ${message}`;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('logContainer').innerHTML = 
+                '<div>Log cleared...</div>';
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            log("🚀 Page loaded");
+            initFirebase();
+        });
+    </script>
+</body>
+</html>

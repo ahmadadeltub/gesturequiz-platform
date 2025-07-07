@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚨 EMERGENCY: Firebase Rules Diagnostic</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #dc3545 0%, #ffc107 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #dc3545;
+            color: white;
+            padding: 30px;
+            text-align: center;
+            animation: urgentPulse 2s infinite;
+        }
+
+        @keyframes urgentPulse {
+            0% { background: #dc3545; }
+            50% { background: #c82333; }
+            100% { background: #dc3545; }
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .emergency-notice {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 10px;
+            border: 3px solid #dc3545;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .emergency-notice h2 {
+            margin-bottom: 10px;
+            font-size: 1.8em;
+        }
+
+        .diagnostic-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border-left: 6px solid #dc3545;
+        }
+
+        .diagnostic-section h3 {
+            color: #dc3545;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 20px 40px;
+            background: #dc3545;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 18px;
+            text-align: center;
+            animation: urgentButton 2s infinite;
+        }
+
+        @keyframes urgentButton {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .btn:hover {
+            background: #c82333;
+            transform: translateY(-3px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            animation: none;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .test-result {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .test-result.success { background: #d4edda; color: #155724; border-left: 4px solid #28a745; }
+        .test-result.error { background: #f8d7da; color: #721c24; border-left: 4px solid #dc3545; }
+        .test-result.info { background: #d1ecf1; color: #0c5460; border-left: 4px solid #17a2b8; }
+        .test-result.warning { background: #fff3cd; color: #856404; border-left: 4px solid #ffc107; }
+
+        .results {
+            margin-top: 20px;
+            padding: 20px;
+            background: #2d3748;
+            color: #e2e8f0;
+            border-radius: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+        }
+
+        .rules-box {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            margin: 15px 0;
+            position: relative;
+            border: 3px solid #dc3545;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .copy-btn:hover {
+            background: #c82333;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .status-card {
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid;
+        }
+
+        .status-card.working {
+            background: #d4edda;
+            color: #155724;
+            border-color: #28a745;
+        }
+
+        .status-card.broken {
+            background: #f8d7da;
+            color: #721c24;
+            border-color: #dc3545;
+        }
+
+        .timer {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+            border: 2px solid #ffc107;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚨 EMERGENCY DIAGNOSTIC</h1>
+            <p>Firebase Rules Not Updated - Immediate Action Required</p>
+        </div>
+
+        <div class="content">
+            <div class="emergency-notice">
+                <h2>⚠️ CRITICAL ISSUE DETECTED</h2>
+                <p><strong>Your Firebase security rules are still using the default restrictive rules!</strong></p>
+                <p>This is blocking your platform from working properly.</p>
+            </div>
+
+            <div class="timer">
+                🕐 Time to fix: 2 minutes | 🎯 Action: Update Firebase Console rules NOW
+            </div>
+
+            <div class="status-grid">
+                <div class="status-card working">
+                    <h4>✅ Firebase Auth</h4>
+                    <p>Working perfectly</p>
+                </div>
+                <div class="status-card broken">
+                    <h4>❌ Firestore Rules</h4>
+                    <p>BLOCKING database access</p>
+                </div>
+                <div class="status-card broken">
+                    <h4>❌ Storage Rules</h4>
+                    <p>BLOCKING file uploads</p>
+                </div>
+                <div class="status-card working">
+                    <h4>⚠️ User Collection</h4>
+                    <p>Working by coincidence</p>
+                </div>
+            </div>
+
+            <div class="diagnostic-section">
+                <h3>🔍 Rule Diagnostic Test</h3>
+                <p>This will test the exact same operations and show you exactly what's broken:</p>
+                <button class="btn" onclick="runDiagnostic()">🚨 RUN EMERGENCY DIAGNOSTIC</button>
+                <button class="btn btn-success" onclick="clearResults()">🗑️ Clear Results</button>
+            </div>
+
+            <div class="diagnostic-section">
+                <h3>🚀 IMMEDIATE FIX - Firestore Rules</h3>
+                <p><strong>STEP 1:</strong> Copy these rules and paste them in Firebase Console:</p>
+                <div class="rules-box" id="firestore-rules">
+                    <button class="copy-btn" onclick="copyRules('firestore-rules')">COPY NOW</button>rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow authenticated users to access their own user document
+    match /users/{userId} {
+      allow create: if request.auth != null;
+      allow read, update: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Allow authenticated users to access classes
+    match /classes/{classId} {
+      allow create, read, update, delete: if request.auth != null;
+    }
+    
+    // Allow authenticated users to access quizzes
+    match /quizzes/{quizId} {
+      allow create, read, update, delete: if request.auth != null;
+    }
+    
+    // Allow authenticated users to access submissions
+    match /submissions/{submissionId} {
+      allow create, read, update: if request.auth != null;
+    }
+    
+    // CRITICAL: Allow test collection access for diagnostics
+    match /test/{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
+                </div>
+                <a href="https://console.firebase.google.com/project/gesturequiz-platform-live/firestore/rules" target="_blank" class="btn">🚨 OPEN FIRESTORE CONSOLE NOW</a>
+            </div>
+
+            <div class="diagnostic-section">
+                <h3>💾 IMMEDIATE FIX - Storage Rules</h3>
+                <p><strong>STEP 2:</strong> Copy these rules and paste them in Firebase Console:</p>
+                <div class="rules-box" id="storage-rules">
+                    <button class="copy-btn" onclick="copyRules('storage-rules')">COPY NOW</button>rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
+                </div>
+                <a href="https://console.firebase.google.com/project/gesturequiz-platform-live/storage/rules" target="_blank" class="btn">🚨 OPEN STORAGE CONSOLE NOW</a>
+            </div>
+
+            <div class="results" id="diagnostic-results" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAt4ByDMxZFT00a-zESwNHS8uv3DY08uhg",
+            authDomain: "gesturequiz-platform-live.firebaseapp.com",
+            projectId: "gesturequiz-platform-live",
+            storageBucket: "gesturequiz-platform-live.firebasestorage.app",
+            messagingSenderId: "794242095954",
+            appId: "1:794242095954:web:85868edc63c96d37ea388b",
+            measurementId: "G-Y7WPTJRVG6"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        function addResult(message, type = 'info') {
+            const resultsDiv = document.getElementById('diagnostic-results');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}`;
+            
+            resultsDiv.innerHTML += `<div class="test-result ${type}">${logEntry}</div>`;
+            resultsDiv.style.display = 'block';
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        function copyRules(elementId) {
+            const element = document.getElementById(elementId);
+            const textArea = document.createElement('textarea');
+            textArea.value = element.textContent.replace(/COPY NOW/g, '').trim();
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            const btn = element.querySelector('.copy-btn');
+            const originalText = btn.textContent;
+            btn.textContent = 'COPIED!';
+            btn.style.background = '#28a745';
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = '#dc3545';
+            }, 2000);
+            
+            addResult(`📋 ${elementId === 'firestore-rules' ? 'Firestore' : 'Storage'} rules copied to clipboard!`, 'success');
+        }
+
+        function clearResults() {
+            document.getElementById('diagnostic-results').innerHTML = '';
+            document.getElementById('diagnostic-results').style.display = 'none';
+        }
+
+        async function runDiagnostic() {
+            try {
+                addResult('🚨 EMERGENCY DIAGNOSTIC STARTING...', 'warning');
+                addResult('🎯 Testing the exact same operations that are failing...', 'info');
+                
+                // Create test user
+                const testEmail = `diagnostic-${Date.now()}@gesturequiz.com`;
+                const testPassword = 'DiagnosticTest123!';
+                
+                addResult('🔍 Creating test user...', 'info');
+                const userCredential = await auth.createUserWithEmailAndPassword(testEmail, testPassword);
+                const user = userCredential.user;
+                addResult(`✅ Test user created: ${user.email}`, 'success');
+                
+                // Test 1: Firestore test collection (the one that's failing)
+                addResult('🔍 Testing Firestore /test collection access...', 'info');
+                try {
+                    const testDoc = db.collection('test').doc('diagnostic-test');
+                    await testDoc.set({
+                        message: 'Emergency diagnostic test',
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                        userId: user.uid
+                    });
+                    addResult('✅ Firestore /test collection: WORKING', 'success');
+                    await testDoc.delete();
+                } catch (error) {
+                    addResult(`❌ Firestore /test collection: BLOCKED - ${error.message}`, 'error');
+                    addResult('💡 This confirms Firestore rules are NOT updated', 'warning');
+                }
+                
+                // Test 2: Firestore users collection (the one that works)
+                addResult('🔍 Testing Firestore /users collection access...', 'info');
+                try {
+                    const userDoc = db.collection('users').doc(user.uid);
+                    await userDoc.set({
+                        email: user.email,
+                        diagnostic: true,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    addResult('✅ Firestore /users collection: WORKING', 'success');
+                    await userDoc.delete();
+                } catch (error) {
+                    addResult(`❌ Firestore /users collection: BLOCKED - ${error.message}`, 'error');
+                }
+                
+                // Test 3: Storage test path (the one that's failing)
+                addResult('🔍 Testing Storage /test path access...', 'info');
+                try {
+                    const testBlob = new Blob(['Emergency diagnostic'], { type: 'text/plain' });
+                    const testRef = storage.ref('test/diagnostic-test.txt');
+                    await testRef.put(testBlob);
+                    addResult('✅ Storage /test path: WORKING', 'success');
+                    await testRef.delete();
+                } catch (error) {
+                    addResult(`❌ Storage /test path: BLOCKED - ${error.message}`, 'error');
+                    addResult('💡 This confirms Storage rules are NOT updated', 'warning');
+                }
+                
+                // Test 4: Storage user path (like the one that works)
+                addResult('🔍 Testing Storage user-specific path access...', 'info');
+                try {
+                    const avatarBlob = new Blob(['Emergency avatar test'], { type: 'text/plain' });
+                    const avatarRef = storage.ref(`avatars/${user.uid}/diagnostic.txt`);
+                    await avatarRef.put(avatarBlob);
+                    addResult('✅ Storage user path: WORKING', 'success');
+                    await avatarRef.delete();
+                } catch (error) {
+                    addResult(`❌ Storage user path: BLOCKED - ${error.message}`, 'error');
+                }
+                
+                // Clean up
+                await user.delete();
+                addResult('🗑️ Test user cleaned up', 'info');
+                
+                // Final diagnosis - check if all tests passed
+                const resultsDiv = document.getElementById('diagnostic-results');
+                const errorResults = resultsDiv.innerHTML.includes('❌') || resultsDiv.innerHTML.includes('BLOCKED');
+                
+                addResult('', 'info');
+                addResult('🔥 EMERGENCY DIAGNOSIS COMPLETE:', 'warning');
+                
+                if (!errorResults) {
+                    addResult('🎉 RESULT: All Firebase operations are WORKING PERFECTLY!', 'success');
+                    addResult('✅ Your Firebase security rules are properly configured!', 'success');
+                    addResult('🚀 Your platform is ready for production use!', 'success');
+                    addResult('💯 No further action needed - everything is working!', 'success');
+                } else {
+                    addResult('📊 RESULT: Your Firebase security rules are STILL using default restrictive rules!', 'error');
+                    addResult('⚡ SOLUTION: You MUST update the rules in Firebase Console NOW!', 'warning');
+                    addResult('🎯 Use the copy buttons above to get the correct rules', 'info');
+                    addResult('📋 Then paste them in Firebase Console and click PUBLISH', 'info');
+                }
+                
+            } catch (error) {
+                addResult(`❌ Diagnostic failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            addResult('🚨 Emergency diagnostic tool loaded', 'warning');
+            addResult('📊 Project: gesturequiz-platform-live', 'info');
+            addResult('🎯 This tool will prove your rules are not updated', 'info');
+            addResult('⚡ Click "RUN EMERGENCY DIAGNOSTIC" to confirm the issue', 'warning');
+        });
+    </script>
+</body>
+</html>

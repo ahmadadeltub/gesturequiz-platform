@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Debug - GestureQuiz</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #1e293b;
+            margin-bottom: 20px;
+        }
+        
+        .debug-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .form-group {
+            margin: 15px 0;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        
+        .role-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .role-btn {
+            padding: 10px 20px;
+            border: 2px solid #3b82f6;
+            background: white;
+            color: #3b82f6;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .role-btn.selected {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            margin: 10px 5px;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #2563eb;
+        }
+        
+        .btn:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-weight: 500;
+        }
+        
+        .status.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        
+        .status.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        
+        .status.info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #3b82f6;
+        }
+        
+        .log {
+            background: #1e293b;
+            color: #f1f5f9;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 15px 0;
+        }
+        
+        .log-entry {
+            margin: 5px 0;
+            padding: 2px 0;
+        }
+        
+        .log-entry.success {
+            color: #10b981;
+        }
+        
+        .log-entry.error {
+            color: #ef4444;
+        }
+        
+        .log-entry.warning {
+            color: #f59e0b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Registration Debug Tool</h1>
+        
+        <div class="debug-section">
+            <h3>Firebase Connection Status</h3>
+            <div id="firebaseStatus">Checking Firebase connection...</div>
+        </div>
+        
+        <div class="debug-section">
+            <h3>Test Registration Form</h3>
+            <form id="debugForm">
+                <div class="form-group">
+                    <label for="fullName">Full Name:</label>
+                    <input type="text" id="fullName" name="fullName" value="Test User" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" value="test@example.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" value="password123" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password:</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" value="password123" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Role:</label>
+                    <div class="role-buttons">
+                        <button type="button" class="role-btn" data-role="teacher">Teacher</button>
+                        <button type="button" class="role-btn selected" data-role="student">Student</button>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn" id="submitBtn">🧪 Test Registration</button>
+            </form>
+        </div>
+        
+        <div class="debug-section">
+            <h3>Registration Log</h3>
+            <div class="log" id="logContainer">
+                <div class="log-entry">Debug tool initialized. Ready to test registration...</div>
+            </div>
+        </div>
+        
+        <div class="debug-section">
+            <h3>Quick Actions</h3>
+            <button class="btn" onclick="clearLog()">Clear Log</button>
+            <button class="btn" onclick="testFirebaseConnection()">Test Firebase</button>
+            <button class="btn" onclick="testAuth()">Test Auth Only</button>
+            <button class="btn" onclick="testFirestore()">Test Firestore</button>
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+    
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAt4ByDMxZFT00a-zESwNHS8uv3DY08uhg",
+            authDomain: "gesturequiz-platform-live.firebaseapp.com",
+            projectId: "gesturequiz-platform-live",
+            storageBucket: "gesturequiz-platform-live.firebasestorage.app",
+            messagingSenderId: "794242095954",
+            appId: "1:794242095954:web:85868edc63c96d37ea388b",
+            measurementId: "G-Y7WPTJRVG6"
+        };
+
+        let selectedRole = 'student';
+        let db, auth, storage;
+
+        // Initialize Firebase
+        function initializeFirebase() {
+            try {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
+                auth = firebase.auth();
+                storage = firebase.storage();
+                
+                log('✅ Firebase initialized successfully', 'success');
+                log('📊 Project ID: ' + firebaseConfig.projectId, 'info');
+                
+                document.getElementById('firebaseStatus').innerHTML = 
+                    '<div class="status success">✅ Firebase Connected - Project: ' + firebaseConfig.projectId + '</div>';
+                
+                return true;
+            } catch (error) {
+                log('❌ Firebase initialization failed: ' + error.message, 'error');
+                document.getElementById('firebaseStatus').innerHTML = 
+                    '<div class="status error">❌ Firebase Connection Failed: ' + error.message + '</div>';
+                return false;
+            }
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🚀 Debug tool loaded', 'info');
+            
+            if (initializeFirebase()) {
+                testFirebaseConnection();
+            }
+            
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Role selection
+            document.querySelectorAll('.role-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedRole = this.dataset.role;
+                    log('👤 Role selected: ' + selectedRole, 'info');
+                });
+            });
+
+            // Form submission
+            document.getElementById('debugForm').addEventListener('submit', handleRegistration);
+        }
+
+        async function handleRegistration(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            
+            log('🚀 Starting registration process...', 'info');
+            log('📧 Email: ' + data.email, 'info');
+            log('👤 Role: ' + selectedRole, 'info');
+            
+            // Disable submit button
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+
+            try {
+                // Step 1: Basic validation
+                log('🔍 Step 1: Validating form data...', 'info');
+                if (!data.fullName || !data.email || !data.password) {
+                    throw new Error('Missing required fields');
+                }
+                if (data.password !== data.confirmPassword) {
+                    throw new Error('Passwords do not match');
+                }
+                if (data.password.length < 6) {
+                    throw new Error('Password must be at least 6 characters');
+                }
+                log('✅ Form validation passed', 'success');
+
+                // Step 2: Check existing user in Firestore
+                log('🔍 Step 2: Checking for existing user...', 'info');
+                const existingUserQuery = await db.collection('users').where('email', '==', data.email).get();
+                if (!existingUserQuery.empty) {
+                    throw new Error('User already exists in Firestore');
+                }
+                log('✅ No existing user found', 'success');
+
+                // Step 3: Create Firebase Auth user
+                log('🔍 Step 3: Creating Firebase Auth user...', 'info');
+                const userCredential = await auth.createUserWithEmailAndPassword(data.email, data.password);
+                const user = userCredential.user;
+                log('✅ Firebase Auth user created. UID: ' + user.uid, 'success');
+
+                // Step 4: Prepare user data
+                log('🔍 Step 4: Preparing user data...', 'info');
+                const userData = {
+                    name: data.fullName,
+                    email: data.email,
+                    role: selectedRole,
+                    avatar: selectedRole === 'teacher' ? '👨‍🏫' : '👨‍🎓',
+                    isVerified: false,
+                    createdAt: new Date().toISOString(),
+                    uid: user.uid
+                };
+                
+                if (selectedRole === 'teacher') {
+                    userData.classes = [];
+                    userData.totalQuizzes = 0;
+                } else {
+                    userData.enrolledClasses = [];
+                    userData.completedQuizzes = 0;
+                    userData.totalPoints = 0;
+                }
+                
+                log('✅ User data prepared', 'success');
+
+                // Step 5: Save to Firestore
+                log('🔍 Step 5: Saving to Firestore...', 'info');
+                await db.collection('users').doc(user.uid).set(userData);
+                log('✅ User document saved to Firestore', 'success');
+
+                // Step 6: Verify document creation
+                log('🔍 Step 6: Verifying document creation...', 'info');
+                const verifyDoc = await db.collection('users').doc(user.uid).get();
+                if (!verifyDoc.exists()) {
+                    throw new Error('Document verification failed');
+                }
+                log('✅ Document verified in Firestore', 'success');
+
+                // Step 7: Success
+                log('🎉 REGISTRATION SUCCESSFUL!', 'success');
+                log('✅ User ' + data.email + ' registered successfully', 'success');
+                
+                // Clean up test user
+                log('🧹 Cleaning up test user...', 'info');
+                await db.collection('users').doc(user.uid).delete();
+                await user.delete();
+                log('✅ Test user cleaned up', 'success');
+
+            } catch (error) {
+                log('❌ Registration failed: ' + error.message, 'error');
+                log('🔍 Error code: ' + (error.code || 'unknown'), 'error');
+                log('🔍 Error details: ' + JSON.stringify(error), 'error');
+                
+                // Try to clean up if Auth user was created
+                if (auth.currentUser) {
+                    try {
+                        await auth.currentUser.delete();
+                        log('🧹 Cleaned up Auth user', 'info');
+                    } catch (cleanupError) {
+                        log('❌ Failed to clean up Auth user: ' + cleanupError.message, 'error');
+                    }
+                }
+            } finally {
+                // Re-enable submit button
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🧪 Test Registration';
+            }
+        }
+
+        async function testFirebaseConnection() {
+            log('🔍 Testing Firebase connection...', 'info');
+            
+            try {
+                // Test Auth
+                log('🔍 Testing Auth service...', 'info');
+                const authUser = auth.currentUser;
+                log('✅ Auth service accessible', 'success');
+                
+                // Test Firestore
+                log('🔍 Testing Firestore service...', 'info');
+                const testDoc = await db.collection('test').doc('connection-test').get();
+                log('✅ Firestore service accessible', 'success');
+                
+                // Test Storage
+                log('🔍 Testing Storage service...', 'info');
+                const storageRef = storage.ref('test/connection-test.txt');
+                log('✅ Storage service accessible', 'success');
+                
+                log('🎉 All Firebase services connected successfully!', 'success');
+                
+            } catch (error) {
+                log('❌ Firebase connection test failed: ' + error.message, 'error');
+                log('🔍 Error code: ' + (error.code || 'unknown'), 'error');
+            }
+        }
+
+        async function testAuth() {
+            log('🔍 Testing Auth only...', 'info');
+            const testEmail = 'authtest@example.com';
+            const testPassword = 'password123';
+            
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(testEmail, testPassword);
+                log('✅ Auth user created: ' + userCredential.user.uid, 'success');
+                
+                await userCredential.user.delete();
+                log('✅ Auth user deleted', 'success');
+                
+            } catch (error) {
+                log('❌ Auth test failed: ' + error.message, 'error');
+            }
+        }
+
+        async function testFirestore() {
+            log('🔍 Testing Firestore only...', 'info');
+            
+            try {
+                const testDoc = db.collection('test').doc('firestoretest');
+                await testDoc.set({
+                    message: 'Test document',
+                    timestamp: new Date().toISOString()
+                });
+                log('✅ Firestore write successful', 'success');
+                
+                const doc = await testDoc.get();
+                if (doc.exists) {
+                    log('✅ Firestore read successful', 'success');
+                } else {
+                    log('❌ Firestore read failed: document not found', 'error');
+                }
+                
+                await testDoc.delete();
+                log('✅ Firestore delete successful', 'success');
+                
+            } catch (error) {
+                log('❌ Firestore test failed: ' + error.message, 'error');
+            }
+        }
+
+        function log(message, type = 'info') {
+            const logContainer = document.getElementById('logContainer');
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${timestamp}] ${message}`;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('logContainer').innerHTML = 
+                '<div class="log-entry">Log cleared. Ready for new tests...</div>';
+        }
+    </script>
+</body>
+</html>
