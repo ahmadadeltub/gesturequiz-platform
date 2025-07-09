@@ -17,29 +17,17 @@ class LiveDataManager {
 
     initializeSystem() {
         try {
-            console.log('🔍 DEBUG: LiveDataManager.initializeSystem() starting...');
-            
             // Initialize all data structures
             this.initializeDataStructures();
-            console.log('🔍 DEBUG: Data structures initialized');
             
             // Setup offline/online handling (call directly since it's defined in this class)
-            console.log('🔍 DEBUG: About to call setupOfflineHandling, method exists:', typeof this.setupOfflineHandling);
-            if (typeof this.setupOfflineHandling === 'function') {
-                this.setupOfflineHandling();
-                console.log('🔍 DEBUG: setupOfflineHandling called successfully');
-            } else {
-                console.error('❌ DEBUG: setupOfflineHandling is not a function:', typeof this.setupOfflineHandling);
-                throw new Error('setupOfflineHandling method is not defined');
-            }
+            this.setupOfflineHandling();
             
             // Setup real-time sync
             this.setupRealtimeSync();
-            console.log('🔍 DEBUG: Real-time sync setup');
             
             // Setup cross-tab communication
             this.setupCrossTabSync();
-            console.log('🔍 DEBUG: Cross-tab sync setup complete');
         } catch (error) {
             console.error('❌ Error initializing live data manager:', error);
             throw error;
