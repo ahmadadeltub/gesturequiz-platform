@@ -1690,47 +1690,107 @@
 
         async function loadDashboardStats() {
             try {
-                // Get analytics data from API
-                const analyticsResponse = await apiClient.getAnalytics('dashboard');
-                const analytics = analyticsResponse.data;
+                console.log('📊 Loading real dashboard stats from Firestore...');
                 
-                // Update main stats
-                document.getElementById('totalQuizzes').textContent = analytics.overview.totalQuizzes;
-                document.getElementById('totalClasses').textContent = analytics.overview.totalClasses;
-                document.getElementById('publishedQuizzes').textContent = analytics.overview.totalQuizzes; // All quizzes are considered published in simulation
+                // Get the current authenticated teacher
+                const authUser = firebase.auth().currentUser;
+                if (!authUser) {
+                    console.error('❌ No authenticated user found');
+                    return;
+                }
+                
+                // Get teacher's actual classes from Firestore
+                const classesSnapshot = await db.collection('classes')
+                    .where('teacherId', '==', authUser.uid)
+                    .get();
+                
+                const actualClassCount = classesSnapshot.docs.length;
+                console.log(`✅ Found ${actualClassCount} actual classes for teacher ${authUser.email}`);
+                
+                // Get teacher's actual quizzes from Firestore
+                const quizzesSnapshot = await db.collection('quizzes')
+                    .where('teacherId', '==', authUser.uid)
+                    .get();
+                
+                const actualQuizCount = quizzesSnapshot.docs.length;
+                console.log(`✅ Found ${actualQuizCount} actual quizzes for teacher ${authUser.email}`);
+                
+                // Count total students across all teacher's classes
+                let totalStudents = 0;
+                classesSnapshot.docs.forEach(doc => {
+                    const classData = doc.data();
+                    if (classData.students && Array.isArray(classData.students)) {
+                        totalStudents += classData.students.length;
+                    }
+                });
+                
+                console.log(`✅ Found ${totalStudents} total students across all classes`);
+                
+                // Update main stats with REAL data
+                document.getElementById('totalQuizzes').textContent = actualQuizCount;
+                document.getElementById('totalClasses').textContent = actualClassCount;
+                document.getElementById('publishedQuizzes').textContent = actualQuizCount;
                 
                 // Update mini-stats in action cards
                 const dashboardClassCount = document.getElementById('dashboardClassCount');
                 const dashboardStudentCount = document.getElementById('dashboardStudentCount');
-                if (dashboardClassCount) dashboardClassCount.textContent = analytics.overview.totalClasses;
-                if (dashboardStudentCount) dashboardStudentCount.textContent = analytics.overview.totalStudents;
+                if (dashboardClassCount) dashboardClassCount.textContent = actualClassCount;
+                if (dashboardStudentCount) dashboardStudentCount.textContent = totalStudents;
                 
-                // Load recent classes
+                // Load recent classes with real data
                 await loadRecentClasses();
                 
-                // Update performance metrics
-                updatePerformanceMetrics(analytics);
+                // Update performance metrics with real data
+                updatePerformanceMetrics({
+                    overview: {
+                        totalClasses: actualClassCount,
+                        totalQuizzes: actualQuizCount,
+                        totalStudents: totalStudents
+                    }
+                });
                 
             } catch (error) {
-                console.error('Error loading dashboard stats:', error);
+                console.error('❌ Error loading dashboard stats:', error);
                 showNotification('Error loading dashboard stats', 'error');
+                
+                // Fallback to API data if Firestore fails
+                try {
+                    console.log('⚠️ Falling back to API simulator...');
+                    const analyticsResponse = await apiClient.getAnalytics('dashboard');
+                    const analytics = analyticsResponse.data;
+                    
+                    document.getElementById('totalQuizzes').textContent = analytics.overview.totalQuizzes;
+                    document.getElementById('totalClasses').textContent = analytics.overview.totalClasses;
+                    document.getElementById('publishedQuizzes').textContent = analytics.overview.totalQuizzes;
+                } catch (fallbackError) {
+                    console.error('❌ Fallback API also failed:', fallbackError);
+                }
             }
         }
 
         async function loadRecentClasses() {
             try {
-                const classesResponse = await apiClient.getClasses();
-                const classes = classesResponse.data;
+                console.log('📚 Loading real recent classes from Firestore...');
+                
+                // Get the current authenticated teacher
+                const authUser = firebase.auth().currentUser;
+                if (!authUser) {
+                    console.error('❌ No authenticated user found');
+                    return;
+                }
+                
+                // Get teacher's actual classes from Firestore
+                const classesSnapshot = await db.collection('classes')
+                    .where('teacherId', '==', authUser.uid)
+                    .orderBy('createdAt', 'desc')
+                    .limit(3)
+                    .get();
                 
                 const recentClassesList = document.getElementById('recentClassesList');
                 if (!recentClassesList) return;
                 
-                // Sort classes by creation date (most recent first) and take first 3
-                const recentClasses = classes
-                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                    .slice(0, 3);
-                
-                if (recentClasses.length === 0) {
+                if (classesSnapshot.empty) {
+                    console.log('ℹ️ No classes found for this teacher');
                     recentClassesList.innerHTML = `
                         <div class="activity-item">
                             <div class="activity-icon">
@@ -1741,19 +1801,24 @@
                                 <div class="activity-time">
                                     <button class="btn btn-outline btn-small" onclick="navigateToClassManagement()">
                                         <i class="fas fa-plus"></i>
-                                    Create First Class
-                                </button>
+                                        Create First Class
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     `;
+                    return;
                 }
                 
                 recentClassesList.innerHTML = '';
                 
-                recentClasses.forEach(cls => {
+                classesSnapshot.docs.forEach(doc => {
+                    const cls = doc.data();
                     const studentCount = cls.students ? cls.students.length : 0;
                     const subjectDisplay = cls.subject ? cls.subject.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'General';
                     const timeAgo = getTimeAgo(cls.createdAt);
+                    
+                    console.log(`✅ Class: ${cls.name}, Students: ${studentCount}, Subject: ${subjectDisplay}`);
                     
                     const classItem = document.createElement('div');
                     classItem.className = 'activity-item';
@@ -1772,8 +1837,10 @@
                     
                     recentClassesList.appendChild(classItem);
                 });
+                
             } catch (error) {
-                console.error('Error loading recent classes:', error);
+                console.error('❌ Error loading recent classes:', error);
+                const recentClassesList = document.getElementById('recentClassesList');
                 if (recentClassesList) {
                     recentClassesList.innerHTML = `
                         <div class="activity-item">
@@ -2714,31 +2781,52 @@
             await loadClasses();
         }
 
-        // Close modal when clicking outside
-        document.addEventListener('click', function(e) {
-            const classModal = document.getElementById('classModal');
-            const profileModal = document.getElementById('profileModal');
+        // Debug function to check actual Firestore data
+        async function debugTeacherData() {
+            console.log('🔍 DEBUG: Checking teacher data in Firestore...');
             
-            if (e.target === classModal) {
-                closeClassModal();
+            const authUser = firebase.auth().currentUser;
+            if (!authUser) {
+                console.log('❌ No authenticated user');
+                return;
             }
             
-            if (e.target === profileModal) {
-                closeProfileModal();
-            }
-        });
+            console.log(`👤 Current user: ${authUser.email} (${authUser.uid})`);
+            
+            // Check classes
+            const classesSnapshot = await db.collection('classes')
+                .where('teacherId', '==', authUser.uid)
+                .get();
+            
+            console.log(`📚 Classes found: ${classesSnapshot.docs.length}`);
+            classesSnapshot.docs.forEach((doc, index) => {
+                const data = doc.data();
+                console.log(`  Class ${index + 1}: "${data.name}" (ID: ${doc.id})`);
+                console.log(`    - Subject: ${data.subject}`);
+                console.log(`    - Students: ${data.students ? data.students.length : 0}`);
+                console.log(`    - Created: ${data.createdAt}`);
+            });
+            
+            // Check quizzes
+            const quizzesSnapshot = await db.collection('quizzes')
+                .where('teacherId', '==', authUser.uid)
+                .get();
+            
+            console.log(`📝 Quizzes found: ${quizzesSnapshot.docs.length}`);
+            quizzesSnapshot.docs.forEach((doc, index) => {
+                const data = doc.data();
+                console.log(`  Quiz ${index + 1}: "${data.title}" (ID: ${doc.id})`);
+            });
+            
+            return {
+                classCount: classesSnapshot.docs.length,
+                quizCount: quizzesSnapshot.docs.length,
+                classes: classesSnapshot.docs.map(doc => ({id: doc.id, ...doc.data()}))
+            };
+        }
 
-        // Close modal with Escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                if (document.getElementById('classModal').classList.contains('active')) {
-                    closeClassModal();
-                }
-                if (document.getElementById('profileModal').classList.contains('active')) {
-                    closeProfileModal();
-                }
-            }
-        });
+        // Make debug function available globally
+        window.debugTeacherData = debugTeacherData;
 
         // Production mode - no automatic test user creation
         // Users must be properly authenticated through Firebase
