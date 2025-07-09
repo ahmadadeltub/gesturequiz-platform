@@ -347,21 +347,31 @@ class NotificationSystem {
 
     async registerServiceWorker() {
         try {
-            // Fix the service worker path - it's in the quiz-app directory
-            const swPath = window.location.pathname.includes('/quiz-app/') ? 
-                '/quiz-app/sw.js' : '/sw.js';
+            // Determine the correct service worker path
+            let swPath;
             
+            if (window.location.hostname.includes('github.io')) {
+                // GitHub Pages - use relative path
+                swPath = window.location.pathname.includes('/quiz-app/') ? 
+                    '../sw.js' : '/gesturequiz-platform/quiz-app/sw.js';
+            } else {
+                // Firebase Hosting or local - use absolute path
+                swPath = window.location.pathname.includes('/quiz-app/') ? 
+                    '/quiz-app/sw.js' : '/sw.js';
+            }
+            
+            console.log('🔧 Attempting to register service worker at:', swPath);
             const registration = await navigator.serviceWorker.register(swPath);
-            console.log('Service Worker registered:', registration);
+            console.log('✅ Service Worker registered:', registration);
             
             // Request notification permission
             if (Notification.permission === 'default') {
                 await this.requestNotificationPermission();
             }
         } catch (error) {
-            console.error('Service Worker registration failed:', error);
+            console.error('❌ Service Worker registration failed:', error);
             // Don't throw the error - just log it so the app continues to work
-            console.log('Continuing without service worker...');
+            console.log('⚠️ Continuing without service worker...');
         }
     }
 

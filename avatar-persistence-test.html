@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avatar Persistence Test - GestureQuiz</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: 500;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            background: #0056b3;
+        }
+        
+        .avatar-test {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .avatar-display {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #007bff;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎭 Avatar Persistence Test</h1>
+        <p>Test avatar saving and loading to ensure it persists after page refresh.</p>
+
+        <div id="authStatus" class="status warning">
+            ⏳ Checking authentication...
+        </div>
+
+        <div class="avatar-test">
+            <div class="avatar-display" id="currentAvatar">?</div>
+            <div>
+                <h3 id="currentName">Loading...</h3>
+                <p id="currentEmail">Loading...</p>
+                <button class="btn" onclick="loadCurrentProfile()">Reload Profile</button>
+                <button class="btn" onclick="window.location.reload()">Refresh Page</button>
+            </div>
+        </div>
+
+        <div style="margin: 20px 0;">
+            <h3>Test Avatar Updates:</h3>
+            <button class="btn" onclick="updateAvatar('🧑‍🏫')">Set 🧑‍🏫</button>
+            <button class="btn" onclick="updateAvatar('👨‍💻')">Set 👨‍💻</button>
+            <button class="btn" onclick="updateAvatar('👩‍🏫')">Set 👩‍🏫</button>
+            <button class="btn" onclick="updateAvatar('🎯')">Set 🎯</button>
+            <button class="btn" onclick="updateAvatar('📚')">Set 📚</button>
+        </div>
+
+        <div>
+            <h3>Storage Check:</h3>
+            <button class="btn" onclick="checkFirestore()">Check Firestore</button>
+            <button class="btn" onclick="checkLocalStorage()">Check LocalStorage</button>
+            <button class="btn" onclick="clearAllData()">Clear All Data</button>
+        </div>
+
+        <div>
+            <h3>Console Log:</h3>
+            <div id="testLog" class="log">Initializing avatar persistence test...\n</div>
+            <button class="btn" onclick="clearLog()">Clear Log</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAt4ByDMxZFT00a-zESwNHS8uv3DY08uhg",
+            authDomain: "gesturequiz-platform-live.firebaseapp.com",
+            projectId: "gesturequiz-platform-live",
+            storageBucket: "gesturequiz-platform-live.firebasestorage.app",
+            messagingSenderId: "794242095954",
+            appId: "1:794242095954:web:85868edc63c96d37ea388b",
+            measurementId: "G-Y7WPTJRVG6"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let currentUser = null;
+
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('testLog');
+            logElement.textContent += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+
+        function clearLog() {
+            document.getElementById('testLog').textContent = 'Log cleared...\n';
+        }
+
+        function updateDisplay(userData) {
+            document.getElementById('currentAvatar').textContent = userData.avatar || '?';
+            document.getElementById('currentName').textContent = userData.name || 'Unknown';
+            document.getElementById('currentEmail').textContent = userData.email || 'Unknown';
+        }
+
+        async function loadCurrentProfile() {
+            try {
+                log('\n=== Loading Current Profile ===');
+                
+                if (!currentUser) {
+                    log('❌ No authenticated user');
+                    return;
+                }
+
+                // Load from Firestore
+                const doc = await db.collection('users').doc(currentUser.uid).get();
+                if (doc.exists) {
+                    const firestoreData = doc.data();
+                    log('✅ Firestore data: ' + JSON.stringify(firestoreData, null, 2));
+                    
+                    const completeData = {
+                        uid: currentUser.uid,
+                        email: currentUser.email,
+                        ...firestoreData
+                    };
+                    
+                    updateDisplay(completeData);
+                    
+                    // Also update localStorage
+                    localStorage.setItem('currentUser', JSON.stringify(completeData));
+                    log('✅ Profile loaded and localStorage updated');
+                } else {
+                    log('❌ No Firestore document found');
+                }
+                
+            } catch (error) {
+                log(`❌ Error loading profile: ${error.message}`);
+            }
+        }
+
+        async function updateAvatar(newAvatar) {
+            try {
+                log(`\n=== Updating Avatar to ${newAvatar} ===`);
+                
+                if (!currentUser) {
+                    log('❌ No authenticated user');
+                    return;
+                }
+
+                // Update Firestore
+                await db.collection('users').doc(currentUser.uid).update({
+                    avatar: newAvatar,
+                    updatedAt: new Date().toISOString()
+                });
+                log('✅ Firestore updated');
+
+                // Update display immediately
+                updateDisplay({
+                    name: document.getElementById('currentName').textContent,
+                    email: currentUser.email,
+                    avatar: newAvatar
+                });
+                log('✅ Display updated');
+
+                // Update localStorage
+                const localData = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                localData.avatar = newAvatar;
+                localStorage.setItem('currentUser', JSON.stringify(localData));
+                log('✅ localStorage updated');
+
+                // Verify the update
+                setTimeout(async () => {
+                    const verifyDoc = await db.collection('users').doc(currentUser.uid).get();
+                    if (verifyDoc.exists) {
+                        const data = verifyDoc.data();
+                        log(`🔍 Verification: Avatar in Firestore is "${data.avatar}"`);
+                    }
+                }, 500);
+
+            } catch (error) {
+                log(`❌ Error updating avatar: ${error.message}`);
+            }
+        }
+
+        async function checkFirestore() {
+            try {
+                if (!currentUser) {
+                    log('❌ No authenticated user');
+                    return;
+                }
+
+                const doc = await db.collection('users').doc(currentUser.uid).get();
+                if (doc.exists) {
+                    log('📄 Firestore Data:');
+                    log(JSON.stringify(doc.data(), null, 2));
+                } else {
+                    log('❌ No Firestore document found');
+                }
+            } catch (error) {
+                log(`❌ Firestore check error: ${error.message}`);
+            }
+        }
+
+        function checkLocalStorage() {
+            const data = localStorage.getItem('currentUser');
+            if (data) {
+                log('💾 localStorage Data:');
+                log(JSON.stringify(JSON.parse(data), null, 2));
+            } else {
+                log('❌ No localStorage data found');
+            }
+        }
+
+        function clearAllData() {
+            localStorage.removeItem('currentUser');
+            log('🗑️ LocalStorage cleared');
+            updateDisplay({ name: 'Unknown', email: 'Unknown', avatar: '?' });
+        }
+
+        // Initialize when Firebase auth state changes
+        firebase.auth().onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('authStatus').innerHTML = `
+                    <i class="fas fa-check-circle"></i> Authenticated as: ${user.email}
+                `;
+                document.getElementById('authStatus').className = 'status success';
+                
+                log(`✅ Authenticated as: ${user.email} (${user.uid})`);
+                
+                // Load current profile
+                await loadCurrentProfile();
+                
+            } else {
+                document.getElementById('authStatus').innerHTML = `
+                    <i class="fas fa-exclamation-triangle"></i> Not authenticated. Please login first.
+                `;
+                document.getElementById('authStatus').className = 'status error';
+                log('❌ Not authenticated');
+            }
+        });
+
+        log('🚀 Avatar persistence test initialized');
+    </script>
+</body>
+</html>

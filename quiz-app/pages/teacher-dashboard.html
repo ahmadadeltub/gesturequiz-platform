@@ -1594,42 +1594,97 @@
         async function loadUserData() {
             console.log('📥 Loading user data...');
             
-            // First check if Firebase is available
-            if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
-                // Use Firebase
-                const currentUser = window.firebaseDataManager.getCurrentUser();
-                if (currentUser) {
-                    const profileResult = await window.firebaseDataManager.getUserProfile(currentUser.uid);
-                    if (profileResult.success) {
-                        const userData = profileResult.data;
-                        console.log('✅ Loaded user data from Firebase:', userData);
+            try {
+                // First try to get the current authenticated Firebase user
+                const authUser = firebase.auth().currentUser;
+                if (authUser) {
+                    console.log('✅ Firebase Auth user found:', authUser.uid);
+                    
+                    // Get user profile data from Firestore
+                    const userDoc = await db.collection('users').doc(authUser.uid).get();
+                    if (userDoc.exists) {
+                        const userData = userDoc.data();
+                        console.log('✅ Loaded user profile from Firestore:', userData);
                         
-                        // Use the consistent UI update function
-                        updateProfileUI(userData);
+                        // Combine auth data with profile data
+                        const completeUserData = {
+                            uid: authUser.uid,
+                            email: authUser.email,
+                            name: userData.name || authUser.displayName || 'Teacher',
+                            avatar: userData.avatar || '👨‍🏫',
+                            ...userData
+                        };
+                        
+                        // Update UI with complete data
+                        updateProfileUI(completeUserData);
                         
                         // Save to localStorage for offline access
-                        localStorage.setItem('currentUser', JSON.stringify(userData));
+                        localStorage.setItem('currentUser', JSON.stringify(completeUserData));
+                        return;
+                    } else {
+                        console.log('⚠️ No Firestore profile found, creating default');
+                        // Create default profile in Firestore
+                        const defaultProfile = {
+                            name: authUser.displayName || 'Teacher',
+                            email: authUser.email,
+                            avatar: '👨‍🏫',
+                            role: 'teacher',
+                            createdAt: new Date().toISOString(),
+                            updatedAt: new Date().toISOString()
+                        };
+                        
+                        await db.collection('users').doc(authUser.uid).set(defaultProfile);
+                        
+                        updateProfileUI({
+                            uid: authUser.uid,
+                            ...defaultProfile
+                        });
+                        
+                        localStorage.setItem('currentUser', JSON.stringify({
+                            uid: authUser.uid,
+                            ...defaultProfile
+                        }));
                         return;
                     }
                 }
                 
-                // If not signed in, redirect to login
-                console.log('❌ No Firebase user found, redirecting to login');
-                window.location.href = '../index.html';
-                return;
-            }
-            
-            // Fallback to localStorage
-            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-            if (currentUser.name) {
-                console.log('✅ Loaded user data from localStorage:', currentUser);
+                // If no Firebase auth, try firebaseDataManager as fallback
+                if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
+                    const currentUser = window.firebaseDataManager.getCurrentUser();
+                    if (currentUser) {
+                        const profileResult = await window.firebaseDataManager.getUserProfile(currentUser.uid);
+                        if (profileResult.success) {
+                            const userData = profileResult.data;
+                            console.log('✅ Loaded user data from firebaseDataManager:', userData);
+                            updateProfileUI(userData);
+                            localStorage.setItem('currentUser', JSON.stringify(userData));
+                            return;
+                        }
+                    }
+                }
                 
-                // Use the consistent UI update function
-                updateProfileUI(currentUser);
-            } else {
-                console.log('❌ No user data found, redirecting to login');
-                // Check if user is logged in
-                window.location.href = '../index.html';
+                // Final fallback to localStorage
+                const localUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                if (localUser.name) {
+                    console.log('✅ Loaded user data from localStorage:', localUser);
+                    updateProfileUI(localUser);
+                } else {
+                    console.log('❌ No user data found anywhere, redirecting to login');
+                    window.location.href = '../index.html';
+                }
+                
+            } catch (error) {
+                console.error('❌ Error loading user data:', error);
+                
+                // Fallback to localStorage on error
+                const localUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                if (localUser.name) {
+                    console.log('✅ Using localStorage fallback after error:', localUser);
+                    updateProfileUI(localUser);
+                } else {
+                    console.log('❌ Complete failure to load user data, redirecting to login');
+                    window.location.href = '../index.html';
+                }
             }
         }
 

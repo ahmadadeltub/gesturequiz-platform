@@ -448,6 +448,36 @@ class LiveDataManager {
             this.broadcastChannel.close();
         }
     }
+
+    setupOfflineHandling() {
+        // Handle online/offline status
+        this.isOnline = navigator.onLine;
+        
+        // Set up online/offline event listeners
+        window.addEventListener('online', () => {
+            console.log('🌐 Back online - resuming sync');
+            this.isOnline = true;
+            this.syncPendingChanges();
+        });
+        
+        window.addEventListener('offline', () => {
+            console.log('📴 Gone offline - enabling offline mode');
+            this.isOnline = false;
+        });
+        
+        // Check connection status periodically
+        setInterval(() => {
+            const wasOnline = this.isOnline;
+            this.isOnline = navigator.onLine;
+            
+            if (!wasOnline && this.isOnline) {
+                console.log('🔄 Connection restored - syncing pending changes');
+                this.syncPendingChanges();
+            }
+        }, 5000);
+        
+        console.log(`🔌 Offline handling initialized - Status: ${this.isOnline ? 'Online' : 'Offline'}`);
+    }
 }
 
 // Initialize the live data manager

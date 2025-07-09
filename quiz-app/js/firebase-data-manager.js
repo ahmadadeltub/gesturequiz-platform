@@ -3,17 +3,6 @@
  * Handles all online data storage, authentication, and real-time sync
  */
 
-// Firebase configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyAt4ByDMxZFT00a-zESwNHS8uv3DY08uhg",
-    authDomain: "gesturequiz-platform-live.firebaseapp.com",
-    projectId: "gesturequiz-platform-live",
-    storageBucket: "gesturequiz-platform-live.firebasestorage.app",
-    messagingSenderId: "794242095954",
-    appId: "1:794242095954:web:85868edc63c96d37ea388b",
-    measurementId: "G-Y7WPTJRVG6"
-};
-
 class FirebaseDataManager {
     constructor() {
         this.app = null;
