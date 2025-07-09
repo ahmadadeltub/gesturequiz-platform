@@ -3,34 +3,79 @@
 
 class LiveDataManager {
     constructor() {
-        this.currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-        this.wsConnection = null;
-        this.syncInterval = null;
-        this.isOnline = navigator.onLine;
-        this.pendingSync = [];
-        this.lastSync = localStorage.getItem('lastSync') || '0';
+        console.log('🔧 LiveDataManager constructor starting...');
         
-        this.initializeSystem();
-        this.setupEventListeners();
-        this.startPeriodicSync();
+        try {
+            this.currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            this.wsConnection = null;
+            this.syncInterval = null;
+            this.isOnline = navigator.onLine;
+            this.pendingSync = [];
+            this.lastSync = localStorage.getItem('lastSync') || '0';
+            
+            console.log('✅ Basic properties initialized');
+            
+            this.initializeSystem();
+            
+            if (typeof this.setupEventListeners === 'function') {
+                this.setupEventListeners();
+                console.log('✅ Event listeners setup');
+            }
+            
+            if (typeof this.startPeriodicSync === 'function') {
+                this.startPeriodicSync();
+                console.log('✅ Periodic sync started');
+            }
+            
+            console.log('🎉 LiveDataManager constructor completed successfully');
+        } catch (error) {
+            console.error('❌ Error in LiveDataManager constructor:', error);
+            console.error('Stack trace:', error.stack);
+            // Continue execution with limited functionality
+        }
     }
 
     initializeSystem() {
         try {
-            // Initialize all data structures
-            this.initializeDataStructures();
+            console.log('🚀 Initializing LiveDataManager system...');
             
-            // Setup offline/online handling (call directly since it's defined in this class)
-            this.setupOfflineHandling();
+            // Initialize all data structures
+            if (typeof this.initializeDataStructures === 'function') {
+                this.initializeDataStructures();
+                console.log('✅ Data structures initialized');
+            } else {
+                throw new Error('initializeDataStructures method not found');
+            }
+            
+            // Setup offline/online handling
+            if (typeof this.setupOfflineHandling === 'function') {
+                this.setupOfflineHandling();
+                console.log('✅ Offline handling initialized');
+            } else {
+                throw new Error('setupOfflineHandling method not found');
+            }
             
             // Setup real-time sync
-            this.setupRealtimeSync();
+            if (typeof this.setupRealtimeSync === 'function') {
+                this.setupRealtimeSync();
+                console.log('✅ Real-time sync initialized');
+            } else {
+                console.warn('⚠️ setupRealtimeSync method not found - skipping');
+            }
             
             // Setup cross-tab communication
-            this.setupCrossTabSync();
+            if (typeof this.setupCrossTabSync === 'function') {
+                this.setupCrossTabSync();
+                console.log('✅ Cross-tab sync initialized');
+            } else {
+                console.warn('⚠️ setupCrossTabSync method not found - skipping');
+            }
+            
+            console.log('🎉 LiveDataManager system initialized successfully');
         } catch (error) {
             console.error('❌ Error initializing live data manager:', error);
-            throw error;
+            console.error('Stack trace:', error.stack);
+            // Don't throw - let the app continue with limited functionality
         }
     }
 
