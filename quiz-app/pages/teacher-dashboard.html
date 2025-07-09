@@ -2824,11 +2824,42 @@
 
         // Production mode - no automatic test user creation
         // Users must be properly authenticated through Firebase
-        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-        if (!currentUser.email) {
-            console.log('No authenticated user found - redirecting to login');
-            window.location.href = '../login.html';
+        
+        // Check Firebase authentication first, then localStorage as fallback
+        function checkAuthentication() {
+            const firebaseUser = window.firebaseDataManager ? window.firebaseDataManager.getCurrentUser() : null;
+            const localUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            
+            console.log('🔐 Authentication check:', {
+                firebaseUser: firebaseUser ? firebaseUser.email : 'None',
+                localUser: localUser.email || 'None'
+            });
+            
+            if (!firebaseUser && !localUser.email) {
+                console.log('❌ No authenticated user found - redirecting to login');
+                alert('Please log in to access the teacher dashboard. You will be redirected to the login page.');
+                window.location.href = '../login.html';
+                return false;
+            }
+            
+            if (!firebaseUser && localUser.email) {
+                console.log('⚠️ Only localStorage auth found - Firebase authentication required for full functionality');
+                console.log('Please log in again for full Firebase functionality');
+            }
+            
+            return true;
         }
+        
+        // Wait for Firebase to initialize, then check authentication
+        if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
+            checkAuthentication();
+        } else {
+            // Wait for Firebase to initialize
+            setTimeout(() => {
+                checkAuthentication();
+            }, 2000);
+        }
+        
         // Production mode - no automatic test quiz creation
         // Let users create their own quizzes
     </script>
