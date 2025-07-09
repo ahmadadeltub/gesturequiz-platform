@@ -1873,28 +1873,43 @@
             const classItems = document.getElementById('classItems');
             
             try {
-                // First check if Firebase is available
+                console.log('🔄 Loading classes...');
+                
+                // Check if Firebase is available and user is authenticated
                 if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
-                    // Use Firebase
                     const currentUser = window.firebaseDataManager.getCurrentUser();
                     if (currentUser) {
+                        console.log('✅ Using Firebase to load classes for user:', currentUser.email);
                         const classesResult = await window.firebaseDataManager.getClasses(currentUser.uid);
+                        
                         if (classesResult.success) {
                             const classes = classesResult.data;
+                            console.log(`📚 Loaded ${classes.length} classes from Firebase`);
                             displayClasses(classes);
+                            
+                            // Update localStorage to match Firebase (for offline usage)
+                            localStorage.setItem('teacherClasses', JSON.stringify(classes));
                             return;
+                        } else {
+                            console.error('❌ Failed to load classes from Firebase:', classesResult.error);
                         }
+                    } else {
+                        console.warn('⚠️ No authenticated user found');
                     }
+                } else {
+                    console.warn('⚠️ Firebase not available or not initialized');
                 }
                 
-                // Fallback to localStorage
+                // Only use localStorage as fallback when Firebase is not available
+                console.log('📦 Falling back to localStorage');
                 const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
                 const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
-                const teacherClasses = classes.filter(cls => cls.createdBy === currentUser.email);
+                const teacherClasses = classes.filter(cls => cls.createdBy === currentUser.email || cls.createdBy === currentUser.uid);
+                console.log(`📚 Loaded ${teacherClasses.length} classes from localStorage`);
                 displayClasses(teacherClasses);
                 
             } catch (error) {
-                console.error('Error loading classes:', error);
+                console.error('❌ Error loading classes:', error);
                 classItems.innerHTML = '<p style="text-align: center; color: var(--neutral-600); padding: var(--space-4);">Error loading classes. Please try again.</p>';
             }
         }
@@ -2728,99 +2743,95 @@
             }
             
             try {
-                // First check if Firebase is available
+                console.log('🗑️ Starting class deletion process for ID:', classId);
+                
+                // Check if Firebase is available and user is authenticated
                 if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
                     const currentUser = window.firebaseDataManager.getCurrentUser();
                     if (currentUser) {
+                        console.log('✅ User authenticated, deleting from Firebase...');
                         const result = await window.firebaseDataManager.deleteClass(classId);
+                        
                         if (result.success) {
-                            showNotification('Class deleted successfully!', 'success');
+                            console.log('✅ Class deleted from Firebase successfully');
                             
+                            // ALSO remove from localStorage to prevent reappearing
+                            const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+                            const updatedClasses = classes.filter(cls => cls.id !== classId);
+                            localStorage.setItem('teacherClasses', JSON.stringify(updatedClasses));
+                            console.log('✅ Class also removed from localStorage');
+                            
+                            showNotification('Class deleted successfully!', 'success');
                             await loadClasses();
                             await loadDashboardStats();
                             return;
                         } else {
-                            throw new Error(result.error || 'Failed to delete class');
+                            throw new Error(result.error || 'Failed to delete class from Firebase');
                         }
+                    } else {
+                        console.warn('⚠️ No authenticated user - cannot delete from Firebase');
+                        throw new Error('User not authenticated. Please log in to delete classes permanently.');
                     }
+                } else {
+                    console.warn('⚠️ Firebase not available - using localStorage only');
                 }
                 
-                // Fallback to localStorage
+                // Only reach here if Firebase is not available
+                console.log('📦 Deleting from localStorage only (not permanent)');
                 const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
                 const updatedClasses = classes.filter(cls => cls.id !== classId);
                 localStorage.setItem('teacherClasses', JSON.stringify(updatedClasses));
                 
-                showNotification('Class deleted successfully!', 'success');
-                
+                showNotification('Class deleted (localStorage only). For permanent deletion, please log in.', 'warning');
                 await loadClasses();
                 await loadDashboardStats();
                 
             } catch (error) {
-                console.error('Error deleting class:', error);
+                console.error('❌ Error deleting class:', error);
                 showNotification('Error deleting class: ' + error.message, 'error');
             }
         }
 
-        function updatePerformanceMetrics(analytics) {
-            // Update performance indicators
-            const avgScore = analytics.overview.averageScore || 0;
-            const engagementRate = analytics.engagement.completionRate || 0;
+        // Debugging function to check class data sources
+        async function debugClassData() {
+            console.log('🔍 DEBUGGING CLASS DATA SOURCES:');
+            console.log('=====================================');
             
-            // You can add more performance metric updates here
-            console.log('Performance metrics updated:', { avgScore, engagementRate });
-        }
-
-        async function refreshDashboard() {
-            await loadDashboardStats();
-            await loadClasses();
-        }
-
-        // Debug function to check actual Firestore data
-        async function debugTeacherData() {
-            console.log('🔍 DEBUG: Checking teacher data in Firestore...');
-            
-            const authUser = firebase.auth().currentUser;
-            if (!authUser) {
-                console.log('❌ No authenticated user');
-                return;
+            // Check Firebase
+            if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
+                const currentUser = window.firebaseDataManager.getCurrentUser();
+                if (currentUser) {
+                    console.log('🔥 Firebase User:', currentUser.email);
+                    const classesResult = await window.firebaseDataManager.getClasses(currentUser.uid);
+                    if (classesResult.success) {
+                        console.log('🔥 Firebase Classes:', classesResult.data.length);
+                        classesResult.data.forEach((cls, index) => {
+                            console.log(`  ${index + 1}. ${cls.name} (ID: ${cls.id})`);
+                        });
+                    } else {
+                        console.log('🔥 Firebase Classes Error:', classesResult.error);
+                    }
+                } else {
+                    console.log('🔥 Firebase: No authenticated user');
+                }
+            } else {
+                console.log('🔥 Firebase: Not available or not initialized');
             }
             
-            console.log(`👤 Current user: ${authUser.email} (${authUser.uid})`);
-            
-            // Check classes
-            const classesSnapshot = await db.collection('classes')
-                .where('teacherId', '==', authUser.uid)
-                .get();
-            
-            console.log(`📚 Classes found: ${classesSnapshot.docs.length}`);
-            classesSnapshot.docs.forEach((doc, index) => {
-                const data = doc.data();
-                console.log(`  Class ${index + 1}: "${data.name}" (ID: ${doc.id})`);
-                console.log(`    - Subject: ${data.subject}`);
-                console.log(`    - Students: ${data.students ? data.students.length : 0}`);
-                console.log(`    - Created: ${data.createdAt}`);
+            // Check localStorage
+            const localUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const localClasses = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+            console.log('📦 localStorage User:', localUser.email || 'None');
+            console.log('📦 localStorage Classes:', localClasses.length);
+            localClasses.forEach((cls, index) => {
+                console.log(`  ${index + 1}. ${cls.name} (ID: ${cls.id}) - Created by: ${cls.createdBy}`);
             });
             
-            // Check quizzes
-            const quizzesSnapshot = await db.collection('quizzes')
-                .where('teacherId', '==', authUser.uid)
-                .get();
-            
-            console.log(`📝 Quizzes found: ${quizzesSnapshot.docs.length}`);
-            quizzesSnapshot.docs.forEach((doc, index) => {
-                const data = doc.data();
-                console.log(`  Quiz ${index + 1}: "${data.title}" (ID: ${doc.id})`);
-            });
-            
-            return {
-                classCount: classesSnapshot.docs.length,
-                quizCount: quizzesSnapshot.docs.length,
-                classes: classesSnapshot.docs.map(doc => ({id: doc.id, ...doc.data()}))
-            };
+            console.log('=====================================');
         }
-
+        
         // Make debug function available globally
-        window.debugTeacherData = debugTeacherData;
+        window.debugClassData = debugClassData;
 
         // Production mode - no automatic test user creation
         // Users must be properly authenticated through Firebase
