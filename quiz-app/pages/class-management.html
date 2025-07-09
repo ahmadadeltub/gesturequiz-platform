@@ -2150,6 +2150,18 @@
         </div>
     </div>
 
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+    <!-- Firebase Configuration -->
+    <script src="../js/firebase-config.js?v=20250709-classmanagement"></script>
+    
+    <!-- Data Managers -->
+    <script src="../js/firebase-data-manager.js?v=20250709-classmanagement"></script>
+    
     <script src="../js/live-data-manager.js"></script>
     <script src="../js/api-simulator.js"></script>
     <script src="../js/notification-system.js"></script>
@@ -2158,18 +2170,42 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            loadUserData();
-            loadClasses();
-            updateStats();
+            console.log('🚀 Class Management page loading...');
             
-            // For testing: create a test class if none exist
-            createTestClassIfNeeded();
+            // Wait for Firebase to initialize before loading classes
+            function initializePage() {
+                loadUserData();
+                loadClasses();
+                updateStats();
+                
+                // For testing: create a test class if none exist
+                createTestClassIfNeeded();
+                
+                // Add form submission handler
+                document.getElementById('classForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    saveClass();
+                });
+            }
             
-            // Add form submission handler
-            document.getElementById('classForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                saveClass();
-            });
+            // Check if Firebase is available
+            if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
+                console.log('✅ Firebase already initialized');
+                initializePage();
+                showLoginReminder();
+            } else {
+                console.log('⏳ Waiting for Firebase to initialize...');
+                // Wait a bit for Firebase to load
+                setTimeout(() => {
+                    if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
+                        console.log('✅ Firebase initialization complete');
+                    } else {
+                        console.warn('⚠️ Firebase not initialized - using localStorage only');
+                    }
+                    initializePage();
+                    showLoginReminder();
+                }, 2000);
+            }
         });
 
         function createTestClassIfNeeded() {
@@ -2221,27 +2257,10 @@
             }
         }
 
-        function loadClasses() {
-            const classesGrid = document.getElementById('classesGrid');
-            
-            // Show loading state
-            classesGrid.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-state-icon">
-                        <i class="fas fa-spinner fa-spin"></i>
-                    </div>
-                    <h3>Loading Classes...</h3>
-                    <p>Please wait while we load your classes.</p>
-                </div>
-            `;
-            
-            loadClassesAsync();
-        }
-
-        async function loadClassesAsync() {
+        async function loadClasses() {
             try {
-                console.log('🔄 Loading classes from Firebase first...');
-                let classes = [];
+                console.log('🔄 Loading classes...');
+                const classesGrid = document.getElementById('classesGrid');
                 
                 // Check if Firebase is available and user is authenticated
                 if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
@@ -2251,11 +2270,13 @@
                         const classesResult = await window.firebaseDataManager.getClasses(currentUser.uid);
                         
                         if (classesResult.success) {
-                            classes = classesResult.data;
+                            const classes = classesResult.data;
                             console.log(`📚 Loaded ${classes.length} classes from Firebase`);
+                            displayClasses(classes);
                             
-                            // Update localStorage to match Firebase
+                            // Update localStorage to match Firebase (for offline usage)
                             localStorage.setItem('teacherClasses', JSON.stringify(classes));
+                            return;
                         } else {
                             console.error('❌ Failed to load classes from Firebase:', classesResult.error);
                         }
@@ -2263,36 +2284,21 @@
                         console.warn('⚠️ No authenticated user found');
                     }
                 } else {
-                    console.warn('⚠️ Firebase not available, falling back to localStorage');
+                    console.warn('⚠️ Firebase not available or not initialized');
                 }
                 
-                // Fallback to localStorage if Firebase failed
-                if (classes.length === 0) {
-                    console.log('📦 Falling back to localStorage');
-                    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-                    const localClasses = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
-                    classes = localClasses.filter(cls => cls.createdBy === currentUser.email || cls.createdBy === currentUser.uid);
-                    console.log(`📚 Loaded ${classes.length} classes from localStorage`);
-                }
-                
-                displayClasses(classes);
+                // Fallback to localStorage
+                console.log('📦 Falling back to localStorage');
+                const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+                const teacherClasses = classes.filter(cls => cls.createdBy === currentUser.email || cls.createdBy === currentUser.uid);
+                console.log(`📚 Loaded ${teacherClasses.length} classes from localStorage`);
+                displayClasses(teacherClasses);
                 
             } catch (error) {
                 console.error('❌ Error loading classes:', error);
                 const classesGrid = document.getElementById('classesGrid');
-                classesGrid.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
-                        <h3>Error Loading Classes</h3>
-                        <p>There was an error loading your classes. Please try again.</p>
-                        <button class="btn btn-primary" onclick="loadClasses()">
-                            <i class="fas fa-refresh"></i>
-                            Try Again
-                        </button>
-                    </div>
-                `;
+                classesGrid.innerHTML = '<div class="empty-state"><h3>Error loading classes</h3><p>Please try again later.</p></div>';
             }
         }
 
@@ -2495,10 +2501,25 @@
             try {
                 console.log('🗑️ Starting class deletion process for ID:', classId);
                 
-                // First get class info for confirmation
+                // Get class info first
                 let classToDelete = null;
-                const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
-                classToDelete = classes.find(cls => cls.id === classId);
+                
+                // Try to get class from Firebase first
+                if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
+                    const currentUser = window.firebaseDataManager.getCurrentUser();
+                    if (currentUser) {
+                        const classResult = await window.firebaseDataManager.getClass(classId);
+                        if (classResult.success) {
+                            classToDelete = classResult.data;
+                        }
+                    }
+                }
+                
+                // Fallback to localStorage
+                if (!classToDelete) {
+                    const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+                    classToDelete = classes.find(cls => cls.id === classId);
+                }
                 
                 if (!classToDelete) {
                     showNotification('Class not found!', 'error');
@@ -2514,7 +2535,7 @@
                     return;
                 }
                 
-                // Check if Firebase is available and user is authenticated
+                // Delete from Firebase if available and user is authenticated
                 if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
                     const currentUser = window.firebaseDataManager.getCurrentUser();
                     if (currentUser) {
@@ -2525,6 +2546,7 @@
                             console.log('✅ Class deleted from Firebase successfully');
                             
                             // ALSO remove from localStorage to prevent reappearing
+                            const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
                             const updatedClasses = classes.filter(cls => cls.id !== classId);
                             localStorage.setItem('teacherClasses', JSON.stringify(updatedClasses));
                             console.log('✅ Class also removed from localStorage');
@@ -2542,15 +2564,15 @@
                     }
                 } else {
                     console.warn('⚠️ Firebase not available - using localStorage only');
-                    showNotification('Using offline mode - deletion may not be permanent.', 'warning');
                 }
                 
-                // Only reach here if Firebase is not available - localStorage only
+                // Fallback to localStorage only (not permanent)
                 console.log('📦 Deleting from localStorage only (not permanent)');
+                const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
                 const updatedClasses = classes.filter(cls => cls.id !== classId);
                 localStorage.setItem('teacherClasses', JSON.stringify(updatedClasses));
                 
-                showNotification('Class deleted (offline mode)', 'success');
+                showNotification('Class deleted (localStorage only). For permanent deletion, please log in.', 'warning');
                 loadClasses();
                 updateStats();
                 
@@ -2912,6 +2934,66 @@
             showNotification('Student removed successfully!', 'success');
         }
 
+        // Check authentication status
+        function checkAuthStatus() {
+            try {
+                if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
+                    const currentUser = window.firebaseDataManager.getCurrentUser();
+                    if (currentUser) {
+                        console.log('✅ Firebase authenticated as:', currentUser.email);
+                        return true;
+                    } else {
+                        console.log('⚠️ No Firebase authentication found');
+                    }
+                } else {
+                    console.log('⚠️ Firebase not initialized');
+                }
+                
+                const localUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                if (localUser.email) {
+                    console.log('📦 localStorage user:', localUser.email);
+                    return true;
+                }
+                
+                return false;
+            } catch (error) {
+                console.error('❌ Error checking auth:', error);
+                return false;
+            }
+        }
+        
+        // Add login reminder for users
+        function showLoginReminder() {
+            const isAuthenticated = checkAuthStatus();
+            if (!isAuthenticated) {
+                const reminder = document.createElement('div');
+                reminder.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #fff3cd;
+                    color: #856404;
+                    padding: 15px;
+                    border-radius: 8px;
+                    border: 1px solid #ffeaa7;
+                    z-index: 1000;
+                    max-width: 300px;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                `;
+                reminder.innerHTML = `
+                    <strong>⚠️ Authentication Required</strong><br>
+                    <small>For permanent class deletion, please log in via the <a href="../login.html">login page</a> or <a href="../../class-deletion-diagnostic.html">diagnostic tool</a>.</small>
+                `;
+                document.body.appendChild(reminder);
+                
+                setTimeout(() => {
+                    if (reminder.parentNode) {
+                        reminder.parentNode.removeChild(reminder);
+                    }
+                }, 10000);
+            }
+        }
+
         // Modern Notification System
         function showNotification(message, type = 'info', duration = 4000) {
             const notification = document.createElement('div');
@@ -3251,6 +3333,66 @@
                         icon.className = 'fas fa-info-circle';
                     }
                 }
+            }
+        }
+
+        // Check authentication status
+        function checkAuthStatus() {
+            try {
+                if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
+                    const currentUser = window.firebaseDataManager.getCurrentUser();
+                    if (currentUser) {
+                        console.log('✅ Firebase authenticated as:', currentUser.email);
+                        return true;
+                    } else {
+                        console.log('⚠️ No Firebase authentication found');
+                    }
+                } else {
+                    console.log('⚠️ Firebase not initialized');
+                }
+                
+                const localUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                if (localUser.email) {
+                    console.log('📦 localStorage user:', localUser.email);
+                    return true;
+                }
+                
+                return false;
+            } catch (error) {
+                console.error('❌ Error checking auth:', error);
+                return false;
+            }
+        }
+        
+        // Add login reminder for users
+        function showLoginReminder() {
+            const isAuthenticated = checkAuthStatus();
+            if (!isAuthenticated) {
+                const reminder = document.createElement('div');
+                reminder.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #fff3cd;
+                    color: #856404;
+                    padding: 15px;
+                    border-radius: 8px;
+                    border: 1px solid #ffeaa7;
+                    z-index: 1000;
+                    max-width: 300px;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                `;
+                reminder.innerHTML = `
+                    <strong>⚠️ Authentication Required</strong><br>
+                    <small>For permanent class deletion, please log in via the <a href="../login.html">login page</a> or <a href="../../class-deletion-diagnostic.html">diagnostic tool</a>.</small>
+                `;
+                document.body.appendChild(reminder);
+                
+                setTimeout(() => {
+                    if (reminder.parentNode) {
+                        reminder.parentNode.removeChild(reminder);
+                    }
+                }, 10000);
             }
         }
 
