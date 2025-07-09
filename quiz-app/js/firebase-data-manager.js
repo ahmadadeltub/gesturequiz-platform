@@ -380,11 +380,55 @@ class FirebaseDataManager {
 
     async deleteClass(classId) {
         try {
+            console.log('🗑️ Starting deleteClass operation for ID:', classId);
+            
+            // Check if user is authenticated
+            if (!this.currentUser) {
+                throw new Error('User not authenticated');
+            }
+            console.log('✅ User authenticated:', this.currentUser.email);
+            
+            // Create document reference
             const classRef = this.firebase.doc(this.db, 'classes', classId);
+            console.log('📄 Document reference created for class:', classId);
+            
+            // Verify the class exists before deleting
+            const classDoc = await this.firebase.getDoc(classRef);
+            if (!classDoc.exists()) {
+                console.warn('⚠️ Class document does not exist:', classId);
+                return { success: false, error: 'Class not found' };
+            }
+            
+            const classData = classDoc.data();
+            console.log('📋 Class data before deletion:', classData);
+            
+            // Check if user owns this class
+            if (classData.createdBy !== this.currentUser.uid) {
+                throw new Error('User does not have permission to delete this class');
+            }
+            
+            // Perform deletion
+            console.log('🗑️ Attempting to delete document...');
             await this.firebase.deleteDoc(classRef);
+            console.log('✅ Document deleted successfully');
+            
+            // Verify deletion
+            const verifyDoc = await this.firebase.getDoc(classRef);
+            if (verifyDoc.exists()) {
+                console.error('❌ Document still exists after deletion attempt');
+                return { success: false, error: 'Document deletion verification failed' };
+            }
+            
+            console.log('✅ Deletion verified - document no longer exists');
             return { success: true };
+            
         } catch (error) {
             console.error('❌ Delete class failed:', error);
+            console.error('❌ Error details:', {
+                code: error.code,
+                message: error.message,
+                stack: error.stack
+            });
             return { success: false, error: error.message };
         }
     }
