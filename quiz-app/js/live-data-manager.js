@@ -16,17 +16,21 @@ class LiveDataManager {
     }
 
     initializeSystem() {
-        // Initialize all data structures
-        this.initializeDataStructures();
-        
-        // Setup offline/online handling
-        this.setupOfflineHandling();
-        
-        // Setup real-time sync
-        this.setupRealtimeSync();
-        
-        // Setup cross-tab communication
-        this.setupCrossTabSync();
+        try {
+            // Initialize all data structures
+            this.initializeDataStructures();
+            
+            // Setup offline/online handling (call directly since it's defined in this class)
+            this.setupOfflineHandling();
+            
+            // Setup real-time sync
+            this.setupRealtimeSync();
+            
+            // Setup cross-tab communication
+            this.setupCrossTabSync();
+        } catch (error) {
+            console.error('❌ Error initializing live data manager:', error);
+        }
     }
 
     initializeDataStructures() {
@@ -47,6 +51,36 @@ class LiveDataManager {
                 localStorage.setItem(key, dataStructures[key]);
             }
         });
+    }
+
+    setupOfflineHandling() {
+        // Handle online/offline status
+        this.isOnline = navigator.onLine;
+        
+        // Set up online/offline event listeners
+        window.addEventListener('online', () => {
+            console.log('🌐 Back online - resuming sync');
+            this.isOnline = true;
+            this.syncPendingChanges();
+        });
+        
+        window.addEventListener('offline', () => {
+            console.log('📴 Gone offline - enabling offline mode');
+            this.isOnline = false;
+        });
+        
+        // Check connection status periodically
+        setInterval(() => {
+            const wasOnline = this.isOnline;
+            this.isOnline = navigator.onLine;
+            
+            if (!wasOnline && this.isOnline) {
+                console.log('🔄 Connection restored - syncing pending changes');
+                this.syncPendingChanges();
+            }
+        }, 5000);
+        
+        console.log(`🔌 Offline handling initialized - Status: ${this.isOnline ? 'Online' : 'Offline'}`);
     }
 
     setupEventListeners() {
@@ -447,36 +481,6 @@ class LiveDataManager {
         if (this.broadcastChannel) {
             this.broadcastChannel.close();
         }
-    }
-
-    setupOfflineHandling() {
-        // Handle online/offline status
-        this.isOnline = navigator.onLine;
-        
-        // Set up online/offline event listeners
-        window.addEventListener('online', () => {
-            console.log('🌐 Back online - resuming sync');
-            this.isOnline = true;
-            this.syncPendingChanges();
-        });
-        
-        window.addEventListener('offline', () => {
-            console.log('📴 Gone offline - enabling offline mode');
-            this.isOnline = false;
-        });
-        
-        // Check connection status periodically
-        setInterval(() => {
-            const wasOnline = this.isOnline;
-            this.isOnline = navigator.onLine;
-            
-            if (!wasOnline && this.isOnline) {
-                console.log('🔄 Connection restored - syncing pending changes');
-                this.syncPendingChanges();
-            }
-        }, 5000);
-        
-        console.log(`🔌 Offline handling initialized - Status: ${this.isOnline ? 'Online' : 'Offline'}`);
     }
 }
 
