@@ -143,6 +143,7 @@
                     </div>
                     <button onclick="loginUser()" class="success">🔐 Login</button>
                     <button onclick="useTestAccount()" class="info">👤 Use Test Account</button>
+                    <button onclick="createTestAccount()" class="warning">➕ Create Test Account</button>
                 </div>
                 <div id="user-info" style="display: none;">
                     <div class="status success">Logged in successfully!</div>
@@ -292,8 +293,35 @@
         async function useTestAccount() {
             // Use common test credentials
             document.getElementById('loginEmail').value = 'teacher@test.com';
-            document.getElementById('loginPassword').value = 'test123';
+            document.getElementById('loginPassword').value = 'teacher123';
             await loginUser();
+        }
+
+        async function createTestAccount() {
+            try {
+                addToConsole('➕ Creating test account...', 'log');
+                
+                if (!window.firebaseDataManager) {
+                    throw new Error('Firebase Data Manager not available');
+                }
+                
+                const result = await window.firebaseDataManager.signUp('teacher@test.com', 'teacher123');
+                
+                if (result.success) {
+                    addToConsole('✅ Test account created successfully!', 'log');
+                    updateAuthUI(result.user);
+                    await loadCurrentClasses();
+                } else {
+                    // Account might already exist, try to login
+                    addToConsole('ℹ️ Account might already exist, trying to login...', 'log');
+                    await useTestAccount();
+                }
+                
+            } catch (error) {
+                addToConsole(`❌ Create account failed: ${error.message}`, 'error');
+                addToConsole('ℹ️ Trying to login with existing account...', 'log');
+                await useTestAccount();
+            }
         }
 
         async function logoutUser() {
