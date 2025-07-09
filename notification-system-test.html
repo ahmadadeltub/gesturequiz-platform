@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification System Test - GestureQuiz</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: 500;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            background: #0056b3;
+        }
+        
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔔 Notification System Test</h1>
+        <p>Test the notification system to ensure it loads without errors.</p>
+
+        <div id="systemStatus" class="status">
+            ⏳ Loading notification system...
+        </div>
+
+        <div style="margin: 20px 0;">
+            <button class="btn" onclick="testSuccess()">Test Success Notification</button>
+            <button class="btn" onclick="testWarning()">Test Warning Notification</button>
+            <button class="btn" onclick="testError()">Test Error Notification</button>
+            <button class="btn" onclick="testInfo()">Test Info Notification</button>
+        </div>
+
+        <div>
+            <h3>Console Log:</h3>
+            <div id="consoleLog" class="log">Initializing...\n</div>
+            <button class="btn" onclick="clearLog()">Clear Log</button>
+        </div>
+    </div>
+
+    <!-- Include the notification system -->
+    <script src="quiz-app/js/notification-system.js"></script>
+    
+    <script>
+        let logElement;
+        
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            if (!logElement) logElement = document.getElementById('consoleLog');
+            logElement.textContent += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+
+        function clearLog() {
+            if (!logElement) logElement = document.getElementById('consoleLog');
+            logElement.textContent = 'Log cleared...\n';
+        }
+
+        // Override console methods to capture logs
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        
+        console.log = function(...args) {
+            log('LOG: ' + args.join(' '));
+            originalConsoleLog.apply(console, args);
+        };
+        
+        console.error = function(...args) {
+            log('ERROR: ' + args.join(' '));
+            originalConsoleError.apply(console, args);
+        };
+
+        function testSuccess() {
+            if (window.notificationSystem) {
+                window.notificationSystem.success('This is a success notification!');
+                log('✅ Success notification triggered');
+            } else {
+                log('❌ Notification system not available');
+            }
+        }
+
+        function testWarning() {
+            if (window.notificationSystem) {
+                window.notificationSystem.warning('This is a warning notification!');
+                log('⚠️ Warning notification triggered');
+            } else {
+                log('❌ Notification system not available');
+            }
+        }
+
+        function testError() {
+            if (window.notificationSystem) {
+                window.notificationSystem.error('This is an error notification!');
+                log('🚨 Error notification triggered');
+            } else {
+                log('❌ Notification system not available');
+            }
+        }
+
+        function testInfo() {
+            if (window.notificationSystem) {
+                window.notificationSystem.info('This is an info notification!');
+                log('ℹ️ Info notification triggered');
+            } else {
+                log('❌ Notification system not available');
+            }
+        }
+
+        // Check if notification system loaded successfully
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const statusElement = document.getElementById('systemStatus');
+                if (window.notificationSystem) {
+                    statusElement.innerHTML = '✅ Notification system loaded successfully!';
+                    statusElement.className = 'status success';
+                    log('✅ Notification system initialized successfully');
+                    
+                    // Test a sample notification
+                    window.notificationSystem.info('Notification system is ready!');
+                } else {
+                    statusElement.innerHTML = '❌ Notification system failed to load';
+                    statusElement.className = 'status error';
+                    log('❌ Notification system failed to initialize');
+                }
+            }, 1000);
+        });
+
+        // Log when script starts
+        log('🚀 Notification test page loaded');
+    </script>
+</body>
+</html>
