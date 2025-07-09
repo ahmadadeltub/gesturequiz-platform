@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Fix Test - verifyDoc.exists Fix</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .success { 
+            background: #d1f2eb; 
+            color: #00695c; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 10px 0;
+            border-left: 4px solid #00695c;
+        }
+        .error { 
+            background: #fdeaea; 
+            color: #c62d42; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 10px 0;
+            border-left: 4px solid #c62d42;
+        }
+        .test-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .btn {
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        .btn:hover {
+            background: #5a6fd8;
+        }
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .log-output {
+            background: #f1f3f4;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: 500;
+        }
+        .info { background: #e3f2fd; color: #1565c0; border-left: 4px solid #1565c0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Registration Fix Test</h1>
+            <p><strong>Testing the verifyDoc.exists() → verifyDoc.exists fix</strong></p>
+        </div>
+
+        <div class="info">
+            <strong>✅ FIXED:</strong> Changed <code>verifyDoc.exists()</code> to <code>verifyDoc.exists</code> in register.html and login.html.<br>
+            This test will verify that registration now works without the TypeError.
+        </div>
+
+        <div class="test-form">
+            <h3>📝 Test Registration</h3>
+            <form id="testForm">
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="email" placeholder="test@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Password:</label>
+                    <input type="password" id="password" placeholder="MinLength6!" required>
+                </div>
+                <div class="form-group">
+                    <label>Full Name:</label>
+                    <input type="text" id="fullName" placeholder="Test User" required>
+                </div>
+                <div class="form-group">
+                    <label>Role:</label>
+                    <select id="role" required>
+                        <option value="student">Student</option>
+                        <option value="teacher">Teacher</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn" id="testBtn">Test Registration</button>
+            </form>
+        </div>
+
+        <div id="results"></div>
+        <div id="logs" class="log-output" style="display:none;"></div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAR0VYpV4GH8xbVqRMKhWqD8_YYgShJz6M",
+            authDomain: "gesturequiz-platform-live.firebaseapp.com",
+            projectId: "gesturequiz-platform-live",
+            storageBucket: "gesturequiz-platform-live.firebasestorage.app",
+            messagingSenderId: "381311919972",
+            appId: "1:381311919972:web:4ae8a649ae97f8e5f6ae16"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        const resultsDiv = document.getElementById('results');
+        const logsDiv = document.getElementById('logs');
+
+        function addLog(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            logsDiv.innerHTML += `[${timestamp}] ${message}\n`;
+            logsDiv.style.display = 'block';
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+            console.log(message);
+        }
+
+        function showResult(type, message) {
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = message;
+            resultsDiv.appendChild(div);
+        }
+
+        document.getElementById('testForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const testBtn = document.getElementById('testBtn');
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const fullName = document.getElementById('fullName').value;
+            const role = document.getElementById('role').value;
+
+            testBtn.disabled = true;
+            testBtn.textContent = 'Testing...';
+            resultsDiv.innerHTML = '';
+            logsDiv.innerHTML = '';
+
+            try {
+                addLog('🚀 Starting registration test...');
+                addLog(`📧 Email: ${email}`);
+                addLog(`👤 Role: ${role}`);
+
+                // Create user with Firebase Auth
+                addLog('🔐 Creating Firebase Auth user...');
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                addLog(`✅ Auth user created with UID: ${user.uid}`);
+
+                // Prepare user data
+                const userData = {
+                    email: user.email,
+                    fullName: fullName,
+                    role: role,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    uid: user.uid
+                };
+
+                addLog('📄 Creating Firestore document...');
+                
+                // Save user data to Firestore
+                await db.collection('users').doc(user.uid).set(userData);
+                addLog('✅ Firestore user document created');
+
+                // **THE CRITICAL TEST: verifyDoc.exists (not exists())**
+                addLog('🔍 Testing verifyDoc.exists (the fix)...');
+                const verifyDoc = await db.collection('users').doc(user.uid).get();
+                
+                // CRITICAL DEBUG: Check what verifyDoc actually is
+                addLog(`🔍 Value of verifyDoc: ${verifyDoc}`);
+                addLog(`🔍 Type of verifyDoc: ${typeof verifyDoc}`);
+                addLog(`🔍 verifyDoc constructor: ${verifyDoc?.constructor?.name}`);
+                
+                addLog(`📊 Document verification result: exists=${verifyDoc.exists}, id=${verifyDoc.id}`);
+                
+                if (!verifyDoc.exists) {
+                    throw new Error('Failed to verify user document creation');
+                }
+
+                addLog('✅ User document verified in Firestore');
+                addLog('🎉 Registration test completed successfully!');
+
+                showResult('success', '🎉 <strong>SUCCESS!</strong> Registration works perfectly!<br>The verifyDoc.exists fix resolved the TypeError.');
+
+                // Clean up - delete the test user
+                addLog('🧹 Cleaning up test user...');
+                await user.delete();
+                await db.collection('users').doc(user.uid).delete();
+                addLog('✅ Test user cleaned up');
+
+            } catch (error) {
+                addLog(`❌ Error: ${error.message}`);
+                addLog(`📋 Error code: ${error.code || 'unknown'}`);
+                
+                let errorMsg = `<strong>Error:</strong> ${error.message}`;
+                
+                if (error.message.includes('exists is not a function')) {
+                    errorMsg += '<br><br><strong>🔧 Fix needed:</strong> Change verifyDoc.exists() to verifyDoc.exists';
+                } else if (error.code === 'auth/email-already-in-use') {
+                    errorMsg += '<br><br><strong>ℹ️ Info:</strong> Email already registered. Try a different email or delete the existing account.';
+                } else if (error.code === 'permission-denied') {
+                    errorMsg += '<br><br><strong>🔧 Fix needed:</strong> Update Firestore security rules to allow user creation.';
+                }
+                
+                showResult('error', errorMsg);
+            } finally {
+                testBtn.disabled = false;
+                testBtn.textContent = 'Test Registration';
+            }
+        });
+
+        // Pre-fill form with test data
+        document.getElementById('email').value = `test${Date.now()}@example.com`;
+        document.getElementById('password').value = 'TestPass123!';
+        document.getElementById('fullName').value = 'Test User';
+    </script>
+</body>
+</html>

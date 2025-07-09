@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firestore get() Method Debug</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .debug-output {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .btn {
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .btn:hover { background: #5a6fd8; }
+        .success { background: #d1f2eb; color: #00695c; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .error { background: #fdeaea; color: #c62d42; padding: 10px; border-radius: 5px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 Firestore get() Method Debug</h1>
+        <p><strong>Purpose:</strong> Test what <code>db.collection('users').doc(uid).get()</code> actually returns</p>
+
+        <button class="btn" onclick="testExistingDoc()">Test Existing Document</button>
+        <button class="btn" onclick="testNonExistentDoc()">Test Non-Existent Document</button>
+        <button class="btn" onclick="testPromiseHandling()">Test Promise Handling</button>
+
+        <div id="output" class="debug-output"></div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAR0VYpV4GH8xbVqRMKhWqD8_YYgShJz6M",
+            authDomain: "gesturequiz-platform-live.firebaseapp.com",
+            projectId: "gesturequiz-platform-live",
+            storageBucket: "gesturequiz-platform-live.firebasestorage.app",
+            messagingSenderId: "381311919972",
+            appId: "1:381311919972:web:4ae8a649ae97f8e5f6ae16"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        const output = document.getElementById('output');
+
+        function addOutput(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            output.textContent += `[${timestamp}] ${message}\n`;
+            console.log(message);
+        }
+
+        function clearOutput() {
+            output.textContent = '';
+        }
+
+        async function testExistingDoc() {
+            clearOutput();
+            addOutput('🔍 Testing get() on an existing document...\n');
+
+            try {
+                // First create a test document
+                const testDocId = 'debug-test-' + Date.now();
+                const testData = { name: 'Test User', created: new Date() };
+                
+                addOutput(`📝 Creating test document with ID: ${testDocId}`);
+                await db.collection('users').doc(testDocId).set(testData);
+                addOutput('✅ Test document created\n');
+
+                // Now test the get() method
+                addOutput('🔍 Calling db.collection("users").doc(testDocId).get()...');
+                const docSnapshot = await db.collection('users').doc(testDocId).get();
+                
+                addOutput('📊 DEBUGGING DOCUMENT SNAPSHOT:');
+                addOutput(`   Type: ${typeof docSnapshot}`);
+                addOutput(`   Constructor: ${docSnapshot?.constructor?.name}`);
+                addOutput(`   Has .exists property: ${docSnapshot.hasOwnProperty('exists')}`);
+                addOutput(`   .exists value: ${docSnapshot.exists}`);
+                addOutput(`   .exists type: ${typeof docSnapshot.exists}`);
+                addOutput(`   Has .data method: ${typeof docSnapshot.data === 'function'}`);
+                addOutput(`   Document ID: ${docSnapshot.id}`);
+                
+                if (docSnapshot.exists) {
+                    addOutput(`   Document data: ${JSON.stringify(docSnapshot.data(), null, 2)}`);
+                }
+
+                // Test the .exists check
+                addOutput('\n🧪 Testing if (!docSnapshot.exists) check...');
+                if (!docSnapshot.exists) {
+                    addOutput('❌ Document shows as NOT existing (this would be wrong)');
+                } else {
+                    addOutput('✅ Document shows as existing (correct)');
+                }
+
+                // Clean up
+                addOutput('\n🧹 Cleaning up test document...');
+                await db.collection('users').doc(testDocId).delete();
+                addOutput('✅ Test document deleted');
+
+            } catch (error) {
+                addOutput(`❌ Error: ${error.message}`);
+                addOutput(`   Error code: ${error.code}`);
+                addOutput(`   Error stack: ${error.stack}`);
+            }
+        }
+
+        async function testNonExistentDoc() {
+            clearOutput();
+            addOutput('🔍 Testing get() on a non-existent document...\n');
+
+            try {
+                const fakeDocId = 'non-existent-' + Date.now();
+                addOutput(`🔍 Calling db.collection("users").doc("${fakeDocId}").get()...`);
+                
+                const docSnapshot = await db.collection('users').doc(fakeDocId).get();
+                
+                addOutput('📊 DEBUGGING NON-EXISTENT DOCUMENT SNAPSHOT:');
+                addOutput(`   Type: ${typeof docSnapshot}`);
+                addOutput(`   Constructor: ${docSnapshot?.constructor?.name}`);
+                addOutput(`   Has .exists property: ${docSnapshot.hasOwnProperty('exists')}`);
+                addOutput(`   .exists value: ${docSnapshot.exists}`);
+                addOutput(`   .exists type: ${typeof docSnapshot.exists}`);
+                addOutput(`   Document ID: ${docSnapshot.id}`);
+
+                // Test the .exists check
+                addOutput('\n🧪 Testing if (!docSnapshot.exists) check...');
+                if (!docSnapshot.exists) {
+                    addOutput('✅ Document shows as NOT existing (correct for non-existent doc)');
+                } else {
+                    addOutput('❌ Document shows as existing (this would be wrong)');
+                }
+
+            } catch (error) {
+                addOutput(`❌ Error: ${error.message}`);
+                addOutput(`   Error code: ${error.code}`);
+                addOutput(`   Error stack: ${error.stack}`);
+            }
+        }
+
+        async function testPromiseHandling() {
+            clearOutput();
+            addOutput('🔍 Testing Promise handling (with and without await)...\n');
+
+            try {
+                const testDocId = 'promise-test-' + Date.now();
+                
+                // Create test document
+                await db.collection('users').doc(testDocId).set({ test: true });
+                addOutput('✅ Test document created\n');
+
+                // Test WITHOUT await (this should show a Promise)
+                addOutput('🧪 Testing WITHOUT await:');
+                const withoutAwait = db.collection('users').doc(testDocId).get();
+                addOutput(`   Type: ${typeof withoutAwait}`);
+                addOutput(`   Constructor: ${withoutAwait?.constructor?.name}`);
+                addOutput(`   Is Promise: ${withoutAwait instanceof Promise}`);
+                addOutput(`   Has .exists: ${withoutAwait.hasOwnProperty('exists')}`);
+                
+                // Test WITH await (this should show DocumentSnapshot)
+                addOutput('\n🧪 Testing WITH await:');
+                const withAwait = await db.collection('users').doc(testDocId).get();
+                addOutput(`   Type: ${typeof withAwait}`);
+                addOutput(`   Constructor: ${withAwait?.constructor?.name}`);
+                addOutput(`   Is Promise: ${withAwait instanceof Promise}`);
+                addOutput(`   Has .exists: ${withAwait.hasOwnProperty('exists')}`);
+                addOutput(`   .exists value: ${withAwait.exists}`);
+
+                // Clean up
+                await db.collection('users').doc(testDocId).delete();
+                addOutput('\n✅ Test completed and cleaned up');
+
+            } catch (error) {
+                addOutput(`❌ Error: ${error.message}`);
+            }
+        }
+
+        // Auto-run the existing document test
+        addOutput('🚀 Firebase initialized. Click buttons to run tests.\n');
+    </script>
+</body>
+</html>

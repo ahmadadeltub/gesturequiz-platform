@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 DEEP DIAGNOSTIC - Registration Error Analysis</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+        .error-header {
+            background: linear-gradient(45deg, #e53e3e, #c53030);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .diagnostic-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 5px solid #e53e3e;
+        }
+        .test-results {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            margin: 15px 0;
+            min-height: 80px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #e53e3e;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            margin: 10px 5px;
+            cursor: pointer;
+            border: none;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background: #c53030;
+            transform: translateY(-2px);
+        }
+        .btn-success {
+            background: #38a169;
+        }
+        .btn-warning {
+            background: #d69e2e;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .status-box {
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .status-good {
+            background: #c6f6d5;
+            border: 2px solid #38a169;
+        }
+        .status-bad {
+            background: #fed7d7;
+            border: 2px solid #e53e3e;
+        }
+        .status-warning {
+            background: #feebc8;
+            border: 2px solid #d69e2e;
+        }
+        .step-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e53e3e;
+            color: white;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .solution-box {
+            background: linear-gradient(135deg, #38a169, #2f855a);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="error-header">
+            <h1>🔍 DEEP DIAGNOSTIC ANALYSIS</h1>
+            <p><strong>Issue:</strong> "An error occurred during registration. Please try again."</p>
+            <p><strong>Status:</strong> Still failing after App Check investigation</p>
+            <p><strong>Action:</strong> Comprehensive error analysis and multiple fix attempts</p>
+        </div>
+
+        <div class="diagnostic-section">
+            <h2><span class="step-number">1</span>Detailed Error Detection</h2>
+            <p>Let's capture the exact error details and console messages:</p>
+            
+            <button class="btn btn-warning" onclick="enableDetailedLogging()">📊 Enable Detailed Logging</button>
+            <button class="btn btn-success" onclick="testWithFullDiagnostic()">🔍 Full Diagnostic Test</button>
+            
+            <div id="diagnosticResults" class="test-results">
+                Click "Full Diagnostic Test" to capture exact error details...
+            </div>
+        </div>
+
+        <div class="diagnostic-section">
+            <h2><span class="step-number">2</span>Test Multiple Authentication Methods</h2>
+            <p>Try different approaches to identify what's working and what's not:</p>
+            
+            <div class="form-group">
+                <label for="testEmail">Test Email:</label>
+                <input type="email" id="testEmail" placeholder="test@example.com" value="test@example.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="testPassword">Test Password:</label>
+                <input type="password" id="testPassword" placeholder="testpassword123" value="testpassword123">
+            </div>
+            
+            <button class="btn btn-success" onclick="testBasicAuth()">🔐 Test Basic Auth</button>
+            <button class="btn btn-success" onclick="testWithNetworkMonitoring()">🌐 Test with Network Monitor</button>
+            <button class="btn btn-success" onclick="testFirestoreWrite()">📊 Test Firestore Write</button>
+            <button class="btn btn-warning" onclick="testWithDebugMode()">🐛 Test Debug Mode</button>
+            
+            <div id="authTestResults" class="test-results">
+                Enter test credentials and click the buttons above...
+            </div>
+        </div>
+
+        <div class="diagnostic-section">
+            <h2><span class="step-number">3</span>Check Firebase Services Status</h2>
+            <p>Verify all Firebase services are accessible:</p>
+            
+            <button class="btn btn-success" onclick="checkAllFirebaseServices()">🔥 Check All Services</button>
+            <button class="btn btn-success" onclick="checkAppCheckStatus()">🛡️ Re-check App Check</button>
+            <button class="btn btn-success" onclick="checkFirestoreRules()">📋 Check Firestore Rules</button>
+            
+            <div id="servicesStatus" class="test-results">
+                Click to check Firebase services status...
+            </div>
+        </div>
+
+        <div class="diagnostic-section">
+            <h2><span class="step-number">4</span>Try Alternative Registration Methods</h2>
+            <p>Test different registration approaches to isolate the issue:</p>
+            
+            <button class="btn btn-success" onclick="tryMinimalRegistration()">⚡ Minimal Registration</button>
+            <button class="btn btn-success" onclick="tryRegistrationWithoutFirestore()">📝 Registration Without Firestore</button>
+            <button class="btn btn-warning" onclick="tryWithDifferentConfig()">⚙️ Try Different Config</button>
+            
+            <div id="alternativeResults" class="test-results">
+                Testing alternative registration methods...
+            </div>
+        </div>
+
+        <div id="solutionRecommendation" class="status-warning">
+            <strong>🔄 Run the diagnostic tests above to get specific solution recommendations...</strong>
+        </div>
+
+        <div class="solution-box">
+            <h2>🎯 Potential Solutions Based on Error Type</h2>
+            <div id="solutions">
+                <p>Solutions will appear here based on diagnostic results...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAt4ByDMxZFT00a-zESwNHS8uv3DY08uhg",
+            authDomain: "gesturequiz-platform-live.firebaseapp.com",
+            projectId: "gesturequiz-platform-live",
+            storageBucket: "gesturequiz-platform-live.firebasestorage.app",
+            messagingSenderId: "794242095954",
+            appId: "1:794242095954:web:85868edc63c96d37ea388b",
+            measurementId: "G-Y7WPTJRVG6"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let detailedLogging = false;
+        let errorLog = [];
+
+        function enableDetailedLogging() {
+            detailedLogging = true;
+            
+            // Override console methods to capture all logs
+            const originalLog = console.log;
+            const originalError = console.error;
+            const originalWarn = console.warn;
+            
+            console.log = function(...args) {
+                if (detailedLogging) {
+                    errorLog.push({type: 'log', time: new Date().toISOString(), message: args.join(' ')});
+                }
+                originalLog.apply(console, args);
+            };
+            
+            console.error = function(...args) {
+                if (detailedLogging) {
+                    errorLog.push({type: 'error', time: new Date().toISOString(), message: args.join(' ')});
+                }
+                originalError.apply(console, args);
+            };
+            
+            console.warn = function(...args) {
+                if (detailedLogging) {
+                    errorLog.push({type: 'warn', time: new Date().toISOString(), message: args.join(' ')});
+                }
+                originalWarn.apply(console, args);
+            };
+            
+            document.getElementById('diagnosticResults').innerHTML = `
+                <div style="color: #48bb78;">✅ Detailed logging enabled</div>
+                <div>📊 Capturing all console messages, network requests, and Firebase events</div>
+                <div>⏰ Started at: ${new Date().toLocaleTimeString()}</div>
+            `;
+        }
+
+        function testWithFullDiagnostic() {
+            const resultsDiv = document.getElementById('diagnosticResults');
+            resultsDiv.innerHTML = '🔍 Running comprehensive diagnostic...';
+            
+            const email = document.getElementById('testEmail').value || 'diagnostic-test@example.com';
+            const password = document.getElementById('testPassword').value || 'testpassword123';
+            
+            errorLog = []; // Clear previous logs
+            
+            resultsDiv.innerHTML += '<br>📡 Starting network monitoring...';
+            
+            // Monitor network requests
+            const originalFetch = window.fetch;
+            window.fetch = function(...args) {
+                errorLog.push({
+                    type: 'network',
+                    time: new Date().toISOString(),
+                    url: args[0],
+                    method: args[1]?.method || 'GET'
+                });
+                return originalFetch.apply(this, args);
+            };
+            
+            resultsDiv.innerHTML += '<br>🔐 Testing authentication with full monitoring...';
+            
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    resultsDiv.innerHTML = `
+                        <div style="color: #48bb78;">🎉 SUCCESS: Registration worked!</div>
+                        <div>👤 User: ${userCredential.user.email}</div>
+                        <div>🆔 UID: ${userCredential.user.uid}</div>
+                        <div>⏰ Success at: ${new Date().toLocaleTimeString()}</div>
+                        <div style="margin-top: 15px;">📊 DIAGNOSTIC LOGS:</div>
+                        ${generateLogSummary()}
+                    `;
+                    updateSolution('success');
+                })
+                .catch((error) => {
+                    resultsDiv.innerHTML = `
+                        <div style="color: #f56565;">❌ REGISTRATION FAILED - DETAILED ANALYSIS:</div>
+                        <div>🔴 Error Code: ${error.code}</div>
+                        <div>📝 Error Message: ${error.message}</div>
+                        <div>🔧 Error Details: ${JSON.stringify(error, null, 2)}</div>
+                        <div>⏰ Failed at: ${new Date().toLocaleTimeString()}</div>
+                        <div style="margin-top: 15px;">📊 DIAGNOSTIC LOGS:</div>
+                        ${generateLogSummary()}
+                        <div style="margin-top: 15px;">🌐 NETWORK ACTIVITY:</div>
+                        ${generateNetworkSummary()}
+                    `;
+                    updateSolution(error.code);
+                });
+        }
+
+        function generateLogSummary() {
+            if (errorLog.length === 0) return '<div>No logs captured</div>';
+            
+            return errorLog.map(log => 
+                `<div>[${log.time.split('T')[1].split('.')[0]}] ${log.type.toUpperCase()}: ${log.message}</div>`
+            ).join('');
+        }
+
+        function generateNetworkSummary() {
+            const networkLogs = errorLog.filter(log => log.type === 'network');
+            if (networkLogs.length === 0) return '<div>No network requests captured</div>';
+            
+            return networkLogs.map(log => 
+                `<div>🌐 ${log.method} ${log.url}</div>`
+            ).join('');
+        }
+
+        function testBasicAuth() {
+            const resultsDiv = document.getElementById('authTestResults');
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+            
+            if (!email || !password) {
+                resultsDiv.innerHTML = '<div style="color: #f56565;">❌ Please enter email and password</div>';
+                return;
+            }
+            
+            resultsDiv.innerHTML = `🔐 Testing basic authentication for: ${email}...`;
+            
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    resultsDiv.innerHTML = `
+                        <div style="color: #48bb78;">✅ BASIC AUTH SUCCESS!</div>
+                        <div>👤 User: ${userCredential.user.email}</div>
+                        <div>🔑 Authentication is working properly</div>
+                        <div>⏰ Success at: ${new Date().toLocaleTimeString()}</div>
+                    `;
+                })
+                .catch((error) => {
+                    let analysis = analyzeError(error);
+                    resultsDiv.innerHTML = `
+                        <div style="color: #f56565;">❌ BASIC AUTH FAILED</div>
+                        <div>🔴 Code: ${error.code}</div>
+                        <div>📝 Message: ${error.message}</div>
+                        <div style="color: #ed8936;">💡 Analysis: ${analysis.cause}</div>
+                        <div style="color: #4299e1;">🔧 Solution: ${analysis.solution}</div>
+                        <div>⏰ Failed at: ${new Date().toLocaleTimeString()}</div>
+                    `;
+                });
+        }
+
+        function analyzeError(error) {
+            switch (error.code) {
+                case 'auth/firebase-app-check-token-is-invalid':
+                    return {
+                        cause: 'Firebase App Check is still blocking requests',
+                        solution: 'App Check enforcement is not properly disabled. Double-check Firebase Console settings.'
+                    };
+                case 'auth/email-already-in-use':
+                    return {
+                        cause: 'Email already registered (this is actually good - auth is working)',
+                        solution: 'Try a different email or this confirms auth is functional.'
+                    };
+                case 'auth/invalid-email':
+                    return {
+                        cause: 'Invalid email format',
+                        solution: 'Use a valid email address format.'
+                    };
+                case 'auth/weak-password':
+                    return {
+                        cause: 'Password too weak',
+                        solution: 'Use a password with at least 6 characters.'
+                    };
+                case 'auth/network-request-failed':
+                    return {
+                        cause: 'Network connectivity issue',
+                        solution: 'Check internet connection and Firebase service status.'
+                    };
+                case 'permission-denied':
+                    return {
+                        cause: 'Firebase rules or App Check blocking the request',
+                        solution: 'Check Firestore rules and App Check settings.'
+                    };
+                default:
+                    return {
+                        cause: 'Unknown authentication error',
+                        solution: 'Check Firebase configuration and project settings.'
+                    };
+            }
+        }
+
+        function checkAppCheckStatus() {
+            const resultsDiv = document.getElementById('servicesStatus');
+            resultsDiv.innerHTML = '🛡️ Checking App Check enforcement status...';
+            
+            // Try to make a request that would be blocked by App Check
+            fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + firebaseConfig.apiKey, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: 'test@example.com',
+                    password: 'testpass',
+                    returnSecureToken: true
+                })
+            })
+            .then(response => {
+                if (response.status === 401) {
+                    resultsDiv.innerHTML = `
+                        <div style="color: #f56565;">🚨 CONFIRMED: App Check is still blocking requests</div>
+                        <div>📊 Status: ${response.status} ${response.statusText}</div>
+                        <div>💡 App Check enforcement is still active in Firebase Console</div>
+                        <div>🔧 SOLUTION: Go to Firebase Console and disable App Check for Authentication</div>
+                    `;
+                } else {
+                    return response.json();
+                }
+            })
+            .then(data => {
+                if (data) {
+                    resultsDiv.innerHTML = `
+                        <div style="color: #48bb78;">✅ App Check is not blocking requests</div>
+                        <div>📊 Authentication API is accessible</div>
+                        <div>🔍 The issue is likely something else</div>
+                    `;
+                }
+            })
+            .catch(error => {
+                resultsDiv.innerHTML = `
+                    <div style="color: #ed8936;">⚠️ Network test error: ${error.message}</div>
+                    <div>🔍 Could not determine App Check status definitively</div>
+                `;
+            });
+        }
+
+        function tryMinimalRegistration() {
+            const resultsDiv = document.getElementById('alternativeResults');
+            resultsDiv.innerHTML = '⚡ Testing minimal registration (auth only, no Firestore)...';
+            
+            const email = `minimal-${Date.now()}@example.com`;
+            const password = 'testpass123';
+            
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    resultsDiv.innerHTML = `
+                        <div style="color: #48bb78;">✅ MINIMAL REGISTRATION SUCCESS!</div>
+                        <div>👤 User: ${userCredential.user.email}</div>
+                        <div>🔍 This proves Firebase Auth is working</div>
+                        <div>💡 The issue may be in Firestore operations after auth</div>
+                        <div>⏰ Success at: ${new Date().toLocaleTimeString()}</div>
+                    `;
+                })
+                .catch((error) => {
+                    resultsDiv.innerHTML = `
+                        <div style="color: #f56565;">❌ Even minimal registration failed</div>
+                        <div>🔴 Error: ${error.code} - ${error.message}</div>
+                        <div>🚨 This confirms the issue is in Firebase Auth itself</div>
+                    `;
+                });
+        }
+
+        function updateSolution(errorType) {
+            const solutionDiv = document.getElementById('solutionRecommendation');
+            const solutionsDiv = document.getElementById('solutions');
+            
+            if (errorType === 'success') {
+                solutionDiv.className = 'status-box status-good';
+                solutionDiv.innerHTML = `
+                    <div style="font-size: 1.2em;">🎉 REGISTRATION IS WORKING!</div>
+                    <div>The diagnostic test succeeded. The issue may be intermittent or resolved.</div>
+                `;
+                solutionsDiv.innerHTML = `
+                    <h3>✅ Success - Try these next steps:</h3>
+                    <ul>
+                        <li>Test on your live website: <a href="https://gesturequiz-platform-live.web.app" target="_blank">https://gesturequiz-platform-live.web.app</a></li>
+                        <li>Clear browser cache and try registration again</li>
+                        <li>The issue may have been temporary</li>
+                    </ul>
+                `;
+            } else if (errorType === 'auth/firebase-app-check-token-is-invalid') {
+                solutionDiv.className = 'status-box status-bad';
+                solutionDiv.innerHTML = `
+                    <div style="font-size: 1.2em;">🚨 APP CHECK STILL BLOCKING</div>
+                    <div>App Check enforcement is still active despite previous attempts to disable it.</div>
+                `;
+                solutionsDiv.innerHTML = `
+                    <h3>🔧 Immediate Actions:</h3>
+                    <ol>
+                        <li><strong>Wait longer:</strong> Firebase changes can take 5-10 minutes to propagate globally</li>
+                        <li><strong>Clear browser cache:</strong> Old tokens may be cached</li>
+                        <li><strong>Double-check Firebase Console:</strong> <a href="https://console.firebase.google.com/project/gesturequiz-platform-live/appcheck" target="_blank">Verify App Check is disabled</a></li>
+                        <li><strong>Try incognito mode:</strong> Test without cached data</li>
+                    </ol>
+                `;
+            } else {
+                solutionDiv.className = 'status-box status-warning';
+                solutionDiv.innerHTML = `
+                    <div style="font-size: 1.2em;">🔍 ANALYZING ERROR: ${errorType}</div>
+                    <div>Different error detected. Generating specific solutions...</div>
+                `;
+            }
+        }
+
+        // Auto-run basic checks when page loads
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                enableDetailedLogging();
+                setTimeout(checkAppCheckStatus, 1000);
+            }, 500);
+        });
+    </script>
+</body>
+</html>

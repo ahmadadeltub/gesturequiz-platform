@@ -526,7 +526,13 @@
 
                 // Verify the document was created successfully
                 const verifyDoc = await db.collection('users').doc(user.uid).get();
-                if (!verifyDoc.exists()) {
+                
+                // CRITICAL DEBUG: Check what verifyDoc actually is (safely)
+                console.log("DEBUGGING verifyDoc:", verifyDoc);
+                console.log("🔍 Type of verifyDoc:", typeof verifyDoc);
+                console.log("🔍 verifyDoc constructor:", verifyDoc?.constructor?.name);
+                
+                if (!verifyDoc.exists) {
                     throw new Error('Failed to verify user document creation');
                 }
 
