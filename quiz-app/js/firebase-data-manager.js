@@ -5,13 +5,13 @@
 
 // Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyAMGOSAICQQbbduHDBvLzhcdImJkTrlTmc",
-    authDomain: "gesturequiz-platform-429dd.firebaseapp.com",
-    projectId: "gesturequiz-platform-429dd",
-    storageBucket: "gesturequiz-platform-429dd.firebasestorage.app",
-    messagingSenderId: "911639818705",
-    appId: "1:911639818705:web:22d5bf2845c469185e70f0",
-    measurementId: "G-Z8W4H5WDG7"
+    apiKey: "AIzaSyAt4ByDMxZFT00a-zESwNHS8uv3DY08uhg",
+    authDomain: "gesturequiz-platform-live.firebaseapp.com",
+    projectId: "gesturequiz-platform-live",
+    storageBucket: "gesturequiz-platform-live.firebasestorage.app",
+    messagingSenderId: "794242095954",
+    appId: "1:794242095954:web:85868edc63c96d37ea388b",
+    measurementId: "G-Y7WPTJRVG6"
 };
 
 class FirebaseDataManager {
