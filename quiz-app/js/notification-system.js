@@ -336,13 +336,22 @@ class NotificationSystem {
     // Push notification support
     setupServiceWorker() {
         if ('serviceWorker' in navigator && 'PushManager' in window) {
-            this.registerServiceWorker();
+            // Don't await this - let it run in background without blocking
+            this.registerServiceWorker().catch(error => {
+                console.log('Service Worker setup failed, continuing without it:', error.message);
+            });
+        } else {
+            console.log('Service Worker or Push notifications not supported in this browser');
         }
     }
 
     async registerServiceWorker() {
         try {
-            const registration = await navigator.serviceWorker.register('/sw.js');
+            // Fix the service worker path - it's in the quiz-app directory
+            const swPath = window.location.pathname.includes('/quiz-app/') ? 
+                '/quiz-app/sw.js' : '/sw.js';
+            
+            const registration = await navigator.serviceWorker.register(swPath);
             console.log('Service Worker registered:', registration);
             
             // Request notification permission
@@ -351,6 +360,8 @@ class NotificationSystem {
             }
         } catch (error) {
             console.error('Service Worker registration failed:', error);
+            // Don't throw the error - just log it so the app continues to work
+            console.log('Continuing without service worker...');
         }
     }
 
