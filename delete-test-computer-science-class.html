@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Specific Class - ahmadadeltub@gmail.com</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #d32f2f;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ffeaa7;
+            margin-bottom: 20px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #c3e6cb;
+            margin-bottom: 20px;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #f5c6cb;
+            margin-bottom: 20px;
+        }
+        .step {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 10px 10px 0;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .danger {
+            background-color: #d32f2f;
+        }
+        .danger:hover {
+            background-color: #b71c1c;
+        }
+        .console-output {
+            background: #000;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-top: 20px;
+        }
+        .class-list {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .class-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .class-item.target {
+            border: 2px solid #d32f2f;
+            background-color: #fef2f2;
+        }
+        .class-item button {
+            padding: 8px 16px;
+            font-size: 14px;
+            margin: 0;
+        }
+        .login-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .login-form input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗑️ Delete "Test Computer Science Class"</h1>
+        
+        <div class="warning">
+            <strong>⚠️ TARGET:</strong> This tool will specifically target and delete the "Test Computer Science Class" for ahmadadeltub@gmail.com
+        </div>
+
+        <div class="step">
+            <h3>Step 1: Login with Your Account</h3>
+            <div class="login-form">
+                <input type="email" id="email" placeholder="Email" value="ahmadadeltub@gmail.com">
+                <input type="password" id="password" placeholder="Password" type="password">
+                <button onclick="loginUser()">🔑 Login</button>
+            </div>
+            <div id="auth-status" class="warning" style="display: none;">Not logged in</div>
+        </div>
+
+        <div class="step">
+            <h3>Step 2: Find the Target Class</h3>
+            <button onclick="loadUserClasses()">📚 Load My Classes</button>
+            <div id="class-list" class="class-list"></div>
+        </div>
+
+        <div class="step">
+            <h3>Step 3: Delete Target Class</h3>
+            <button onclick="deleteTargetClass()" class="danger">🎯 Delete "Test Computer Science Class"</button>
+            <button onclick="deleteAllClasses()" class="danger">💥 Delete ALL Classes</button>
+        </div>
+
+        <div class="step">
+            <h3>Step 4: Verify Deletion</h3>
+            <button onclick="verifyDeletion()">✅ Verify Class is Gone</button>
+        </div>
+
+        <div class="console-output" id="console-output">🎯 Target Class Deletion Tool Ready...\nEnter your password and click Login to start.\n</div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+    <!-- Firebase Configuration -->
+    <script src="quiz-app/js/firebase-config.js?v=20250709-specific"></script>
+    
+    <!-- Data Managers -->
+    <script src="quiz-app/js/firebase-data-manager.js?v=20250709-specific"></script>
+
+    <script>
+        let targetClassName = "Test Computer Science Class";
+        let userClasses = [];
+        let targetClassId = null;
+
+        // Console logging
+        function addToConsole(message, type = 'log') {
+            const consoleOutput = document.getElementById('console-output');
+            const timestamp = new Date().toLocaleTimeString();
+            const emoji = type === 'error' ? '❌' : type === 'warn' ? '⚠️' : '✅';
+            consoleOutput.textContent += `[${timestamp}] ${emoji} ${message}\n`;
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+
+        // Login function
+        async function loginUser() {
+            try {
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                
+                if (!email || !password) {
+                    throw new Error('Please enter both email and password');
+                }
+
+                addToConsole(`🔑 Logging in with: ${email}`, 'log');
+                
+                if (!window.firebaseDataManager) {
+                    throw new Error('Firebase Data Manager not available');
+                }
+
+                const result = await window.firebaseDataManager.signIn(email, password);
+                
+                if (result.success) {
+                    addToConsole('✅ Login successful!', 'log');
+                    addToConsole(`✅ Logged in as: ${result.user.email}`, 'log');
+                    
+                    const authStatus = document.getElementById('auth-status');
+                    authStatus.style.display = 'block';
+                    authStatus.className = 'success';
+                    authStatus.textContent = `✅ Authenticated as: ${result.user.email}`;
+                    
+                    // Auto-load classes
+                    await loadUserClasses();
+                } else {
+                    throw new Error(result.error || 'Login failed');
+                }
+                
+            } catch (error) {
+                addToConsole(`❌ Login failed: ${error.message}`, 'error');
+                
+                const authStatus = document.getElementById('auth-status');
+                authStatus.style.display = 'block';
+                authStatus.className = 'error';
+                authStatus.textContent = `❌ Login failed: ${error.message}`;
+            }
+        }
+
+        // Load user's classes
+        async function loadUserClasses() {
+            try {
+                addToConsole('📚 Loading your classes...', 'log');
+                
+                if (!window.firebaseDataManager || !window.firebaseDataManager.isInitialized) {
+                    throw new Error('Firebase not available');
+                }
+
+                const currentUser = window.firebaseDataManager.getCurrentUser();
+                if (!currentUser) {
+                    throw new Error('Please log in first');
+                }
+
+                const result = await window.firebaseDataManager.getClasses(currentUser.uid);
+                
+                if (result.success) {
+                    userClasses = result.data;
+                    addToConsole(`✅ Found ${userClasses.length} classes`, 'log');
+                    
+                    displayClasses(userClasses);
+                } else {
+                    throw new Error(result.error || 'Failed to load classes');
+                }
+                
+            } catch (error) {
+                addToConsole(`❌ Failed to load classes: ${error.message}`, 'error');
+            }
+        }
+
+        // Display classes
+        function displayClasses(classes) {
+            const classList = document.getElementById('class-list');
+            classList.innerHTML = '';
+
+            if (classes.length === 0) {
+                classList.innerHTML = '<p>✅ No classes found!</p>';
+                return;
+            }
+
+            classes.forEach(cls => {
+                const isTarget = cls.name === targetClassName;
+                if (isTarget) {
+                    targetClassId = cls.id;
+                }
+
+                const item = document.createElement('div');
+                item.className = `class-item ${isTarget ? 'target' : ''}`;
+                item.innerHTML = `
+                    <div>
+                        <strong>${cls.name}</strong> ${isTarget ? '🎯 TARGET' : ''}
+                        <br><small>ID: ${cls.id} | Created: ${cls.createdAt ? new Date(cls.createdAt).toLocaleDateString() : 'Unknown'}</small>
+                    </div>
+                    <button onclick="deleteSpecificClass('${cls.id}', '${cls.name}')" class="danger">🗑️ Delete</button>
+                `;
+                classList.appendChild(item);
+
+                if (isTarget) {
+                    addToConsole(`🎯 TARGET FOUND: "${cls.name}" (ID: ${cls.id})`, 'log');
+                }
+            });
+
+            if (!targetClassId) {
+                addToConsole(`ℹ️ Target class "${targetClassName}" not found in Firebase`, 'log');
+                addToConsole('ℹ️ It might only exist in localStorage', 'log');
+            }
+        }
+
+        // Delete specific class
+        async function deleteSpecificClass(classId, className) {
+            try {
+                addToConsole(`🗑️ Deleting "${className}" (ID: ${classId})...`, 'log');
+                
+                if (!confirm(`Are you sure you want to delete "${className}"?`)) {
+                    return;
+                }
+
+                if (!window.firebaseDataManager || !window.firebaseDataManager.isInitialized) {
+                    throw new Error('Firebase not available');
+                }
+
+                const currentUser = window.firebaseDataManager.getCurrentUser();
+                if (!currentUser) {
+                    throw new Error('Please log in first');
+                }
+
+                const result = await window.firebaseDataManager.deleteClass(classId);
+                
+                if (result.success) {
+                    addToConsole(`✅ "${className}" deleted from Firebase!`, 'log');
+                    
+                    // Also remove from localStorage
+                    const localClasses = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+                    const updatedClasses = localClasses.filter(cls => cls.id !== classId);
+                    localStorage.setItem('teacherClasses', JSON.stringify(updatedClasses));
+                    addToConsole('✅ Also removed from localStorage', 'log');
+                    
+                    // Reload classes
+                    await loadUserClasses();
+                } else {
+                    throw new Error(result.error || 'Deletion failed');
+                }
+                
+            } catch (error) {
+                addToConsole(`❌ Failed to delete class: ${error.message}`, 'error');
+            }
+        }
+
+        // Delete target class specifically
+        async function deleteTargetClass() {
+            if (targetClassId) {
+                await deleteSpecificClass(targetClassId, targetClassName);
+            } else {
+                addToConsole(`❌ Target class "${targetClassName}" not found`, 'error');
+                addToConsole('ℹ️ Try loading classes first', 'log');
+            }
+        }
+
+        // Delete all classes
+        async function deleteAllClasses() {
+            if (!confirm('🚨 Are you sure you want to delete ALL your classes? This cannot be undone!')) {
+                return;
+            }
+
+            try {
+                addToConsole('💥 Deleting ALL classes...', 'log');
+                
+                for (const cls of userClasses) {
+                    await deleteSpecificClass(cls.id, cls.name);
+                    await new Promise(resolve => setTimeout(resolve, 500)); // Small delay between deletions
+                }
+                
+                addToConsole('🎉 All classes deleted!', 'log');
+                
+            } catch (error) {
+                addToConsole(`❌ Error during mass deletion: ${error.message}`, 'error');
+            }
+        }
+
+        // Verify deletion
+        async function verifyDeletion() {
+            addToConsole('🔍 Verifying deletion...', 'log');
+            
+            // Clear localStorage
+            localStorage.removeItem('teacherClasses');
+            addToConsole('📦 Cleared localStorage', 'log');
+            
+            // Reload from Firebase
+            await loadUserClasses();
+            
+            const targetStillExists = userClasses.some(cls => cls.name === targetClassName);
+            
+            if (targetStillExists) {
+                addToConsole(`❌ Target class "${targetClassName}" still exists!`, 'error');
+            } else {
+                addToConsole(`✅ Target class "${targetClassName}" successfully deleted!`, 'log');
+                addToConsole('🎉 Verification complete - class is gone!', 'log');
+            }
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            addToConsole('🎯 Target class deletion tool loaded', 'log');
+            addToConsole(`Target: "${targetClassName}"`, 'log');
+            addToConsole('Please enter your password and click Login', 'log');
+        });
+    </script>
+</body>
+</html>
