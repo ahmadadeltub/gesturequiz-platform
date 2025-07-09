@@ -2222,13 +2222,84 @@
         }
 
         function loadClasses() {
-            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-            const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
-            const teacherClasses = classes.filter(cls => cls.createdBy === currentUser.email);
-            
             const classesGrid = document.getElementById('classesGrid');
             
-            if (teacherClasses.length === 0) {
+            // Show loading state
+            classesGrid.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </div>
+                    <h3>Loading Classes...</h3>
+                    <p>Please wait while we load your classes.</p>
+                </div>
+            `;
+            
+            loadClassesAsync();
+        }
+
+        async function loadClassesAsync() {
+            try {
+                console.log('🔄 Loading classes from Firebase first...');
+                let classes = [];
+                
+                // Check if Firebase is available and user is authenticated
+                if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
+                    const currentUser = window.firebaseDataManager.getCurrentUser();
+                    if (currentUser) {
+                        console.log('✅ Using Firebase to load classes for user:', currentUser.email);
+                        const classesResult = await window.firebaseDataManager.getClasses(currentUser.uid);
+                        
+                        if (classesResult.success) {
+                            classes = classesResult.data;
+                            console.log(`📚 Loaded ${classes.length} classes from Firebase`);
+                            
+                            // Update localStorage to match Firebase
+                            localStorage.setItem('teacherClasses', JSON.stringify(classes));
+                        } else {
+                            console.error('❌ Failed to load classes from Firebase:', classesResult.error);
+                        }
+                    } else {
+                        console.warn('⚠️ No authenticated user found');
+                    }
+                } else {
+                    console.warn('⚠️ Firebase not available, falling back to localStorage');
+                }
+                
+                // Fallback to localStorage if Firebase failed
+                if (classes.length === 0) {
+                    console.log('📦 Falling back to localStorage');
+                    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                    const localClasses = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+                    classes = localClasses.filter(cls => cls.createdBy === currentUser.email || cls.createdBy === currentUser.uid);
+                    console.log(`📚 Loaded ${classes.length} classes from localStorage`);
+                }
+                
+                displayClasses(classes);
+                
+            } catch (error) {
+                console.error('❌ Error loading classes:', error);
+                const classesGrid = document.getElementById('classesGrid');
+                classesGrid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h3>Error Loading Classes</h3>
+                        <p>There was an error loading your classes. Please try again.</p>
+                        <button class="btn btn-primary" onclick="loadClasses()">
+                            <i class="fas fa-refresh"></i>
+                            Try Again
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        function displayClasses(classes) {
+            const classesGrid = document.getElementById('classesGrid');
+            
+            if (classes.length === 0) {
                 classesGrid.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">
@@ -2247,7 +2318,7 @@
             
             classesGrid.innerHTML = '';
             
-            teacherClasses.forEach(cls => {
+            classes.forEach(cls => {
                 const studentCount = cls.students ? cls.students.length : 0;
                 const subjectDisplay = cls.subject ? cls.subject.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'General';
                 const gradeDisplay = cls.grade ? (cls.grade === 'k' ? 'Kindergarten' : `Grade ${cls.grade}`) : '';
@@ -2420,33 +2491,73 @@
             switchTab('classInfo');
         }
 
-        function deleteClass(classId) {
-            const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
-            const classToDelete = classes.find(cls => cls.id === classId);
-            
-            if (!classToDelete) {
-                showNotification('Class not found!', 'error');
-                return;
+        async function deleteClass(classId) {
+            try {
+                console.log('🗑️ Starting class deletion process for ID:', classId);
+                
+                // First get class info for confirmation
+                let classToDelete = null;
+                const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+                classToDelete = classes.find(cls => cls.id === classId);
+                
+                if (!classToDelete) {
+                    showNotification('Class not found!', 'error');
+                    return;
+                }
+                
+                const studentCount = classToDelete.students ? classToDelete.students.length : 0;
+                const confirmMessage = studentCount > 0 
+                    ? `Are you sure you want to delete "${classToDelete.name}"? This will remove ${studentCount} student(s) from the class.`
+                    : `Are you sure you want to delete "${classToDelete.name}"?`;
+                
+                if (!confirm(confirmMessage)) {
+                    return;
+                }
+                
+                // Check if Firebase is available and user is authenticated
+                if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
+                    const currentUser = window.firebaseDataManager.getCurrentUser();
+                    if (currentUser) {
+                        console.log('✅ User authenticated, deleting from Firebase...');
+                        const result = await window.firebaseDataManager.deleteClass(classId);
+                        
+                        if (result.success) {
+                            console.log('✅ Class deleted from Firebase successfully');
+                            
+                            // ALSO remove from localStorage to prevent reappearing
+                            const updatedClasses = classes.filter(cls => cls.id !== classId);
+                            localStorage.setItem('teacherClasses', JSON.stringify(updatedClasses));
+                            console.log('✅ Class also removed from localStorage');
+                            
+                            showNotification('Class deleted successfully!', 'success');
+                            loadClasses();
+                            updateStats();
+                            return;
+                        } else {
+                            throw new Error(result.error || 'Failed to delete class from Firebase');
+                        }
+                    } else {
+                        console.warn('⚠️ No authenticated user - cannot delete from Firebase');
+                        showNotification('Please log in to delete classes permanently.', 'warning');
+                    }
+                } else {
+                    console.warn('⚠️ Firebase not available - using localStorage only');
+                    showNotification('Using offline mode - deletion may not be permanent.', 'warning');
+                }
+                
+                // Only reach here if Firebase is not available - localStorage only
+                console.log('📦 Deleting from localStorage only (not permanent)');
+                const updatedClasses = classes.filter(cls => cls.id !== classId);
+                localStorage.setItem('teacherClasses', JSON.stringify(updatedClasses));
+                
+                showNotification('Class deleted (offline mode)', 'success');
+                loadClasses();
+                updateStats();
+                
+            } catch (error) {
+                console.error('❌ Error deleting class:', error);
+                showNotification('Error deleting class: ' + error.message, 'error');
             }
-            
-            const studentCount = classToDelete.students ? classToDelete.students.length : 0;
-            const confirmMessage = studentCount > 0 
-                ? `Are you sure you want to delete "${classToDelete.name}"? This will remove ${studentCount} student(s) from the class.`
-                : `Are you sure you want to delete "${classToDelete.name}"?`;
-            
-            if (!confirm(confirmMessage)) {
-                return;
-            }
-            
-            // Remove class from storage
-            const updatedClasses = classes.filter(cls => cls.id !== classId);
-            localStorage.setItem('teacherClasses', JSON.stringify(updatedClasses));
-            
-            // Refresh the display
-            loadClasses();
-            updateStats();
-            
-            showNotification('Class deleted successfully!', 'success');
         }
 
         function manageStudents(classId) {
