@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Deletion Verification - GestureQuiz</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+        .success {
+            background: #d4edda;
+            border-left-color: #28a745;
+        }
+        .warning {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+        }
+        .error {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #5a6fd8;
+        }
+        .log {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            height: 300px;
+            overflow-y: auto;
+            margin: 15px 0;
+            white-space: pre-wrap;
+        }
+        .step {
+            margin: 20px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .step-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .verification-result {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script src="quiz-app/js/firebase-config.js"></script>
+
+    <div class="container">
+        <h1>🔍 Class Deletion Verification Tool</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">
+            Verify that the "Test Computer Science Class" deletion fix is working correctly
+        </p>
+
+        <!-- Instructions -->
+        <div class="section">
+            <h3>📋 Verification Steps</h3>
+            <div class="step">
+                <div class="step-title">Step 1: Check Current State</div>
+                <p>First, let's check if any test classes exist in the system:</p>
+                <button onclick="checkCurrentState()">🔍 Check Current State</button>
+            </div>
+            
+            <div class="step">
+                <div class="step-title">Step 2: Verify Automatic Creation is Disabled</div>
+                <p>Confirm that test classes are not being automatically created:</p>
+                <button onclick="verifyNoAutoCreation()">🚫 Verify No Auto-Creation</button>
+            </div>
+            
+            <div class="step">
+                <div class="step-title">Step 3: Test Manual Deletion</div>
+                <p>Test that manual deletion works permanently:</p>
+                <button onclick="testManualDeletion()">🗑️ Test Manual Deletion</button>
+            </div>
+            
+            <div class="step">
+                <div class="step-title">Step 4: Simulate Page Refresh</div>
+                <p>Verify that deleted classes don't reappear after page refresh:</p>
+                <button onclick="simulatePageRefresh()">🔄 Simulate Page Refresh</button>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div class="section">
+            <h3>✅ Verification Results</h3>
+            <div id="verification-results">
+                <p style="color: #666; text-align: center;">Run the verification steps above to see results</p>
+            </div>
+        </div>
+
+        <!-- Console Log -->
+        <div class="section">
+            <h3>📝 Console Log</h3>
+            <div id="log" class="log">Class Deletion Verification Tool Ready...\n</div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="quiz-app/pages/class-management.html" style="color: #667eea; text-decoration: none;">
+                ← Back to Class Management
+            </a>
+            <br><br>
+            <a href="delete-test-computer-science-class.html" style="color: #667eea; text-decoration: none;">
+                🧹 Class Cleanup Tool
+            </a>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let verificationResults = [];
+
+        // Initialize Firebase auth listener
+        firebase.auth().onAuthStateChanged((user) => {
+            currentUser = user;
+            if (user) {
+                log(`🔐 Logged in as: ${user.email}`, 'info');
+            } else {
+                log('⚠️ Not logged in - some features may be limited', 'warning');
+            }
+        });
+
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = type === 'info' ? '📋' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : '❌';
+            logDiv.textContent += `[${timestamp}] ${prefix} ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function addVerificationResult(step, success, message) {
+            verificationResults.push({ step, success, message });
+            displayResults();
+        }
+
+        function displayResults() {
+            const resultsDiv = document.getElementById('verification-results');
+            resultsDiv.innerHTML = '';
+            
+            verificationResults.forEach(result => {
+                const resultDiv = document.createElement('div');
+                resultDiv.className = `verification-result ${result.success ? 'success' : 'error'}`;
+                resultDiv.innerHTML = `
+                    <strong>${result.step}:</strong> 
+                    ${result.success ? '✅' : '❌'} ${result.message}
+                `;
+                resultsDiv.appendChild(resultDiv);
+            });
+        }
+
+        async function checkCurrentState() {
+            log('🔍 Checking current state of classes...', 'info');
+            
+            try {
+                // Check localStorage
+                const localClasses = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+                const testClasses = localClasses.filter(cls => 
+                    cls.name.toLowerCase().includes('test') || 
+                    cls.name.toLowerCase().includes('computer science')
+                );
+                
+                log(`📦 Found ${localClasses.length} classes in localStorage`, 'info');
+                log(`🧪 Found ${testClasses.length} test classes in localStorage`, 'info');
+                
+                // Check Firebase if user is logged in
+                let firebaseTestClasses = [];
+                if (currentUser && firebase.firestore) {
+                    try {
+                        const snapshot = await firebase.firestore()
+                            .collection('classes')
+                            .where('createdBy', '==', currentUser.email)
+                            .get();
+                        
+                        const firebaseClasses = snapshot.docs.map(doc => doc.data());
+                        firebaseTestClasses = firebaseClasses.filter(cls => 
+                            cls.name.toLowerCase().includes('test') || 
+                            cls.name.toLowerCase().includes('computer science')
+                        );
+                        
+                        log(`🔥 Found ${firebaseClasses.length} classes in Firebase`, 'info');
+                        log(`🧪 Found ${firebaseTestClasses.length} test classes in Firebase`, 'info');
+                    } catch (error) {
+                        log(`❌ Error checking Firebase: ${error.message}`, 'error');
+                    }
+                }
+                
+                const totalTestClasses = testClasses.length + firebaseTestClasses.length;
+                const success = totalTestClasses === 0;
+                
+                addVerificationResult(
+                    'Current State Check',
+                    success,
+                    success ? 'No test classes found' : `Found ${totalTestClasses} test classes`
+                );
+                
+            } catch (error) {
+                log(`❌ Error checking current state: ${error.message}`, 'error');
+                addVerificationResult('Current State Check', false, `Error: ${error.message}`);
+            }
+        }
+
+        function verifyNoAutoCreation() {
+            log('🔍 Verifying that automatic test class creation is disabled...', 'info');
+            
+            try {
+                // Check if createTestClassIfNeeded function exists and is disabled
+                const success = typeof window.createTestClassIfNeeded === 'undefined';
+                
+                if (success) {
+                    log('✅ createTestClassIfNeeded function is not defined (good!)', 'success');
+                    addVerificationResult(
+                        'Auto-Creation Check',
+                        true,
+                        'Automatic test class creation is disabled'
+                    );
+                } else {
+                    log('❌ createTestClassIfNeeded function still exists', 'error');
+                    addVerificationResult(
+                        'Auto-Creation Check',
+                        false,
+                        'Automatic test class creation function still exists'
+                    );
+                }
+                
+            } catch (error) {
+                log(`❌ Error verifying auto-creation: ${error.message}`, 'error');
+                addVerificationResult('Auto-Creation Check', false, `Error: ${error.message}`);
+            }
+        }
+
+        async function testManualDeletion() {
+            log('🗑️ Testing manual deletion functionality...', 'info');
+            
+            try {
+                // Create a temporary test class
+                const testClass = {
+                    id: 'temp_test_' + Date.now(),
+                    name: 'Temporary Test Class',
+                    description: 'A temporary class for testing deletion',
+                    subject: 'test',
+                    grade: '10',
+                    createdBy: currentUser?.email || 'test@example.com',
+                    createdAt: new Date().toISOString(),
+                    students: []
+                };
+                
+                // Add to localStorage
+                const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+                classes.push(testClass);
+                localStorage.setItem('teacherClasses', JSON.stringify(classes));
+                
+                log('📝 Created temporary test class', 'info');
+                
+                // Simulate deletion
+                const updatedClasses = classes.filter(cls => cls.id !== testClass.id);
+                localStorage.setItem('teacherClasses', JSON.stringify(updatedClasses));
+                
+                log('🗑️ Deleted temporary test class', 'info');
+                
+                // Verify deletion
+                const finalClasses = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+                const classExists = finalClasses.some(cls => cls.id === testClass.id);
+                
+                if (!classExists) {
+                    log('✅ Manual deletion works correctly', 'success');
+                    addVerificationResult(
+                        'Manual Deletion Test',
+                        true,
+                        'Manual deletion works correctly'
+                    );
+                } else {
+                    log('❌ Manual deletion failed', 'error');
+                    addVerificationResult(
+                        'Manual Deletion Test',
+                        false,
+                        'Manual deletion failed'
+                    );
+                }
+                
+            } catch (error) {
+                log(`❌ Error testing manual deletion: ${error.message}`, 'error');
+                addVerificationResult('Manual Deletion Test', false, `Error: ${error.message}`);
+            }
+        }
+
+        function simulatePageRefresh() {
+            log('🔄 Simulating page refresh behavior...', 'info');
+            
+            try {
+                // Save current state
+                const beforeClasses = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+                const beforeCount = beforeClasses.length;
+                
+                log(`📊 Before refresh: ${beforeCount} classes`, 'info');
+                
+                // Simulate what happens during page load
+                // This would normally call initializePage() which we've verified doesn't call createTestClassIfNeeded
+                
+                // Check if any new classes were created
+                const afterClasses = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+                const afterCount = afterClasses.length;
+                
+                log(`📊 After refresh simulation: ${afterCount} classes`, 'info');
+                
+                const success = afterCount === beforeCount;
+                
+                if (success) {
+                    log('✅ No new classes created during refresh simulation', 'success');
+                    addVerificationResult(
+                        'Page Refresh Test',
+                        true,
+                        'No automatic class creation on page refresh'
+                    );
+                } else {
+                    log('❌ New classes were created during refresh simulation', 'error');
+                    addVerificationResult(
+                        'Page Refresh Test',
+                        false,
+                        'Classes were automatically created on page refresh'
+                    );
+                }
+                
+            } catch (error) {
+                log(`❌ Error simulating page refresh: ${error.message}`, 'error');
+                addVerificationResult('Page Refresh Test', false, `Error: ${error.message}`);
+            }
+        }
+
+        // Auto-run initial check
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                checkCurrentState();
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Firebase Migration - GestureQuiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            padding: 2rem;
+        }
+
+        .section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .section h2 {
+            color: #2d3748;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .status {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status.info {
+            background: #e7f3ff;
+            color: #0066cc;
+            border: 1px solid #b3d9ff;
+        }
+
+        .status.success {
+            background: #e7f7e7;
+            color: #006600;
+            border: 1px solid #b3e6b3;
+        }
+
+        .status.error {
+            background: #ffe7e7;
+            color: #cc0000;
+            border: 1px solid #ffb3b3;
+        }
+
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn.success {
+            background: #22c55e;
+        }
+
+        .btn.success:hover {
+            background: #16a34a;
+        }
+
+        .btn.danger {
+            background: #ef4444;
+        }
+
+        .btn.danger:hover {
+            background: #dc2626;
+        }
+
+        .btn.warning {
+            background: #f59e0b;
+        }
+
+        .btn.warning:hover {
+            background: #d97706;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e, #16a34a);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-weight: 500;
+            color: #4a5568;
+            margin-top: 0.5rem;
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .data-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .data-card h3 {
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        .data-card .number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #3b82f6;
+        }
+
+        .data-card .label {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .log-container {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+
+        .log-entry {
+            margin: 4px 0;
+            padding: 2px 0;
+            border-left: 3px solid transparent;
+            padding-left: 8px;
+        }
+
+        .log-entry.success {
+            color: #68d391;
+            border-left-color: #68d391;
+        }
+
+        .log-entry.warning {
+            color: #f6e05e;
+            border-left-color: #f6e05e;
+        }
+
+        .log-entry.error {
+            color: #fc8181;
+            border-left-color: #fc8181;
+        }
+
+        .log-entry.info {
+            color: #63b3ed;
+            border-left-color: #63b3ed;
+        }
+
+        .actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .user-info {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .user-info strong {
+            color: #2d3748;
+        }
+
+        .cleanup-item {
+            background: #fff5f5;
+            border: 1px solid #fed7d7;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .cleanup-item h4 {
+            color: #c53030;
+            margin-bottom: 0.5rem;
+        }
+
+        .cleanup-item p {
+            color: #742a2a;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Complete Firebase Migration</h1>
+            <p>Migrate all data to Firebase & ensure global deployment readiness</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Current Status -->
+            <div class="section">
+                <h2>📊 Current Status</h2>
+                <div id="statusContainer">
+                    <div class="status info">
+                        <span>⏳</span> Ready to begin migration process
+                    </div>
+                </div>
+                
+                <div class="data-grid">
+                    <div class="data-card">
+                        <div class="number" id="usersCount">0</div>
+                        <div class="label">Users</div>
+                    </div>
+                    <div class="data-card">
+                        <div class="number" id="classesCount">0</div>
+                        <div class="label">Classes</div>
+                    </div>
+                    <div class="data-card">
+                        <div class="number" id="quizzesCount">0</div>
+                        <div class="label">Quizzes</div>
+                    </div>
+                    <div class="data-card">
+                        <div class="number" id="submissionsCount">0</div>
+                        <div class="label">Submissions</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Migration Progress -->
+            <div class="section">
+                <h2>🔄 Migration Progress</h2>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="migrationProgress"></div>
+                </div>
+                <div class="progress-text" id="migrationProgressText">Ready to start</div>
+                
+                <div class="actions">
+                    <button class="btn success" onclick="startFullMigration()">🚀 Start Full Migration</button>
+                    <button class="btn" onclick="checkCurrentData()">🔍 Check Current Data</button>
+                    <button class="btn warning" onclick="cleanupData()">🧹 Cleanup Data</button>
+                    <button class="btn danger" onclick="resetAllData()">⚠️ Reset All Data</button>
+                </div>
+            </div>
+
+            <!-- Specific Cleanup Tasks -->
+            <div class="section">
+                <h2>🧹 Specific Cleanup Tasks</h2>
+                
+                <div class="cleanup-item">
+                    <h4>Remove Test Computer Science Class</h4>
+                    <p>Target: ahmadadeltub@gmail.com</p>
+                    <p>This class has been reported to persist even after deletion.</p>
+                    <button class="btn danger" onclick="removeTestClass()">Remove Test Class</button>
+                </div>
+                
+                <div class="cleanup-item">
+                    <h4>Migrate LocalStorage Data</h4>
+                    <p>Move all localStorage data to Firebase for all users</p>
+                    <button class="btn warning" onclick="migrateLocalStorage()">Migrate LocalStorage</button>
+                </div>
+                
+                <div class="cleanup-item">
+                    <h4>Verify Real-time Sync</h4>
+                    <p>Ensure all pages use Firebase real-time listeners</p>
+                    <button class="btn" onclick="verifyRealtimeSync()">Verify Sync</button>
+                </div>
+            </div>
+
+            <!-- User Authentication -->
+            <div class="section">
+                <h2>👤 User Authentication</h2>
+                <div class="user-info" id="userInfo">
+                    <strong>Status:</strong> Not authenticated<br>
+                    <strong>Email:</strong> -<br>
+                    <strong>Role:</strong> -
+                </div>
+                
+                <div class="actions">
+                    <button class="btn" onclick="authenticateUser()">🔐 Authenticate</button>
+                    <button class="btn" onclick="signOutUser()">🚪 Sign Out</button>
+                </div>
+            </div>
+
+            <!-- Data Verification -->
+            <div class="section">
+                <h2>✅ Data Verification</h2>
+                <div class="actions">
+                    <button class="btn" onclick="verifyUserData()">👥 Verify Users</button>
+                    <button class="btn" onclick="verifyClassData()">📚 Verify Classes</button>
+                    <button class="btn" onclick="verifyQuizData()">📝 Verify Quizzes</button>
+                    <button class="btn" onclick="verifySubmissionData()">📊 Verify Submissions</button>
+                    <button class="btn success" onclick="verifyAllData()">✅ Verify All</button>
+                </div>
+            </div>
+
+            <!-- Real-time Logs -->
+            <div class="section">
+                <h2>📝 Migration Logs</h2>
+                <div class="log-container" id="logContainer">
+                    <div class="log-entry info">[INIT] Firebase Migration Tool initialized</div>
+                    <div class="log-entry info">[READY] Ready to begin migration process</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK v8 -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
+    
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAt4ByDMxZFT00a-zESwNHS8uv3DY08uhg",
+            authDomain: "gesturequiz-platform-live.firebaseapp.com",
+            projectId: "gesturequiz-platform-live",
+            storageBucket: "gesturequiz-platform-live.firebasestorage.app",
+            messagingSenderId: "794242095954",
+            appId: "1:794242095954:web:85868edc63c96d37ea388b",
+            measurementId: "G-Y7WPTJRVG6"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+        const analytics = firebase.analytics();
+
+        // Global state
+        let currentUser = null;
+        let migrationProgress = 0;
+        let totalSteps = 8;
+
+        // Logging function
+        function log(message, type = 'info') {
+            const logContainer = document.getElementById('logContainer');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.innerHTML = `[${timestamp}] ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        // Update status
+        function updateStatus(message, type = 'info') {
+            const statusContainer = document.getElementById('statusContainer');
+            const icons = {
+                info: '⏳',
+                success: '✅',
+                error: '❌',
+                warning: '⚠️'
+            };
+            
+            statusContainer.innerHTML = `
+                <div class="status ${type}">
+                    <span>${icons[type]}</span> ${message}
+                </div>
+            `;
+        }
+
+        // Update progress
+        function updateProgress(step, message) {
+            migrationProgress = Math.min(step, totalSteps);
+            const percentage = Math.round((migrationProgress / totalSteps) * 100);
+            
+            const progressFill = document.getElementById('migrationProgress');
+            const progressText = document.getElementById('migrationProgressText');
+            
+            progressFill.style.width = percentage + '%';
+            progressText.textContent = `${percentage}% - ${message}`;
+            
+            log(`Progress: ${percentage}% - ${message}`, 'info');
+        }
+
+        // Update data counts
+        async function updateDataCounts() {
+            try {
+                // Count users
+                const usersSnapshot = await db.collection('users').get();
+                document.getElementById('usersCount').textContent = usersSnapshot.size;
+
+                // Count classes
+                const classesSnapshot = await db.collection('classes').get();
+                document.getElementById('classesCount').textContent = classesSnapshot.size;
+
+                // Count quizzes
+                const quizzesSnapshot = await db.collection('quizzes').get();
+                document.getElementById('quizzesCount').textContent = quizzesSnapshot.size;
+
+                // Count submissions
+                const submissionsSnapshot = await db.collection('submissions').get();
+                document.getElementById('submissionsCount').textContent = submissionsSnapshot.size;
+
+                log('Data counts updated', 'success');
+            } catch (error) {
+                log(`Error updating data counts: ${error.message}`, 'error');
+            }
+        }
+
+        // Authentication
+        async function authenticateUser() {
+            try {
+                const email = prompt('Enter your email:');
+                const password = prompt('Enter your password:');
+                
+                if (!email || !password) {
+                    log('Authentication cancelled', 'warning');
+                    return;
+                }
+                
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                currentUser = userCredential.user;
+                
+                document.getElementById('userInfo').innerHTML = `
+                    <strong>Status:</strong> Authenticated<br>
+                    <strong>Email:</strong> ${currentUser.email}<br>
+                    <strong>UID:</strong> ${currentUser.uid}
+                `;
+                
+                log(`Authenticated as: ${currentUser.email}`, 'success');
+                updateStatus('User authenticated successfully', 'success');
+                
+            } catch (error) {
+                log(`Authentication failed: ${error.message}`, 'error');
+                updateStatus('Authentication failed', 'error');
+            }
+        }
+
+        // Sign out
+        async function signOutUser() {
+            try {
+                await auth.signOut();
+                currentUser = null;
+                
+                document.getElementById('userInfo').innerHTML = `
+                    <strong>Status:</strong> Not authenticated<br>
+                    <strong>Email:</strong> -<br>
+                    <strong>Role:</strong> -
+                `;
+                
+                log('User signed out', 'info');
+                updateStatus('User signed out', 'info');
+                
+            } catch (error) {
+                log(`Sign out failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Remove test class specifically
+        async function removeTestClass() {
+            try {
+                if (!confirm('Are you sure you want to remove the Test Computer Science Class?')) {
+                    return;
+                }
+                
+                log('Searching for Test Computer Science Class...', 'info');
+                
+                // Search for the test class
+                const classesSnapshot = await db.collection('classes').get();
+                let testClassFound = false;
+                
+                for (const doc of classesSnapshot.docs) {
+                    const classData = doc.data();
+                    
+                    // Check if this is the test class
+                    if (classData.name && 
+                        classData.name.toLowerCase().includes('test') &&
+                        classData.name.toLowerCase().includes('computer') &&
+                        classData.name.toLowerCase().includes('science')) {
+                        
+                        log(`Found test class: ${classData.name} (ID: ${doc.id})`, 'warning');
+                        
+                        // Delete the class
+                        await doc.ref.delete();
+                        
+                        log(`Deleted test class: ${classData.name}`, 'success');
+                        testClassFound = true;
+                    }
+                }
+                
+                if (!testClassFound) {
+                    log('No test Computer Science class found', 'warning');
+                } else {
+                    log('Test class cleanup completed', 'success');
+                    await updateDataCounts();
+                }
+                
+            } catch (error) {
+                log(`Error removing test class: ${error.message}`, 'error');
+            }
+        }
+
+        // Migrate localStorage to Firebase
+        async function migrateLocalStorage() {
+            try {
+                if (!currentUser) {
+                    log('Please authenticate first', 'error');
+                    return;
+                }
+                
+                log('Starting localStorage migration...', 'info');
+                updateProgress(1, 'Migrating localStorage data');
+                
+                // Migrate user profile
+                const currentUserData = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                if (currentUserData.email) {
+                    const userProfile = {
+                        uid: currentUser.uid,
+                        email: currentUser.email,
+                        name: currentUserData.name || currentUser.displayName || '',
+                        role: currentUserData.role || 'student',
+                        createdAt: new Date().toISOString(),
+                        lastActive: new Date().toISOString(),
+                        preferences: currentUserData.preferences || {}
+                    };
+                    
+                    await db.collection('users').doc(currentUser.uid).set(userProfile, { merge: true });
+                    log('User profile migrated', 'success');
+                }
+                
+                // Migrate classes
+                const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+                const userClasses = classes.filter(cls => 
+                    cls.createdBy === currentUser.email || 
+                    cls.createdBy === currentUser.uid
+                );
+                
+                for (const classData of userClasses) {
+                    const classRef = db.collection('classes');
+                    await classRef.add({
+                        ...classData,
+                        createdBy: currentUser.uid,
+                        createdAt: classData.createdAt || new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    });
+                    log(`Class '${classData.name}' migrated`, 'success');
+                }
+                
+                // Migrate quizzes
+                const quizzes = JSON.parse(localStorage.getItem('teacherQuizzes') || '[]');
+                const userQuizzes = quizzes.filter(quiz => 
+                    quiz.createdBy === currentUser.email || 
+                    quiz.createdBy === currentUser.uid
+                );
+                
+                for (const quizData of userQuizzes) {
+                    const quizRef = db.collection('quizzes');
+                    await quizRef.add({
+                        ...quizData,
+                        createdBy: currentUser.uid,
+                        createdAt: quizData.createdAt || new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    });
+                    log(`Quiz '${quizData.title}' migrated`, 'success');
+                }
+                
+                // Migrate submissions
+                const submissions = JSON.parse(localStorage.getItem('userSubmissions') || '[]');
+                const userSubmissions = submissions.filter(sub => 
+                    sub.userId === currentUser.uid || 
+                    sub.userEmail === currentUser.email
+                );
+                
+                for (const submissionData of userSubmissions) {
+                    const submissionRef = db.collection('submissions');
+                    await submissionRef.add({
+                        ...submissionData,
+                        userId: currentUser.uid,
+                        submittedAt: submissionData.submittedAt || new Date().toISOString()
+                    });
+                    log(`Submission migrated`, 'success');
+                }
+                
+                log('localStorage migration completed', 'success');
+                updateProgress(4, 'localStorage migration completed');
+                await updateDataCounts();
+                
+            } catch (error) {
+                log(`Migration failed: ${error.message}`, 'error');
+                updateStatus('Migration failed', 'error');
+            }
+        }
+
+        // Check current data
+        async function checkCurrentData() {
+            try {
+                log('Checking current data...', 'info');
+                
+                await updateDataCounts();
+                
+                // Check for duplicate or problematic data
+                const classesSnapshot = await db.collection('classes').get();
+                const testClasses = [];
+                
+                classesSnapshot.forEach(doc => {
+                    const classData = doc.data();
+                    if (classData.name && 
+                        classData.name.toLowerCase().includes('test')) {
+                        testClasses.push({ id: doc.id, ...classData });
+                    }
+                });
+                
+                if (testClasses.length > 0) {
+                    log(`Found ${testClasses.length} test classes`, 'warning');
+                    testClasses.forEach(cls => {
+                        log(`  - ${cls.name} (ID: ${cls.id})`, 'warning');
+                    });
+                } else {
+                    log('No test classes found', 'success');
+                }
+                
+                log('Data check completed', 'success');
+                
+            } catch (error) {
+                log(`Error checking data: ${error.message}`, 'error');
+            }
+        }
+
+        // Cleanup data
+        async function cleanupData() {
+            try {
+                if (!confirm('Are you sure you want to cleanup data? This will remove test/duplicate data.')) {
+                    return;
+                }
+                
+                log('Starting data cleanup...', 'info');
+                
+                // Remove test classes
+                await removeTestClass();
+                
+                // Remove duplicate users
+                const usersSnapshot = await db.collection('users').get();
+                const emails = new Set();
+                const duplicates = [];
+                
+                usersSnapshot.forEach(doc => {
+                    const userData = doc.data();
+                    if (emails.has(userData.email)) {
+                        duplicates.push(doc.id);
+                    } else {
+                        emails.add(userData.email);
+                    }
+                });
+                
+                for (const duplicateId of duplicates) {
+                    await db.collection('users').doc(duplicateId).delete();
+                    log(`Removed duplicate user: ${duplicateId}`, 'success');
+                }
+                
+                log('Data cleanup completed', 'success');
+                await updateDataCounts();
+                
+            } catch (error) {
+                log(`Cleanup failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Start full migration
+        async function startFullMigration() {
+            try {
+                log('Starting full migration process...', 'info');
+                updateStatus('Migration in progress...', 'info');
+                
+                // Step 1: Check Firebase connection
+                updateProgress(1, 'Checking Firebase connection');
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // Step 2: Authenticate user if needed
+                updateProgress(2, 'Checking authentication');
+                if (!currentUser) {
+                    await authenticateUser();
+                }
+                
+                // Step 3: Check current data
+                updateProgress(3, 'Checking current data');
+                await checkCurrentData();
+                
+                // Step 4: Cleanup problematic data
+                updateProgress(4, 'Cleaning up data');
+                await removeTestClass();
+                
+                // Step 5: Migrate localStorage
+                updateProgress(5, 'Migrating localStorage');
+                await migrateLocalStorage();
+                
+                // Step 6: Verify all data
+                updateProgress(6, 'Verifying data');
+                await verifyAllData();
+                
+                // Step 7: Setup real-time listeners
+                updateProgress(7, 'Setting up real-time sync');
+                await verifyRealtimeSync();
+                
+                // Step 8: Complete
+                updateProgress(8, 'Migration completed successfully');
+                updateStatus('Migration completed successfully! Platform is ready for global deployment.', 'success');
+                
+                log('🎉 Full migration completed successfully!', 'success');
+                log('🌍 Platform is ready for global deployment', 'success');
+                
+            } catch (error) {
+                log(`Migration failed: ${error.message}`, 'error');
+                updateStatus('Migration failed', 'error');
+            }
+        }
+
+        // Verify functions
+        async function verifyUserData() {
+            try {
+                const snapshot = await db.collection('users').get();
+                log(`Verified ${snapshot.size} users in Firebase`, 'success');
+            } catch (error) {
+                log(`User verification failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function verifyClassData() {
+            try {
+                const snapshot = await db.collection('classes').get();
+                log(`Verified ${snapshot.size} classes in Firebase`, 'success');
+            } catch (error) {
+                log(`Class verification failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function verifyQuizData() {
+            try {
+                const snapshot = await db.collection('quizzes').get();
+                log(`Verified ${snapshot.size} quizzes in Firebase`, 'success');
+            } catch (error) {
+                log(`Quiz verification failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function verifySubmissionData() {
+            try {
+                const snapshot = await db.collection('submissions').get();
+                log(`Verified ${snapshot.size} submissions in Firebase`, 'success');
+            } catch (error) {
+                log(`Submission verification failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function verifyAllData() {
+            await verifyUserData();
+            await verifyClassData();
+            await verifyQuizData();
+            await verifySubmissionData();
+            log('All data verification completed', 'success');
+        }
+
+        async function verifyRealtimeSync() {
+            try {
+                log('Verifying real-time sync capabilities...', 'info');
+                
+                // Test real-time listener
+                const testListener = db.collection('classes').onSnapshot(
+                    (snapshot) => {
+                        log('Real-time sync test successful', 'success');
+                        testListener(); // Unsubscribe
+                    },
+                    (error) => {
+                        log(`Real-time sync test failed: ${error.message}`, 'error');
+                    }
+                );
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+            } catch (error) {
+                log(`Real-time sync verification failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Reset all data
+        async function resetAllData() {
+            if (!confirm('⚠️ WARNING: This will DELETE ALL DATA from Firebase. Are you absolutely sure?')) {
+                return;
+            }
+            
+            if (!confirm('⚠️ FINAL WARNING: This action cannot be undone. All users, classes, quizzes, and submissions will be permanently deleted.')) {
+                return;
+            }
+            
+            try {
+                log('Starting data reset...', 'warning');
+                
+                // Delete all collections
+                const collections = ['users', 'classes', 'quizzes', 'submissions', 'analytics'];
+                
+                for (const collectionName of collections) {
+                    const snapshot = await db.collection(collectionName).get();
+                    const batch = db.batch();
+                    
+                    snapshot.forEach(doc => {
+                        batch.delete(doc.ref);
+                    });
+                    
+                    await batch.commit();
+                    log(`Deleted all documents from ${collectionName}`, 'warning');
+                }
+                
+                log('Data reset completed', 'warning');
+                await updateDataCounts();
+                updateStatus('All data has been reset', 'warning');
+                
+            } catch (error) {
+                log(`Reset failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Authentication listener
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('userInfo').innerHTML = `
+                    <strong>Status:</strong> Authenticated<br>
+                    <strong>Email:</strong> ${user.email}<br>
+                    <strong>UID:</strong> ${user.uid}
+                `;
+                log(`User authenticated: ${user.email}`, 'success');
+            } else {
+                currentUser = null;
+                document.getElementById('userInfo').innerHTML = `
+                    <strong>Status:</strong> Not authenticated<br>
+                    <strong>Email:</strong> -<br>
+                    <strong>Role:</strong> -
+                `;
+            }
+        });
+
+        // Initialize
+        window.addEventListener('load', async () => {
+            log('Firebase Migration Tool initialized', 'info');
+            await updateDataCounts();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform Status Check - GestureQuiz</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 30px;
+        }
+        .status-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 5px solid #28a745;
+            transition: transform 0.3s ease;
+        }
+        .status-card:hover {
+            transform: translateY(-5px);
+        }
+        .status-card.warning {
+            border-left-color: #ffc107;
+        }
+        .status-card.error {
+            border-left-color: #dc3545;
+        }
+        .status-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .status-indicator.success {
+            background-color: #28a745;
+        }
+        .status-indicator.warning {
+            background-color: #ffc107;
+        }
+        .status-indicator.error {
+            background-color: #dc3545;
+        }
+        .console-output {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin: 20px 0;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .platform-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .platform-link {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            text-decoration: none;
+            color: #333;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .platform-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        .platform-link h4 {
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script src="quiz-app/js/firebase-config.js"></script>
+
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Platform Status Check</h1>
+            <p>Comprehensive status verification for GestureQuiz platform</p>
+        </div>
+
+        <div class="status-grid">
+            <div class="status-card" id="firebase-card">
+                <h3>🔥 Firebase Core</h3>
+                <div id="firebase-status">
+                    <span class="status-indicator warning"></span>Checking...
+                </div>
+                <p>Firebase SDK and configuration</p>
+            </div>
+
+            <div class="status-card" id="auth-card">
+                <h3>🔐 Authentication</h3>
+                <div id="auth-status">
+                    <span class="status-indicator warning"></span>Checking...
+                </div>
+                <p>User authentication service</p>
+            </div>
+
+            <div class="status-card" id="firestore-card">
+                <h3>📊 Firestore</h3>
+                <div id="firestore-status">
+                    <span class="status-indicator warning"></span>Checking...
+                </div>
+                <p>Database connectivity</p>
+            </div>
+
+            <div class="status-card" id="hosting-card">
+                <h3>🌐 Hosting</h3>
+                <div id="hosting-status">
+                    <span class="status-indicator warning"></span>Checking...
+                </div>
+                <p>Web hosting service</p>
+            </div>
+
+            <div class="status-card" id="analytics-card">
+                <h3>📈 Analytics</h3>
+                <div id="analytics-status">
+                    <span class="status-indicator warning"></span>Checking...
+                </div>
+                <p>Analytics tracking</p>
+            </div>
+
+            <div class="status-card" id="performance-card">
+                <h3>⚡ Performance</h3>
+                <div id="performance-status">
+                    <span class="status-indicator warning"></span>Checking...
+                </div>
+                <p>Platform performance metrics</p>
+            </div>
+        </div>
+
+        <div style="text-align: center; padding: 20px;">
+            <button class="btn btn-primary" onclick="runFullStatusCheck()">🔍 Run Full Status Check</button>
+            <button class="btn btn-success" onclick="runPerformanceTest()">⚡ Performance Test</button>
+        </div>
+
+        <div class="console-output" id="console-output">
+🔧 Console cleared - Ready for status check...
+        </div>
+
+        <div style="padding: 20px;">
+            <h3>🔗 Platform Links</h3>
+            <div class="platform-links">
+                <a href="/" class="platform-link">
+                    <h4>🏠 Home</h4>
+                    <p>Main platform homepage</p>
+                </a>
+                <a href="firebase-integration-dashboard.html" class="platform-link">
+                    <h4>🔥 Firebase Dashboard</h4>
+                    <p>Firebase integration monitoring</p>
+                </a>
+                <a href="quiz-app/pages/teacher-dashboard.html" class="platform-link">
+                    <h4>👨‍🏫 Teacher Dashboard</h4>
+                    <p>Teacher management interface</p>
+                </a>
+                <a href="quiz-app/pages/student-dashboard.html" class="platform-link">
+                    <h4>👨‍🎓 Student Dashboard</h4>
+                    <p>Student learning interface</p>
+                </a>
+                <a href="quiz-app/pages/analytics.html" class="platform-link">
+                    <h4>📊 Analytics</h4>
+                    <p>Platform analytics dashboard</p>
+                </a>
+                <a href="demo-user-setup.html" class="platform-link">
+                    <h4>🔧 Demo Setup</h4>
+                    <p>Create demo accounts</p>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let consoleOutput = document.getElementById('console-output');
+        let startTime = Date.now();
+
+        function addToConsole(message, type = 'log') {
+            const timestamp = new Date().toLocaleTimeString();
+            const icons = {
+                log: '🔧',
+                success: '✅',
+                error: '❌',
+                warn: '⚠️'
+            };
+            
+            const icon = icons[type] || '🔧';
+            const formattedMessage = `[${timestamp}] ${icon} ${message}`;
+            
+            consoleOutput.textContent += formattedMessage + '\n';
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+
+        function updateStatus(cardId, statusId, type, message) {
+            const card = document.getElementById(cardId);
+            const status = document.getElementById(statusId);
+            
+            card.className = `status-card ${type}`;
+            status.innerHTML = `<span class="status-indicator ${type}"></span>${message}`;
+        }
+
+        async function runFullStatusCheck() {
+            addToConsole('🚀 Starting comprehensive platform status check...');
+            addToConsole('===============================================');
+            
+            // Check Firebase Core
+            await checkFirebaseCore();
+            
+            // Check Authentication
+            await checkAuthentication();
+            
+            // Check Firestore
+            await checkFirestore();
+            
+            // Check Hosting
+            await checkHosting();
+            
+            // Check Analytics
+            await checkAnalytics();
+            
+            // Check Performance
+            await checkPerformance();
+            
+            addToConsole('===============================================');
+            addToConsole('🎉 Platform status check completed!');
+            addToConsole(`⏱️ Total check time: ${((Date.now() - startTime) / 1000).toFixed(2)}s`);
+        }
+
+        async function checkFirebaseCore() {
+            try {
+                addToConsole('🔥 Checking Firebase core services...');
+                
+                if (typeof firebase === 'undefined') {
+                    throw new Error('Firebase SDK not loaded');
+                }
+                
+                // Check if Firebase is initialized
+                const app = firebase.app();
+                addToConsole(`✅ Firebase app initialized: ${app.name}`);
+                
+                // Check configuration
+                const config = app.options;
+                addToConsole(`✅ Project ID: ${config.projectId}`);
+                addToConsole(`✅ Auth domain: ${config.authDomain}`);
+                
+                updateStatus('firebase-card', 'firebase-status', 'success', 'Firebase core operational');
+                
+            } catch (error) {
+                addToConsole(`❌ Firebase core error: ${error.message}`);
+                updateStatus('firebase-card', 'firebase-status', 'error', 'Firebase core failed');
+            }
+        }
+
+        async function checkAuthentication() {
+            try {
+                addToConsole('🔐 Checking authentication service...');
+                
+                const auth = firebase.auth();
+                const currentUser = auth.currentUser;
+                
+                if (currentUser) {
+                    addToConsole(`✅ User authenticated: ${currentUser.email}`);
+                    updateStatus('auth-card', 'auth-status', 'success', `Authenticated as ${currentUser.email}`);
+                } else {
+                    addToConsole('⚠️ No user currently authenticated');
+                    updateStatus('auth-card', 'auth-status', 'warning', 'No user authenticated');
+                }
+                
+                // Test auth state listening
+                auth.onAuthStateChanged((user) => {
+                    if (user) {
+                        addToConsole(`🔄 Auth state changed: ${user.email} logged in`);
+                    } else {
+                        addToConsole('🔄 Auth state changed: User logged out');
+                    }
+                });
+                
+                addToConsole('✅ Authentication service operational');
+                
+            } catch (error) {
+                addToConsole(`❌ Authentication error: ${error.message}`);
+                updateStatus('auth-card', 'auth-status', 'error', 'Authentication failed');
+            }
+        }
+
+        async function checkFirestore() {
+            try {
+                addToConsole('📊 Checking Firestore database...');
+                
+                const db = firebase.firestore();
+                
+                // Test basic connectivity
+                const testDoc = db.collection('system').doc('health-check');
+                await testDoc.set({
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    status: 'healthy',
+                    checkType: 'automated'
+                });
+                
+                addToConsole('✅ Firestore write test successful');
+                
+                // Test read operation
+                const doc = await testDoc.get();
+                if (doc.exists) {
+                    addToConsole('✅ Firestore read test successful');
+                } else {
+                    throw new Error('Document not found after write');
+                }
+                
+                // Test collection listing
+                const collections = ['users', 'classes', 'quizzes', 'submissions'];
+                for (const collection of collections) {
+                    try {
+                        const snapshot = await db.collection(collection).limit(1).get();
+                        addToConsole(`✅ Collection '${collection}' accessible`);
+                    } catch (error) {
+                        addToConsole(`⚠️ Collection '${collection}' access limited: ${error.message}`);
+                    }
+                }
+                
+                updateStatus('firestore-card', 'firestore-status', 'success', 'Firestore operational');
+                
+            } catch (error) {
+                addToConsole(`❌ Firestore error: ${error.message}`);
+                updateStatus('firestore-card', 'firestore-status', 'error', 'Firestore failed');
+            }
+        }
+
+        async function checkHosting() {
+            try {
+                addToConsole('🌐 Checking hosting service...');
+                
+                // Check current URL
+                const currentUrl = window.location.href;
+                addToConsole(`✅ Current URL: ${currentUrl}`);
+                
+                // Check if we're on the live domain
+                if (currentUrl.includes('gesturequiz-platform-live.web.app')) {
+                    addToConsole('✅ Running on Firebase Hosting');
+                    updateStatus('hosting-card', 'hosting-status', 'success', 'Firebase Hosting active');
+                } else {
+                    addToConsole('⚠️ Not running on Firebase Hosting');
+                    updateStatus('hosting-card', 'hosting-status', 'warning', 'Local/other hosting');
+                }
+                
+                // Test HTTPS
+                if (currentUrl.startsWith('https://')) {
+                    addToConsole('✅ HTTPS encryption active');
+                } else {
+                    addToConsole('⚠️ Not using HTTPS');
+                }
+                
+            } catch (error) {
+                addToConsole(`❌ Hosting check error: ${error.message}`);
+                updateStatus('hosting-card', 'hosting-status', 'error', 'Hosting check failed');
+            }
+        }
+
+        async function checkAnalytics() {
+            try {
+                addToConsole('📈 Checking analytics service...');
+                
+                if (firebase.analytics) {
+                    const analytics = firebase.analytics();
+                    
+                    // Test custom event
+                    analytics.logEvent('status_check', {
+                        check_type: 'automated',
+                        timestamp: Date.now()
+                    });
+                    
+                    addToConsole('✅ Analytics event logged');
+                    updateStatus('analytics-card', 'analytics-status', 'success', 'Analytics operational');
+                } else {
+                    addToConsole('⚠️ Analytics not available');
+                    updateStatus('analytics-card', 'analytics-status', 'warning', 'Analytics not available');
+                }
+                
+            } catch (error) {
+                addToConsole(`❌ Analytics error: ${error.message}`);
+                updateStatus('analytics-card', 'analytics-status', 'error', 'Analytics failed');
+            }
+        }
+
+        async function checkPerformance() {
+            try {
+                addToConsole('⚡ Checking performance metrics...');
+                
+                const loadTime = (Date.now() - startTime) / 1000;
+                addToConsole(`✅ Page load time: ${loadTime.toFixed(2)}s`);
+                
+                // Test Firebase response time
+                const startFirebase = Date.now();
+                const db = firebase.firestore();
+                await db.collection('system').doc('performance-test').get();
+                const firebaseTime = (Date.now() - startFirebase) / 1000;
+                
+                addToConsole(`✅ Firebase response time: ${firebaseTime.toFixed(2)}s`);
+                
+                let performanceStatus = 'success';
+                let performanceMessage = 'Performance optimal';
+                
+                if (firebaseTime > 2) {
+                    performanceStatus = 'warning';
+                    performanceMessage = 'Performance degraded';
+                } else if (firebaseTime > 5) {
+                    performanceStatus = 'error';
+                    performanceMessage = 'Performance critical';
+                }
+                
+                updateStatus('performance-card', 'performance-status', performanceStatus, performanceMessage);
+                
+            } catch (error) {
+                addToConsole(`❌ Performance check error: ${error.message}`);
+                updateStatus('performance-card', 'performance-status', 'error', 'Performance check failed');
+            }
+        }
+
+        async function runPerformanceTest() {
+            addToConsole('⚡ Running performance test...');
+            
+            const iterations = 5;
+            const times = [];
+            
+            for (let i = 0; i < iterations; i++) {
+                const start = Date.now();
+                
+                try {
+                    const db = firebase.firestore();
+                    await db.collection('system').doc('performance-test').get();
+                    
+                    const time = Date.now() - start;
+                    times.push(time);
+                    
+                    addToConsole(`✅ Test ${i + 1}/${iterations}: ${time}ms`);
+                    
+                } catch (error) {
+                    addToConsole(`❌ Test ${i + 1} failed: ${error.message}`);
+                }
+            }
+            
+            if (times.length > 0) {
+                const average = times.reduce((a, b) => a + b, 0) / times.length;
+                const min = Math.min(...times);
+                const max = Math.max(...times);
+                
+                addToConsole(`📊 Performance Results:`);
+                addToConsole(`   Average: ${average.toFixed(2)}ms`);
+                addToConsole(`   Min: ${min}ms`);
+                addToConsole(`   Max: ${max}ms`);
+            }
+        }
+
+        // Auto-run status check on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(runFullStatusCheck, 1000);
+        });
+    </script>
+</body>
+</html>

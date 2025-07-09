@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Class Cleanup - Specific User</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .status {
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .status.info {
+            background: #e7f3ff;
+            color: #0066cc;
+            border: 1px solid #b3d9ff;
+        }
+
+        .status.success {
+            background: #e7f7e7;
+            color: #006600;
+            border: 1px solid #b3e6b3;
+        }
+
+        .status.error {
+            background: #ffe7e7;
+            color: #cc0000;
+            border: 1px solid #ffb3b3;
+        }
+
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+
+        .btn.danger {
+            background: #dc3545;
+        }
+
+        .btn.danger:hover {
+            background: #c82333;
+        }
+
+        .classes-list {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .class-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .class-info {
+            flex: 1;
+        }
+
+        .class-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .class-meta {
+            font-size: 12px;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        pre {
+            background: #f1f1f1;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .user-info {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Firebase Class Cleanup - Specific User</h1>
+        
+        <div class="user-info">
+            <strong>Target User:</strong> ahmadadeltub@gmail.com<br>
+            <strong>Task:</strong> Remove "Test Computer Science Class" from Firebase
+        </div>
+        
+        <div id="statusContainer">
+            <div class="status info">
+                Ready to clean up classes for ahmadadeltub@gmail.com
+            </div>
+        </div>
+        
+        <div>
+            <button class="btn" onclick="checkFirebaseConnection()">1. Check Firebase Connection</button>
+            <button class="btn" onclick="authenticateUser()">2. Authenticate User</button>
+            <button class="btn" onclick="loadUserClasses()">3. Load User Classes</button>
+            <button class="btn danger" onclick="deleteTestClass()">4. Delete Test Class</button>
+            <button class="btn" onclick="verifyCleanup()">5. Verify Cleanup</button>
+        </div>
+        
+        <div id="classesContainer"></div>
+    </div>
+
+    <!-- Firebase SDK v8 -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
+    
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAt4ByDMxZFT00a-zESwNHS8uv3DY08uhg",
+            authDomain: "gesturequiz-platform-live.firebaseapp.com",
+            projectId: "gesturequiz-platform-live",
+            storageBucket: "gesturequiz-platform-live.firebasestorage.app",
+            messagingSenderId: "794242095954",
+            appId: "1:794242095954:web:85868edc63c96d37ea388b",
+            measurementId: "G-Y7WPTJRVG6"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        let currentUser = null;
+        let userClasses = [];
+        
+        function showStatus(message, type = 'info') {
+            const statusContainer = document.getElementById('statusContainer');
+            statusContainer.innerHTML = `<div class="status ${type}">${message}</div>`;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function showClasses(classes) {
+            const classesContainer = document.getElementById('classesContainer');
+            if (classes.length === 0) {
+                classesContainer.innerHTML = '<div class="classes-list"><p>No classes found.</p></div>';
+                return;
+            }
+            
+            const classesHTML = classes.map(cls => `
+                <div class="class-item">
+                    <div class="class-info">
+                        <div class="class-name">${cls.name}</div>
+                        <div class="class-meta">
+                            ID: ${cls.id} | Subject: ${cls.subject || 'N/A'} | 
+                            Created: ${cls.createdAt ? new Date(cls.createdAt).toLocaleDateString() : 'N/A'}
+                        </div>
+                    </div>
+                    <button class="btn danger" onclick="deleteSpecificClass('${cls.id}', '${cls.name}')">Delete</button>
+                </div>
+            `).join('');
+            
+            classesContainer.innerHTML = `
+                <div class="classes-list">
+                    <h3>Classes for ${currentUser?.email || 'User'}:</h3>
+                    ${classesHTML}
+                </div>
+            `;
+        }
+
+        async function checkFirebaseConnection() {
+            try {
+                showStatus('🔄 Checking Firebase connection...', 'info');
+                
+                // Test Auth
+                const authTest = firebase.auth();
+                console.log('✅ Auth service available');
+                
+                // Test Firestore
+                const dbTest = firebase.firestore();
+                console.log('✅ Firestore service available');
+                
+                showStatus('✅ Firebase connection successful!', 'success');
+                return true;
+            } catch (error) {
+                console.error('❌ Firebase connection failed:', error);
+                showStatus(`❌ Firebase connection failed: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function authenticateUser() {
+            try {
+                showStatus('🔄 Authenticating user...', 'info');
+                
+                // For this specific cleanup, we'll use a test authentication
+                // In a real scenario, you'd prompt for password or use admin SDK
+                const email = 'ahmadadeltub@gmail.com';
+                const password = prompt('Enter password for ahmadadeltub@gmail.com:');
+                
+                if (!password) {
+                    showStatus('❌ Authentication cancelled', 'error');
+                    return;
+                }
+                
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                currentUser = userCredential.user;
+                
+                showStatus(`✅ Authenticated as: ${currentUser.email}`, 'success');
+                
+            } catch (error) {
+                console.error('❌ Authentication failed:', error);
+                showStatus(`❌ Authentication failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function loadUserClasses() {
+            try {
+                if (!currentUser) {
+                    showStatus('❌ Please authenticate first', 'error');
+                    return;
+                }
+                
+                showStatus('🔄 Loading user classes...', 'info');
+                
+                const classesRef = db.collection('classes');
+                const q = classesRef.where('createdBy', '==', currentUser.uid);
+                
+                const querySnapshot = await q.get();
+                userClasses = [];
+                
+                querySnapshot.forEach((doc) => {
+                    userClasses.push({ id: doc.id, ...doc.data() });
+                });
+                
+                showStatus(`✅ Loaded ${userClasses.length} classes`, 'success');
+                showClasses(userClasses);
+                
+            } catch (error) {
+                console.error('❌ Error loading classes:', error);
+                showStatus(`❌ Error loading classes: ${error.message}`, 'error');
+            }
+        }
+
+        async function deleteTestClass() {
+            try {
+                if (!currentUser) {
+                    showStatus('❌ Please authenticate first', 'error');
+                    return;
+                }
+                
+                showStatus('🔄 Looking for Test Computer Science Class...', 'info');
+                
+                // Find the test class
+                const testClass = userClasses.find(cls => 
+                    cls.name.toLowerCase().includes('test') && 
+                    cls.name.toLowerCase().includes('computer') &&
+                    cls.name.toLowerCase().includes('science')
+                );
+                
+                if (!testClass) {
+                    showStatus('❌ Test Computer Science Class not found', 'error');
+                    return;
+                }
+                
+                const confirmDelete = confirm(`Are you sure you want to delete "${testClass.name}"?`);
+                if (!confirmDelete) {
+                    showStatus('❌ Deletion cancelled', 'warning');
+                    return;
+                }
+                
+                // Delete from Firebase
+                const classRef = db.collection('classes').doc(testClass.id);
+                await classRef.delete();
+                
+                showStatus(`✅ Successfully deleted: ${testClass.name}`, 'success');
+                
+                // Reload classes to verify
+                await loadUserClasses();
+                
+            } catch (error) {
+                console.error('❌ Error deleting test class:', error);
+                showStatus(`❌ Error deleting test class: ${error.message}`, 'error');
+            }
+        }
+
+        async function deleteSpecificClass(classId, className) {
+            try {
+                if (!currentUser) {
+                    showStatus('❌ Please authenticate first', 'error');
+                    return;
+                }
+                
+                const confirmDelete = confirm(`Are you sure you want to delete "${className}"?`);
+                if (!confirmDelete) {
+                    return;
+                }
+                
+                showStatus(`🔄 Deleting ${className}...`, 'info');
+                
+                // Delete from Firebase
+                const classRef = db.collection('classes').doc(classId);
+                await classRef.delete();
+                
+                showStatus(`✅ Successfully deleted: ${className}`, 'success');
+                
+                // Reload classes to verify
+                await loadUserClasses();
+                
+            } catch (error) {
+                console.error('❌ Error deleting class:', error);
+                showStatus(`❌ Error deleting class: ${error.message}`, 'error');
+            }
+        }
+
+        async function verifyCleanup() {
+            try {
+                if (!currentUser) {
+                    showStatus('❌ Please authenticate first', 'error');
+                    return;
+                }
+                
+                showStatus('🔄 Verifying cleanup...', 'info');
+                
+                // Reload classes from Firebase
+                await loadUserClasses();
+                
+                // Check if test class still exists
+                const testClassExists = userClasses.some(cls => 
+                    cls.name.toLowerCase().includes('test') && 
+                    cls.name.toLowerCase().includes('computer') &&
+                    cls.name.toLowerCase().includes('science')
+                );
+                
+                if (testClassExists) {
+                    showStatus('⚠️ Test Computer Science Class still exists!', 'warning');
+                } else {
+                    showStatus('✅ Cleanup verified - Test Computer Science Class removed!', 'success');
+                }
+                
+            } catch (error) {
+                console.error('❌ Error verifying cleanup:', error);
+                showStatus(`❌ Error verifying cleanup: ${error.message}`, 'error');
+            }
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', async () => {
+            await checkFirebaseConnection();
+        });
+    </script>
+</body>
+</html>

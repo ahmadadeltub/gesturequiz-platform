@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Class Cleanup - GestureQuiz</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #dc3545;
+            margin-bottom: 30px;
+        }
+        .alert {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #dc3545;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border-left-color: #28a745;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left-color: #17a2b8;
+        }
+        button {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            margin: 10px;
+            transition: background 0.3s;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #c82333;
+        }
+        button.success {
+            background: #28a745;
+        }
+        button.success:hover {
+            background: #218838;
+        }
+        .log {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            height: 300px;
+            overflow-y: auto;
+            margin: 15px 0;
+            white-space: pre-wrap;
+        }
+        .class-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid #dee2e6;
+        }
+        .class-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-left: 4px solid #dc3545;
+        }
+        .class-name {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #dc3545;
+        }
+        .class-meta {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        .countdown {
+            font-size: 2em;
+            font-weight: bold;
+            color: #dc3545;
+            text-align: center;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚨 Emergency Class Cleanup</h1>
+        
+        <div class="alert">
+            <strong>⚠️ ISSUE DETECTED:</strong> The "Test Computer Science Class" is persisting in localStorage for user <strong>ahmadadeltub@gmail.com</strong>
+        </div>
+
+        <div class="alert info">
+            <strong>📊 Console Analysis:</strong>
+            <ul>
+                <li>✅ Firebase is initialized correctly</li>
+                <li>⚠️ No authenticated user found (expected for demo)</li>
+                <li>📦 Falling back to localStorage</li>
+                <li>📚 Found 1 class in localStorage</li>
+                <li>👤 localStorage user: ahmadadeltub@gmail.com</li>
+            </ul>
+        </div>
+
+        <!-- Current Classes Display -->
+        <div class="class-display">
+            <h3>📚 Current Classes in localStorage:</h3>
+            <div id="current-classes">
+                <p>Loading classes...</p>
+            </div>
+        </div>
+
+        <!-- Emergency Actions -->
+        <div style="text-align: center; margin: 30px 0;">
+            <button onclick="emergencyCleanup()">🚨 EMERGENCY CLEANUP</button>
+            <button onclick="viewClasses()" class="success">👀 VIEW CLASSES</button>
+            <button onclick="resetStorage()">🔄 RESET STORAGE</button>
+        </div>
+
+        <!-- Countdown Timer -->
+        <div class="countdown" id="countdown"></div>
+
+        <!-- Console Log -->
+        <div class="log" id="log">Emergency Class Cleanup Tool Ready...\nAnalyzing localStorage for user: ahmadadeltub@gmail.com\n</div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="quiz-app/pages/class-management.html" style="color: #dc3545; text-decoration: none; font-weight: bold;">
+                ← Test Class Management After Cleanup
+            </a>
+        </div>
+    </div>
+
+    <script>
+        let countdownInterval;
+
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : '📋';
+            logDiv.textContent += `[${timestamp}] ${prefix} ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function startCountdown() {
+            let seconds = 10;
+            const countdownDiv = document.getElementById('countdown');
+            
+            countdownInterval = setInterval(() => {
+                countdownDiv.textContent = `Auto-cleanup in ${seconds}s`;
+                seconds--;
+                
+                if (seconds < 0) {
+                    clearInterval(countdownInterval);
+                    countdownDiv.textContent = 'Auto-cleanup executing...';
+                    setTimeout(() => {
+                        emergencyCleanup();
+                    }, 1000);
+                }
+            }, 1000);
+        }
+
+        function viewClasses() {
+            log('🔍 Viewing current classes in localStorage...', 'info');
+            
+            try {
+                const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+                const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                
+                log(`👤 Current user: ${currentUser.email || 'Unknown'}`, 'info');
+                log(`📚 Total classes in storage: ${classes.length}`, 'info');
+                
+                const classesDiv = document.getElementById('current-classes');
+                classesDiv.innerHTML = '';
+                
+                if (classes.length === 0) {
+                    classesDiv.innerHTML = '<p style="color: #28a745;">✅ No classes found in localStorage</p>';
+                    log('✅ No classes found in localStorage', 'success');
+                    return;
+                }
+                
+                classes.forEach((cls, index) => {
+                    const classDiv = document.createElement('div');
+                    classDiv.className = 'class-item';
+                    classDiv.innerHTML = `
+                        <div class="class-name">${cls.name}</div>
+                        <div class="class-meta">
+                            ID: ${cls.id}<br>
+                            Created by: ${cls.createdBy}<br>
+                            Subject: ${cls.subject}<br>
+                            Created: ${cls.createdAt ? new Date(cls.createdAt).toLocaleDateString() : 'Unknown'}<br>
+                            Students: ${cls.students ? cls.students.length : 0}
+                        </div>
+                        <button onclick="deleteSpecificClass(${index})" style="margin-top: 10px;">🗑️ Delete This Class</button>
+                    `;
+                    classesDiv.appendChild(classDiv);
+                    
+                    log(`📋 Class ${index + 1}: "${cls.name}" by ${cls.createdBy}`, 'info');
+                });
+                
+            } catch (error) {
+                log(`❌ Error viewing classes: ${error.message}`, 'error');
+            }
+        }
+
+        function deleteSpecificClass(index) {
+            try {
+                const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+                
+                if (index >= 0 && index < classes.length) {
+                    const deletedClass = classes.splice(index, 1)[0];
+                    localStorage.setItem('teacherClasses', JSON.stringify(classes));
+                    
+                    log(`🗑️ Deleted class: "${deletedClass.name}"`, 'success');
+                    log(`📊 Remaining classes: ${classes.length}`, 'info');
+                    
+                    // Refresh the display
+                    viewClasses();
+                } else {
+                    log('❌ Invalid class index', 'error');
+                }
+            } catch (error) {
+                log(`❌ Error deleting class: ${error.message}`, 'error');
+            }
+        }
+
+        function emergencyCleanup() {
+            log('🚨 EMERGENCY CLEANUP INITIATED', 'warning');
+            
+            try {
+                // Clear countdown
+                if (countdownInterval) {
+                    clearInterval(countdownInterval);
+                    document.getElementById('countdown').textContent = '';
+                }
+                
+                // Get current data
+                const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+                const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                
+                log(`📊 Before cleanup: ${classes.length} classes`, 'info');
+                log(`👤 User: ${currentUser.email || 'Unknown'}`, 'info');
+                
+                // Remove all classes
+                localStorage.setItem('teacherClasses', '[]');
+                
+                // Clear other related data
+                localStorage.removeItem('selectedClass');
+                localStorage.removeItem('classStats');
+                localStorage.removeItem('lastClassUpdate');
+                
+                log('🧹 Cleared teacherClasses array', 'success');
+                log('🧹 Cleared related class data', 'success');
+                
+                // Verify cleanup
+                const afterClasses = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+                log(`📊 After cleanup: ${afterClasses.length} classes`, 'success');
+                
+                if (afterClasses.length === 0) {
+                    log('✅ EMERGENCY CLEANUP SUCCESSFUL', 'success');
+                    
+                    // Update display
+                    const classesDiv = document.getElementById('current-classes');
+                    classesDiv.innerHTML = '<p style="color: #28a745;">✅ All classes successfully removed from localStorage</p>';
+                    
+                    // Show success message
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'alert success';
+                    alertDiv.innerHTML = `
+                        <strong>✅ CLEANUP COMPLETE!</strong><br>
+                        All classes have been removed from localStorage.<br>
+                        <a href="quiz-app/pages/class-management.html" style="color: #155724; font-weight: bold;">
+                            → Test the class management page now
+                        </a>
+                    `;
+                    
+                    const container = document.querySelector('.container');
+                    container.insertBefore(alertDiv, container.children[1]);
+                    
+                } else {
+                    log('❌ CLEANUP FAILED - Classes still exist', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Emergency cleanup failed: ${error.message}`, 'error');
+            }
+        }
+
+        function resetStorage() {
+            log('🔄 RESETTING ALL STORAGE...', 'warning');
+            
+            try {
+                // Clear all localStorage
+                localStorage.clear();
+                
+                log('🧹 All localStorage cleared', 'success');
+                log('✅ STORAGE RESET COMPLETE', 'success');
+                
+                // Update display
+                const classesDiv = document.getElementById('current-classes');
+                classesDiv.innerHTML = '<p style="color: #28a745;">✅ All localStorage data cleared</p>';
+                
+            } catch (error) {
+                log(`❌ Reset failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🚀 Emergency cleanup tool loaded', 'info');
+            log('📊 Analyzing localStorage for user: ahmadadeltub@gmail.com', 'info');
+            
+            // Auto-view classes
+            setTimeout(() => {
+                viewClasses();
+            }, 1000);
+            
+            // Start countdown for auto-cleanup
+            setTimeout(() => {
+                startCountdown();
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

@@ -2178,8 +2178,8 @@
                 loadClasses();
                 updateStats();
                 
-                // For testing: create a test class if none exist
-                createTestClassIfNeeded();
+                // Removed automatic test class creation
+                // Users can create their own classes as needed
                 
                 // Add form submission handler
                 document.getElementById('classForm').addEventListener('submit', function(e) {
@@ -2208,6 +2208,9 @@
             }
         });
 
+        // Test class creation function - DISABLED
+        // This function was causing deleted classes to reappear
+        /*
         function createTestClassIfNeeded() {
             const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
             const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
@@ -2249,6 +2252,7 @@
                 }, 100);
             }
         }
+        */
 
         function loadUserData() {
             const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
@@ -2535,6 +2539,13 @@
                     return;
                 }
                 
+                // Always remove from localStorage first to prevent reappearing
+                console.log('📦 Removing from localStorage...');
+                const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+                const updatedClasses = classes.filter(cls => cls.id !== classId);
+                localStorage.setItem('teacherClasses', JSON.stringify(updatedClasses));
+                console.log('✅ Class removed from localStorage');
+                
                 // Delete from Firebase if available and user is authenticated
                 if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
                     const currentUser = window.firebaseDataManager.getCurrentUser();
@@ -2544,35 +2555,21 @@
                         
                         if (result.success) {
                             console.log('✅ Class deleted from Firebase successfully');
-                            
-                            // ALSO remove from localStorage to prevent reappearing
-                            const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
-                            const updatedClasses = classes.filter(cls => cls.id !== classId);
-                            localStorage.setItem('teacherClasses', JSON.stringify(updatedClasses));
-                            console.log('✅ Class also removed from localStorage');
-                            
                             showNotification('Class deleted successfully!', 'success');
-                            loadClasses();
-                            updateStats();
-                            return;
                         } else {
-                            throw new Error(result.error || 'Failed to delete class from Firebase');
+                            console.warn('⚠️ Firebase deletion failed:', result.error);
+                            showNotification('Class deleted locally. Login required for permanent deletion.', 'warning');
                         }
                     } else {
                         console.warn('⚠️ No authenticated user - cannot delete from Firebase');
-                        showNotification('Please log in to delete classes permanently.', 'warning');
+                        showNotification('Class deleted locally. Please log in for permanent deletion.', 'warning');
                     }
                 } else {
-                    console.warn('⚠️ Firebase not available - using localStorage only');
+                    console.warn('⚠️ Firebase not available - localStorage deletion only');
+                    showNotification('Class deleted locally. Firebase sync required for permanent deletion.', 'warning');
                 }
                 
-                // Fallback to localStorage only (not permanent)
-                console.log('📦 Deleting from localStorage only (not permanent)');
-                const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
-                const updatedClasses = classes.filter(cls => cls.id !== classId);
-                localStorage.setItem('teacherClasses', JSON.stringify(updatedClasses));
-                
-                showNotification('Class deleted (localStorage only). For permanent deletion, please log in.', 'warning');
+                // Refresh the display
                 loadClasses();
                 updateStats();
                 

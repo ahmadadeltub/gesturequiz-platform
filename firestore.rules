@@ -7,22 +7,34 @@ service cloud.firestore {
       allow read, update: if request.auth != null && request.auth.uid == userId;
     }
     
-    // Allow authenticated users to manage classes
+    // Allow authenticated users to manage classes they created
     match /classes/{classId} {
-      allow create, read, update, delete: if request.auth != null;
+      allow create: if request.auth != null;
+      allow read, update, delete: if request.auth != null && 
+        (request.auth.uid == resource.data.createdBy || request.auth.uid == resource.data.teacherId);
     }
     
-    // Allow authenticated users to manage quizzes
+    // Allow authenticated users to manage quizzes they created
     match /quizzes/{quizId} {
-      allow create, read, update, delete: if request.auth != null;
+      allow create: if request.auth != null;
+      allow read, update, delete: if request.auth != null && 
+        (request.auth.uid == resource.data.createdBy || request.auth.uid == resource.data.teacherId);
     }
     
-    // Allow authenticated users to manage submissions
+    // Allow authenticated users to manage their own submissions
     match /submissions/{submissionId} {
-      allow create, read, update: if request.auth != null;
+      allow create: if request.auth != null;
+      allow read, update: if request.auth != null && 
+        (request.auth.uid == resource.data.userId || request.auth.uid == resource.data.studentId);
     }
     
-    // Allow test documents for debugging
+    // Allow system health checks (limited read access for diagnostics)
+    match /system/{document=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // Allow test documents for debugging (authenticated users only)
     match /test/{document=**} {
       allow read, write: if request.auth != null;
     }

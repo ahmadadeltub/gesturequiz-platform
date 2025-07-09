@@ -1159,8 +1159,8 @@
             <p>&copy; 2024 GestureQuiz. All rights reserved.</p>
             <div class="footer-links">
                 <a href="../index.html">Home</a>
-                <a href="javascript:void(0)" onclick="showNotification('Help system coming soon!', 'info')">Help</a>
-                <a href="javascript:void(0)" onclick="showNotification('Contact support at support@gesturequiz.com', 'info')">Support</a>
+                <a href="javascript:void(0)" onclick="notificationSystem.show('Help system coming soon!', 'info')">Help</a>
+                <a href="javascript:void(0)" onclick="notificationSystem.show('Contact support at support@gesturequiz.com', 'info')">Support</a>
             </div>
         </div>
     </footer>
@@ -1261,28 +1261,28 @@
     </div>
 
     <!-- Firebase Scripts -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
     
     <!-- Firebase Configuration -->
-    <script src="../js/firebase-config.js?v=20250709-003"></script>
+    <script src="../js/firebase-config.js?v=20250109-002"></script>
+    
+    <!-- Unified Analytics Manager -->
+    <script src="../js/unified-analytics-manager.js?v=20250109-002"></script>
+    
+    <!-- Enhanced Firebase Manager -->
+    <script src="../js/enhanced-firebase-manager.js?v=20250109-002"></script>
     
     <!-- GestureQuiz Scripts -->
-    <script src="../js/firebase-data-manager.js?v=20250709-003"></script>
-    <script src="../js/firebase-auth.js?v=20250709-003"></script>
-    <script src="../js/live-data-manager.js?v=20250709-003"></script>
-    <script src="../js/api-simulator.js?v=20250709-003"></script>
-    <script src="../js/data-integration.js?v=20250709-003"></script>
-    <script src="../js/notification-system.js?v=20250709-003"></script>
+    <script src="../js/notification-system.js?v=20250109-002"></script>
     <script>
         let currentUser = {};
-        let firebaseDataManager = null;
-        let firebaseAuth = null;
-        let dataIntegration = null;
-        let dataManager = null;
-        let apiClient = null;
+        let enhancedFirebaseManager = null;
+        let unifiedAnalyticsManager = null;
+        let notificationSystem = null;
 
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', async function() {
@@ -1291,16 +1291,22 @@
 
         async function initializeDashboard() {
             try {
-                // Initialize Firebase
-                firebaseDataManager = new FirebaseDataManager();
-                await firebaseDataManager.initialize();
+                console.log('🚀 Initializing Student Dashboard...');
                 
-                firebaseAuth = new FirebaseAuthManager();
-                await firebaseAuth.initialize();
+                // Initialize Enhanced Firebase Manager
+                enhancedFirebaseManager = new EnhancedFirebaseManager();
+                await enhancedFirebaseManager.initialize();
+                
+                // Initialize Unified Analytics Manager
+                unifiedAnalyticsManager = new UnifiedAnalyticsManager();
+                await unifiedAnalyticsManager.initialize();
+                
+                // Initialize Notification System
+                notificationSystem = new NotificationSystem();
                 
                 // Check authentication
-                currentUser = firebaseAuth.getCurrentUser();
-                if (!currentUser || currentUser.role !== 'student') {
+                const user = firebase.auth().currentUser;
+                if (!user) {
                     // Try localStorage fallback for test users
                     const localUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
                     if (!localUser.email || localUser.role !== 'student') {
@@ -1308,45 +1314,44 @@
                         return;
                     }
                     currentUser = localUser;
+                } else {
+                    // Get user data from Firebase
+                    const userData = await enhancedFirebaseManager.getUserData(user.uid);
+                    currentUser = { ...userData, uid: user.uid };
+                    
+                    // Verify user role
+                    if (currentUser.role !== 'student') {
+                        window.location.href = '../index.html';
+                        return;
+                    }
                 }
-
-                // Initialize all data management systems
-                dataIntegration = new DataIntegration();
-                dataManager = new LiveDataManager();
-                apiClient = new APISimulator();
                 
                 // Setup real-time updates
                 setupRealTimeUpdates();
                 
-                // Override refresh function for real-time sync
-                dataIntegration.refreshDisplays = function() {
-                    loadUserData();
-                    loadQuizzes();
-                    loadStatistics();
-                    loadRecentActivity();
-                };
-
                 // Load user data
-                loadUserData();
+                await loadUserData();
                 
                 // Load quiz data
                 await loadQuizzes();
                 
-                // Load statistics
-                loadStatistics();
+                // Load statistics with unified analytics
+                await loadStatistics();
                 
                 // Load recent activity
-                loadRecentActivity();
+                await loadRecentActivity();
                 
                 // Set up auto-refresh
                 setInterval(refreshData, 30000); // Refresh every 30 seconds
                 
                 // Show welcome message
-                showNotification(`Welcome back, ${currentUser.name}!`, 'success');
+                notificationSystem.show(`Welcome back, ${currentUser.name}!`, 'success');
+                
+                console.log('✅ Student Dashboard initialized successfully');
                 
             } catch (error) {
                 console.error('❌ Dashboard initialization failed:', error);
-                showNotification('Dashboard initialization failed. Using offline mode.', 'warning');
+                notificationSystem.show('Dashboard initialization failed. Using offline mode.', 'warning');
                 
                 // Fallback to localStorage mode
                 initializeOfflineMode();
@@ -1394,7 +1399,7 @@
             
             // Show welcome message
             setTimeout(() => {
-                showNotification(`Welcome back, ${currentUser.name || 'Student'}! 🎓`, 'success');
+                notificationSystem.show(`Welcome back, ${currentUser.name || 'Student'}! 🎓`, 'success');
             }, 1000);
         }
 
@@ -1405,21 +1410,50 @@
             document.getElementById('welcomeTitle').textContent = `Welcome back, ${userName}! 🎓`;
         }
 
-        function loadQuizzes() {
-            if (!dataIntegration) return;
-            
-            // Get quizzes from integrated data system
-            const availableQuizzes = dataIntegration.getAvailableQuizzes();
-            const completedQuizzes = dataIntegration.getCompletedQuizzes();
-            const studentProgress = dataIntegration.getStudentProgress();
-            
-            // Get all quizzes for display
-            const allQuizzes = dataIntegration.getQuizzes();
-            
-            renderQuizzes(allQuizzes, completedQuizzes, studentProgress);
+        async function loadQuizzes() {
+            try {
+                if (!enhancedFirebaseManager || !currentUser.uid) return;
+                
+                console.log('📚 Loading student quizzes...');
+                
+                // Get student's enrolled classes
+                const enrolledClasses = await enhancedFirebaseManager.getStudentClasses(currentUser.uid);
+                
+                // Get all quizzes for enrolled classes
+                const allQuizzes = [];
+                for (const classInfo of enrolledClasses) {
+                    const classQuizzes = await enhancedFirebaseManager.getQuizzesByClass(classInfo.id);
+                    allQuizzes.push(...classQuizzes.map(quiz => ({
+                        ...quiz,
+                        className: classInfo.name,
+                        subject: classInfo.subject
+                    })));
+                }
+                
+                // Get student's submissions
+                const submissions = await enhancedFirebaseManager.getSubmissions(null, currentUser.uid);
+                
+                renderQuizzes(allQuizzes, submissions);
+                
+                console.log('✅ Quizzes loaded successfully');
+                
+            } catch (error) {
+                console.error('❌ Failed to load quizzes:', error);
+                const quizGrid = document.getElementById('quizGrid');
+                quizGrid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Error Loading Quizzes</h3>
+                        <p>There was an error loading your quizzes. Please try again.</p>
+                        <button class="btn btn-primary" onclick="loadQuizzes()" style="margin-top: 16px;">
+                            <i class="fas fa-refresh"></i> Retry
+                        </button>
+                    </div>
+                `;
+            }
         }
 
-        function renderQuizzes(quizzesToRender, completedQuizzes, studentProgress) {
+        function renderQuizzes(quizzesToRender, submissions) {
             const quizGrid = document.getElementById('quizGrid');
             
             if (quizzesToRender.length === 0) {
@@ -1428,7 +1462,7 @@
                         <i class="fas fa-clipboard-list"></i>
                         <h3>No Quizzes Available</h3>
                         <p>Your teacher hasn't assigned any quizzes yet. Check back later!</p>
-                        <button class="btn btn-primary" onclick="refreshQuizzes()" style="margin-top: 16px;">
+                        <button class="btn btn-primary" onclick="loadQuizzes()" style="margin-top: 16px;">
                             <i class="fas fa-refresh"></i> Refresh Quizzes
                         </button>
                     </div>
@@ -1437,14 +1471,10 @@
             }
 
             quizGrid.innerHTML = quizzesToRender.map((quiz, index) => {
-                const userResults = studentProgress ? studentProgress.filter(result => result.quizId === quiz.id) : [];
+                const userResults = submissions.filter(submission => submission.quizId === quiz.id);
                 const hasCompleted = userResults.length > 0;
-                const bestScore = hasCompleted ? Math.max(...userResults.map(r => r.score)) : 0;
+                const bestScore = hasCompleted ? Math.max(...userResults.map(r => r.score || 0)) : 0;
                 const attemptCount = userResults.length;
-                
-                // Get class info
-                const classInfo = dataIntegration.getClasses().find(c => c.id === quiz.classId);
-                const className = classInfo ? classInfo.name : 'Unknown Class';
                 
                 // Determine card class based on completion status
                 const cardClass = hasCompleted ? 'completed' : 'new';
@@ -1456,7 +1486,7 @@
                                 <h3>${quiz.title}</h3>
                                 <div class="quiz-meta">
                                     <span><i class="fas fa-clock"></i> ${quiz.questions?.length || 0} questions</span>
-                                    <span><i class="fas fa-chalkboard-teacher"></i> ${className}</span>
+                                    <span><i class="fas fa-chalkboard-teacher"></i> ${quiz.className || 'Unknown Class'}</span>
                                     <span><i class="fas fa-user-graduate"></i> ${quiz.subject || 'General'}</span>
                                     <span class="difficulty-badge difficulty-${quiz.difficulty?.toLowerCase() || 'medium'}">
                                         ${quiz.difficulty || 'Medium'}
@@ -1513,59 +1543,79 @@
             }).join('');
         }
 
-        function loadStatistics() {
-            if (!dataIntegration) return;
-            
-            const studentProgress = dataIntegration.getStudentProgress();
-            const allQuizzes = dataIntegration.getQuizzes();
-            const availableQuizzes = dataIntegration.getAvailableQuizzes();
-            const completedQuizzes = dataIntegration.getCompletedQuizzes();
-            
-            // Completed quizzes
-            const completedCount = completedQuizzes.length;
-            const totalQuizzes = allQuizzes.length;
-            const completionRate = totalQuizzes > 0 ? (completedCount / totalQuizzes) * 100 : 0;
-            
-            document.getElementById('completedQuizzes').textContent = completedCount;
-            document.getElementById('completedProgress').style.width = completionRate + '%';
-            document.getElementById('completedText').textContent = 
-                `${Math.round(completionRate)}% of ${totalQuizzes} available quizzes`;
+        async function loadStatistics() {
+            try {
+                if (!unifiedAnalyticsManager || !currentUser.uid) return;
+                
+                console.log('📊 Loading student statistics...');
+                
+                // Get student analytics from unified manager
+                const analyticsResult = await unifiedAnalyticsManager.getStudentAnalytics(currentUser.uid);
+                
+                if (!analyticsResult.success) {
+                    throw new Error(analyticsResult.error);
+                }
+                
+                const studentAnalytics = analyticsResult.data;
+                
+                // Completed quizzes
+                const completedCount = studentAnalytics.overview?.completedQuizzes || 0;
+                const totalQuizzes = studentAnalytics.overview?.totalQuizzes || 0;
+                const completionRate = totalQuizzes > 0 ? (completedCount / totalQuizzes) * 100 : 0;
+                
+                document.getElementById('completedQuizzes').textContent = completedCount;
+                document.getElementById('completedProgress').style.width = completionRate + '%';
+                document.getElementById('completedText').textContent = 
+                    `${Math.round(completionRate)}% of ${totalQuizzes} available quizzes`;
 
-            // Average score
-            const averageScore = studentProgress.length > 0 
-                ? studentProgress.reduce((sum, result) => sum + result.score, 0) / studentProgress.length 
-                : 0;
-            
-            document.getElementById('averageScore').textContent = Math.round(averageScore) + '%';
-            document.getElementById('scoreProgress').style.width = averageScore + '%';
-            
-            if (averageScore >= 90) {
-                document.getElementById('scoreText').textContent = 'Excellent work! 🌟';
-            } else if (averageScore >= 70) {
-                document.getElementById('scoreText').textContent = 'Good progress! Keep it up! 👍';
-            } else if (averageScore > 0) {
-                document.getElementById('scoreText').textContent = 'Keep practicing to improve! 📚';
-            } else {
-                document.getElementById('scoreText').textContent = 'Start taking quizzes to see your score!';
-            }
+                // Average score
+                const averageScore = studentAnalytics.overview?.averageScore || 0;
+                
+                document.getElementById('averageScore').textContent = Math.round(averageScore) + '%';
+                document.getElementById('scoreProgress').style.width = averageScore + '%';
+                
+                if (averageScore >= 90) {
+                    document.getElementById('scoreText').textContent = 'Excellent work! 🌟';
+                } else if (averageScore >= 70) {
+                    document.getElementById('scoreText').textContent = 'Good progress! Keep it up! 👍';
+                } else if (averageScore > 0) {
+                    document.getElementById('scoreText').textContent = 'Keep practicing to improve! 📚';
+                } else {
+                    document.getElementById('scoreText').textContent = 'Start taking quizzes to see your score!';
+                }
 
-            // Learning streak (simplified - based on recent activity)
-            const recentDays = getRecentActivityDays(studentProgress);
-            document.getElementById('streakDays').textContent = recentDays;
-            
-            if (recentDays > 0) {
-                document.getElementById('streakText').textContent = 
-                    recentDays === 1 ? 'Great start! Keep the momentum!' : 
-                    `Amazing! ${recentDays} days of learning!`;
-            }
+                // Learning streak (from activity data)
+                const streakDays = studentAnalytics.activity?.currentStreak || 0;
+                document.getElementById('streakDays').textContent = streakDays;
+                
+                if (streakDays > 0) {
+                    document.getElementById('streakText').textContent = 
+                        streakDays === 1 ? 'Great start! Keep the momentum!' : 
+                        `Amazing! ${streakDays} days of learning!`;
+                } else {
+                    document.getElementById('streakText').textContent = 'Start your learning streak today!';
+                }
 
-            // Total points (score-based)
-            const totalPoints = studentProgress.reduce((sum, result) => sum + result.score, 0);
-            document.getElementById('totalPoints').textContent = totalPoints;
-            
-            if (totalPoints > 0) {
-                document.getElementById('pointsText').textContent = 
-                    `🎯 Keep earning points to unlock achievements!`;
+                // Total points (use total score for now)
+                const totalPoints = studentAnalytics.achievements?.totalPoints || Math.round(averageScore * completedCount);
+                document.getElementById('totalPoints').textContent = totalPoints;
+                
+                if (totalPoints > 0) {
+                    document.getElementById('pointsText').textContent = 
+                        `🎯 Keep earning points to unlock achievements!`;
+                } else {
+                    document.getElementById('pointsText').textContent = 'Complete quizzes to earn points!';
+                }
+                
+                console.log('✅ Student statistics loaded successfully');
+                
+            } catch (error) {
+                console.error('❌ Failed to load statistics:', error);
+                // Fallback to basic display
+                document.getElementById('completedQuizzes').textContent = '0';
+                document.getElementById('averageScore').textContent = '0%';
+                document.getElementById('streakDays').textContent = '0';
+                document.getElementById('totalPoints').textContent = '0';
             }
         }
 
@@ -1582,58 +1632,80 @@
             return Math.min(recentResults.length, 7);
         }
 
-        function loadRecentActivity() {
-            if (!dataIntegration) return;
-            
-            const studentProgress = dataIntegration.getStudentProgress()
-                .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt))
-                .slice(0, 5);
-            
-            const activityFeed = document.getElementById('activityFeed');
-            
-            if (studentProgress.length === 0) {
+        async function loadRecentActivity() {
+            try {
+                if (!enhancedFirebaseManager || !currentUser.uid) return;
+                
+                console.log('📈 Loading recent activity...');
+                
+                // Get recent submissions
+                const allSubmissions = await enhancedFirebaseManager.getSubmissions(null, currentUser.uid);
+                const recentSubmissions = allSubmissions
+                    .sort((a, b) => new Date(b.submittedAt || b.createdAt) - new Date(a.submittedAt || a.createdAt))
+                    .slice(0, 5);
+                
+                const activityFeed = document.getElementById('activityFeed');
+                
+                if (recentSubmissions.length === 0) {
+                    activityFeed.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-history"></i>
+                            <h3>No Recent Activity</h3>
+                            <p>Start taking quizzes to see your activity here!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                activityFeed.innerHTML = recentSubmissions.map(submission => {
+                    const quizTitle = submission.quizTitle || 'Unknown Quiz';
+                    const className = submission.className || 'Unknown Class';
+                    const score = submission.score || 0;
+                    const date = new Date(submission.submittedAt || submission.createdAt);
+                    const timeAgo = getTimeAgo(date);
+                    
+                    let iconClass = 'primary';
+                    let icon = 'fas fa-clipboard-check';
+                    
+                    if (score >= 90) {
+                        iconClass = 'success';
+                        icon = 'fas fa-star';
+                    } else if (score >= 70) {
+                        iconClass = 'accent';
+                        icon = 'fas fa-thumbs-up';
+                    } else {
+                        iconClass = 'warning';
+                        icon = 'fas fa-redo';
+                    }
+                    
+                    return `
+                        <div class="activity-item">
+                            <div class="activity-icon ${iconClass}">
+                                <i class="${icon}"></i>
+                            </div>
+                            <div class="activity-content">
+                                <h4>Completed: ${quizTitle}</h4>
+                                <p>Score: ${score}% • ${getScoreMessage(score)}</p>
+                            </div>
+                            <div class="activity-time">${timeAgo}</div>
+                        </div>
+                    `;
+                }).join('');
+                
+                console.log('✅ Recent activity loaded successfully');
+                
+            } catch (error) {
+                console.error('❌ Failed to load recent activity:', error);
+                const activityFeed = document.getElementById('activityFeed');
                 activityFeed.innerHTML = `
                     <div class="empty-state">
-                        <i class="fas fa-history"></i>
-                        <h3>No Recent Activity</h3>
-                        <p>Start taking quizzes to see your activity here!</p>
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Error Loading Activity</h3>
+                        <p>There was an error loading your recent activity.</p>
                     </div>
                 `;
-                return;
             }
-
-            activityFeed.innerHTML = studentProgress.map(result => {
-                const quizTitle = result.quizTitle || 'Unknown Quiz';
-                const className = result.className || 'Unknown Class';
-                const score = result.score || 0;
-                const date = new Date(result.completedAt);
-                const timeAgo = getTimeAgo(date);
-                
-                let iconClass = 'primary';
-                let icon = 'fas fa-clipboard-check';
-                
-                if (score >= 90) {
-                    iconClass = 'success';
-                    icon = 'fas fa-star';
-                } else if (score >= 70) {
-                    iconClass = 'accent';
-                    icon = 'fas fa-thumbs-up';
-                } else {
-                    iconClass = 'warning';
-                    icon = 'fas fa-redo';
-                }
-                
-                return `
-                    <div class="activity-item">
-                        <div class="activity-icon ${iconClass}">
-                            <i class="${icon}"></i>
-                        </div>
-                        <div class="activity-content">
-                            <h4>Completed: ${quizTitle}</h4>
-                            <p>Score: ${score}% • ${getScoreMessage(score)}</p>
-                        </div>
-                        <div class="activity-time">${timeAgo}</div>
-                    </div>
+        }
                 `;
             }).join('');
         }
@@ -1665,7 +1737,7 @@
         function startQuiz(quizId) {
             const quiz = quizzes.find(q => q.id === quizId);
             if (!quiz) {
-                showNotification('Quiz not found!', 'error');
+                notificationSystem.show('Quiz not found!', 'error');
                 return;
             }
             
@@ -1677,14 +1749,14 @@
         function findRandomQuiz() {
             const publishedQuizzes = quizzes.filter(quiz => quiz.status === 'published' && quiz.published === true);
             if (publishedQuizzes.length === 0) {
-                showNotification('No quizzes available at the moment!', 'warning');
+                notificationSystem.show('No quizzes available at the moment!', 'warning');
                 return;
             }
             
             const randomIndex = Math.floor(Math.random() * publishedQuizzes.length);
             const randomQuiz = publishedQuizzes[randomIndex];
             
-            showNotification(`Starting random quiz: ${randomQuiz.title}`, 'success');
+            notificationSystem.show(`Starting random quiz: ${randomQuiz.title}`, 'success');
             setTimeout(() => {
                 startQuiz(randomQuiz.id);
             }, 1000);
@@ -1695,7 +1767,7 @@
             const publishedQuizzes = quizzes.filter(quiz => quiz.status === 'published' && quiz.published === true);
             
             if (userResults.length === 0) {
-                showNotification('No progress to show yet. Start taking quizzes!', 'info');
+                notificationSystem.show('No progress to show yet. Start taking quizzes!', 'info');
                 return;
             }
             
@@ -1704,7 +1776,7 @@
             const totalQuizzes = publishedQuizzes.length;
             const averageScore = userResults.reduce((sum, result) => sum + result.score, 0) / userResults.length;
             
-            showNotification(`Progress: ${completedCount}/${totalQuizzes} quizzes completed with ${Math.round(averageScore)}% average score`, 'success');
+            notificationSystem.show(`Progress: ${completedCount}/${totalQuizzes} quizzes completed with ${Math.round(averageScore)}% average score`, 'success');
         }
 
         function showNotification(message, type = 'info') {
@@ -1786,10 +1858,16 @@
             showNotification(message, 'info');
         }
 
-        function refreshData() {
-            loadQuizzes();
-            loadStatistics();
-            loadRecentActivity();
+        async function refreshData() {
+            try {
+                console.log('🔄 Refreshing dashboard data...');
+                await loadQuizzes();
+                await loadStatistics();
+                await loadRecentActivity();
+                console.log('✅ Data refreshed successfully');
+            } catch (error) {
+                console.error('❌ Error refreshing data:', error);
+            }
         }
 
         function createSampleQuizzes() {
@@ -1898,12 +1976,6 @@
                     refreshData();
                 }, 1000);
             }
-        }
-
-        function refreshData() {
-            loadQuizzes();
-            loadStatistics();
-            loadRecentActivity();
         }
 
         async function logout() {

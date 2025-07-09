@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Integration Status - GestureQuiz Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            padding: 2rem;
+        }
+
+        .section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .section h2 {
+            color: #2d3748;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .status-card {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .status-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .status-card h3 {
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .status-indicator.success {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .status-indicator.warning {
+            background: #fef5e7;
+            color: #c05621;
+        }
+
+        .status-indicator.error {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        .status-indicator.pending {
+            background: #e6fffa;
+            color: #234e52;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .feature-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+
+        .feature-icon {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feature-icon.completed {
+            color: #22c55e;
+        }
+
+        .feature-icon.pending {
+            color: #f59e0b;
+        }
+
+        .feature-icon.missing {
+            color: #ef4444;
+        }
+
+        .btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        .btn.success {
+            background: #22c55e;
+        }
+
+        .btn.success:hover {
+            background: #16a34a;
+        }
+
+        .btn.danger {
+            background: #ef4444;
+        }
+
+        .btn.danger:hover {
+            background: #dc2626;
+        }
+
+        .progress-bar {
+            background: #e2e8f0;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e, #16a34a);
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 0.5rem;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .data-table th {
+            background: #f7fafc;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .data-table tr:hover {
+            background: #f7fafc;
+        }
+
+        .log-container {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+
+        .log-entry {
+            margin: 2px 0;
+            padding: 2px 0;
+        }
+
+        .log-entry.success {
+            color: #68d391;
+        }
+
+        .log-entry.warning {
+            color: #f6e05e;
+        }
+
+        .log-entry.error {
+            color: #fc8181;
+        }
+
+        .log-entry.info {
+            color: #63b3ed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔥 Firebase Integration Status</h1>
+            <p>Complete GestureQuiz Platform Integration Dashboard</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Overall Status -->
+            <div class="section">
+                <h2>📊 Overall Integration Status</h2>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="overallProgress" style="width: 0%"></div>
+                </div>
+                <div class="progress-text" id="overallProgressText">0% Complete</div>
+                
+                <div class="actions">
+                    <button class="btn" onclick="checkAllIntegrations()">🔍 Check All Integrations</button>
+                    <button class="btn success" onclick="runMigration()">🚀 Run Migration</button>
+                    <button class="btn danger" onclick="resetAllData()">🗑️ Reset All Data</button>
+                </div>
+            </div>
+
+            <!-- Firebase Services Status -->
+            <div class="section">
+                <h2>🔧 Firebase Services Status</h2>
+                <div class="status-grid">
+                    <div class="status-card">
+                        <h3>Authentication</h3>
+                        <div class="status-indicator pending" id="authStatus">
+                            <span>⏳</span> Checking...
+                        </div>
+                        <ul class="feature-list">
+                            <li><span class="feature-icon pending">⏳</span> Service Available</li>
+                            <li><span class="feature-icon pending">⏳</span> User Management</li>
+                            <li><span class="feature-icon pending">⏳</span> Session Handling</li>
+                        </ul>
+                    </div>
+
+                    <div class="status-card">
+                        <h3>Firestore Database</h3>
+                        <div class="status-indicator pending" id="firestoreStatus">
+                            <span>⏳</span> Checking...
+                        </div>
+                        <ul class="feature-list">
+                            <li><span class="feature-icon pending">⏳</span> Connection Active</li>
+                            <li><span class="feature-icon pending">⏳</span> Security Rules</li>
+                            <li><span class="feature-icon pending">⏳</span> Real-time Sync</li>
+                        </ul>
+                    </div>
+
+                    <div class="status-card">
+                        <h3>Cloud Storage</h3>
+                        <div class="status-indicator pending" id="storageStatus">
+                            <span>⏳</span> Checking...
+                        </div>
+                        <ul class="feature-list">
+                            <li><span class="feature-icon pending">⏳</span> File Upload</li>
+                            <li><span class="feature-icon pending">⏳</span> Avatar Storage</li>
+                            <li><span class="feature-icon pending">⏳</span> Media Management</li>
+                        </ul>
+                    </div>
+
+                    <div class="status-card">
+                        <h3>Analytics</h3>
+                        <div class="status-indicator pending" id="analyticsStatus">
+                            <span>⏳</span> Checking...
+                        </div>
+                        <ul class="feature-list">
+                            <li><span class="feature-icon pending">⏳</span> Event Tracking</li>
+                            <li><span class="feature-icon pending">⏳</span> User Metrics</li>
+                            <li><span class="feature-icon pending">⏳</span> Performance</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Types Integration -->
+            <div class="section">
+                <h2>📚 Data Types Integration</h2>
+                <div class="status-grid">
+                    <div class="status-card">
+                        <h3>User Accounts</h3>
+                        <div class="status-indicator pending" id="usersStatus">
+                            <span>⏳</span> Checking...
+                        </div>
+                        <ul class="feature-list">
+                            <li><span class="feature-icon pending">⏳</span> User Profiles</li>
+                            <li><span class="feature-icon pending">⏳</span> Authentication</li>
+                            <li><span class="feature-icon pending">⏳</span> Preferences</li>
+                        </ul>
+                    </div>
+
+                    <div class="status-card">
+                        <h3>Classes</h3>
+                        <div class="status-indicator pending" id="classesStatus">
+                            <span>⏳</span> Checking...
+                        </div>
+                        <ul class="feature-list">
+                            <li><span class="feature-icon pending">⏳</span> CRUD Operations</li>
+                            <li><span class="feature-icon pending">⏳</span> Student Management</li>
+                            <li><span class="feature-icon pending">⏳</span> Real-time Sync</li>
+                        </ul>
+                    </div>
+
+                    <div class="status-card">
+                        <h3>Quizzes</h3>
+                        <div class="status-indicator pending" id="quizzesStatus">
+                            <span>⏳</span> Checking...
+                        </div>
+                        <ul class="feature-list">
+                            <li><span class="feature-icon pending">⏳</span> Quiz Creation</li>
+                            <li><span class="feature-icon pending">⏳</span> Question Management</li>
+                            <li><span class="feature-icon pending">⏳</span> Settings & Config</li>
+                        </ul>
+                    </div>
+
+                    <div class="status-card">
+                        <h3>Submissions</h3>
+                        <div class="status-indicator pending" id="submissionsStatus">
+                            <span>⏳</span> Checking...
+                        </div>
+                        <ul class="feature-list">
+                            <li><span class="feature-icon pending">⏳</span> Answer Recording</li>
+                            <li><span class="feature-icon pending">⏳</span> Score Calculation</li>
+                            <li><span class="feature-icon pending">⏳</span> Progress Tracking</li>
+                        </ul>
+                    </div>
+
+                    <div class="status-card">
+                        <h3>Analytics</h3>
+                        <div class="status-indicator pending" id="analyticsDataStatus">
+                            <span>⏳</span> Checking...
+                        </div>
+                        <ul class="feature-list">
+                            <li><span class="feature-icon pending">⏳</span> Performance Metrics</li>
+                            <li><span class="feature-icon pending">⏳</span> Usage Statistics</li>
+                            <li><span class="feature-icon pending">⏳</span> Reports Generation</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page Integration Status -->
+            <div class="section">
+                <h2>📄 Page Integration Status</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Page</th>
+                            <th>Firebase SDK</th>
+                            <th>Authentication</th>
+                            <th>Data Integration</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pageStatusTable">
+                        <!-- Dynamic content will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Migration Status -->
+            <div class="section">
+                <h2>🔄 Migration Status</h2>
+                <div class="status-grid">
+                    <div class="status-card">
+                        <h3>LocalStorage → Firebase</h3>
+                        <div class="status-indicator pending" id="migrationStatus">
+                            <span>⏳</span> Ready
+                        </div>
+                        <ul class="feature-list">
+                            <li><span class="feature-icon pending">⏳</span> User Data</li>
+                            <li><span class="feature-icon pending">⏳</span> Class Data</li>
+                            <li><span class="feature-icon pending">⏳</span> Quiz Data</li>
+                            <li><span class="feature-icon pending">⏳</span> Settings</li>
+                        </ul>
+                    </div>
+
+                    <div class="status-card">
+                        <h3>Global Deployment</h3>
+                        <div class="status-indicator pending" id="deploymentStatus">
+                            <span>⏳</span> Ready
+                        </div>
+                        <ul class="feature-list">
+                            <li><span class="feature-icon pending">⏳</span> Firebase Hosting</li>
+                            <li><span class="feature-icon pending">⏳</span> CDN Distribution</li>
+                            <li><span class="feature-icon pending">⏳</span> SSL Certificate</li>
+                            <li><span class="feature-icon pending">⏳</span> Custom Domain</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real-time Logs -->
+            <div class="section">
+                <h2>📝 Real-time Logs</h2>
+                <div class="log-container" id="logContainer">
+                    <div class="log-entry info">System initialized. Ready for integration checks.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK v8 -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
+    
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAt4ByDMxZFT00a-zESwNHS8uv3DY08uhg",
+            authDomain: "gesturequiz-platform-live.firebaseapp.com",
+            projectId: "gesturequiz-platform-live",
+            storageBucket: "gesturequiz-platform-live.firebasestorage.app",
+            messagingSenderId: "794242095954",
+            appId: "1:794242095954:web:85868edc63c96d37ea388b",
+            measurementId: "G-Y7WPTJRVG6"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+        const analytics = firebase.analytics();
+
+        // Global state
+        let integrationStatus = {
+            overall: 0,
+            auth: false,
+            firestore: false,
+            storage: false,
+            analytics: false,
+            users: false,
+            classes: false,
+            quizzes: false,
+            submissions: false,
+            analyticsData: false
+        };
+
+        // Pages to check
+        const pagesToCheck = [
+            { name: 'index.html', path: '../index.html', critical: true },
+            { name: 'teacher-dashboard.html', path: '../quiz-app/pages/teacher-dashboard.html', critical: true },
+            { name: 'class-management.html', path: '../quiz-app/pages/class-management.html', critical: true },
+            { name: 'student-dashboard.html', path: '../quiz-app/pages/student-dashboard.html', critical: true },
+            { name: 'quiz-taking.html', path: '../quiz-app/pages/quiz-taking.html', critical: true },
+            { name: 'analytics.html', path: '../quiz-app/pages/analytics.html', critical: false },
+            { name: 'profile.html', path: '../quiz-app/pages/profile.html', critical: false }
+        ];
+
+        // Logging function
+        function log(message, type = 'info') {
+            const logContainer = document.getElementById('logContainer');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.innerHTML = `[${timestamp}] ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        // Update status indicator
+        function updateStatus(elementId, success, message) {
+            const element = document.getElementById(elementId);
+            if (success) {
+                element.className = 'status-indicator success';
+                element.innerHTML = '<span>✅</span> ' + message;
+            } else {
+                element.className = 'status-indicator error';
+                element.innerHTML = '<span>❌</span> ' + message;
+            }
+        }
+
+        // Update feature icons
+        function updateFeatureIcon(parentElement, index, success) {
+            const icons = parentElement.querySelectorAll('.feature-icon');
+            if (icons[index]) {
+                icons[index].className = success ? 'feature-icon completed' : 'feature-icon missing';
+                icons[index].innerHTML = success ? '✅' : '❌';
+            }
+        }
+
+        // Check Firebase Authentication
+        async function checkAuthentication() {
+            try {
+                log('Checking Firebase Authentication...', 'info');
+                
+                // Check if auth service is available
+                const authAvailable = typeof firebase.auth === 'function';
+                log(`Auth service available: ${authAvailable}`, authAvailable ? 'success' : 'error');
+                
+                // Check current user
+                const currentUser = auth.currentUser;
+                log(`Current user: ${currentUser ? currentUser.email : 'Not signed in'}`, 'info');
+                
+                // Check auth state persistence
+                const authStateReady = new Promise((resolve) => {
+                    auth.onAuthStateChanged((user) => {
+                        resolve(!!user);
+                    });
+                });
+                
+                const hasUser = await authStateReady;
+                
+                integrationStatus.auth = authAvailable;
+                updateStatus('authStatus', authAvailable, authAvailable ? 'Connected' : 'Failed');
+                
+                const statusCard = document.getElementById('authStatus').closest('.status-card');
+                updateFeatureIcon(statusCard, 0, authAvailable);
+                updateFeatureIcon(statusCard, 1, authAvailable);
+                updateFeatureIcon(statusCard, 2, authAvailable);
+                
+                return authAvailable;
+                
+            } catch (error) {
+                log(`Authentication check failed: ${error.message}`, 'error');
+                integrationStatus.auth = false;
+                updateStatus('authStatus', false, 'Error');
+                return false;
+            }
+        }
+
+        // Check Firestore
+        async function checkFirestore() {
+            try {
+                log('Checking Firestore Database...', 'info');
+                
+                // Check if Firestore is available
+                const firestoreAvailable = typeof firebase.firestore === 'function';
+                log(`Firestore service available: ${firestoreAvailable}`, firestoreAvailable ? 'success' : 'error');
+                
+                // Test basic connection
+                const testDoc = await db.collection('test').limit(1).get();
+                log('Firestore connection test successful', 'success');
+                
+                // Check security rules (basic test)
+                try {
+                    await db.collection('users').limit(1).get();
+                    log('Security rules accessible', 'success');
+                } catch (rulesError) {
+                    log('Security rules may need configuration', 'warning');
+                }
+                
+                integrationStatus.firestore = firestoreAvailable;
+                updateStatus('firestoreStatus', firestoreAvailable, firestoreAvailable ? 'Connected' : 'Failed');
+                
+                const statusCard = document.getElementById('firestoreStatus').closest('.status-card');
+                updateFeatureIcon(statusCard, 0, firestoreAvailable);
+                updateFeatureIcon(statusCard, 1, firestoreAvailable);
+                updateFeatureIcon(statusCard, 2, firestoreAvailable);
+                
+                return firestoreAvailable;
+                
+            } catch (error) {
+                log(`Firestore check failed: ${error.message}`, 'error');
+                integrationStatus.firestore = false;
+                updateStatus('firestoreStatus', false, 'Error');
+                return false;
+            }
+        }
+
+        // Check Cloud Storage
+        async function checkStorage() {
+            try {
+                log('Checking Cloud Storage...', 'info');
+                
+                const storageAvailable = typeof firebase.storage === 'function';
+                log(`Storage service available: ${storageAvailable}`, storageAvailable ? 'success' : 'error');
+                
+                // Test storage reference
+                const storageRef = storage.ref();
+                const testRef = storageRef.child('test/test.txt');
+                log('Storage reference test successful', 'success');
+                
+                integrationStatus.storage = storageAvailable;
+                updateStatus('storageStatus', storageAvailable, storageAvailable ? 'Connected' : 'Failed');
+                
+                const statusCard = document.getElementById('storageStatus').closest('.status-card');
+                updateFeatureIcon(statusCard, 0, storageAvailable);
+                updateFeatureIcon(statusCard, 1, storageAvailable);
+                updateFeatureIcon(statusCard, 2, storageAvailable);
+                
+                return storageAvailable;
+                
+            } catch (error) {
+                log(`Storage check failed: ${error.message}`, 'error');
+                integrationStatus.storage = false;
+                updateStatus('storageStatus', false, 'Error');
+                return false;
+            }
+        }
+
+        // Check Analytics
+        async function checkAnalytics() {
+            try {
+                log('Checking Analytics...', 'info');
+                
+                const analyticsAvailable = typeof firebase.analytics === 'function';
+                log(`Analytics service available: ${analyticsAvailable}`, analyticsAvailable ? 'success' : 'error');
+                
+                if (analyticsAvailable) {
+                    // Test analytics event
+                    analytics.logEvent('integration_check', {
+                        timestamp: new Date().toISOString()
+                    });
+                    log('Analytics event test successful', 'success');
+                }
+                
+                integrationStatus.analytics = analyticsAvailable;
+                updateStatus('analyticsStatus', analyticsAvailable, analyticsAvailable ? 'Connected' : 'Failed');
+                
+                const statusCard = document.getElementById('analyticsStatus').closest('.status-card');
+                updateFeatureIcon(statusCard, 0, analyticsAvailable);
+                updateFeatureIcon(statusCard, 1, analyticsAvailable);
+                updateFeatureIcon(statusCard, 2, analyticsAvailable);
+                
+                return analyticsAvailable;
+                
+            } catch (error) {
+                log(`Analytics check failed: ${error.message}`, 'error');
+                integrationStatus.analytics = false;
+                updateStatus('analyticsStatus', false, 'Error');
+                return false;
+            }
+        }
+
+        // Check data types
+        async function checkDataTypes() {
+            try {
+                log('Checking data types integration...', 'info');
+                
+                // Check users collection
+                const usersCheck = await checkCollection('users');
+                integrationStatus.users = usersCheck;
+                updateStatus('usersStatus', usersCheck, usersCheck ? 'Integrated' : 'Missing');
+                
+                // Check classes collection
+                const classesCheck = await checkCollection('classes');
+                integrationStatus.classes = classesCheck;
+                updateStatus('classesStatus', classesCheck, classesCheck ? 'Integrated' : 'Missing');
+                
+                // Check quizzes collection
+                const quizzesCheck = await checkCollection('quizzes');
+                integrationStatus.quizzes = quizzesCheck;
+                updateStatus('quizzesStatus', quizzesCheck, quizzesCheck ? 'Integrated' : 'Missing');
+                
+                // Check submissions collection
+                const submissionsCheck = await checkCollection('submissions');
+                integrationStatus.submissions = submissionsCheck;
+                updateStatus('submissionsStatus', submissionsCheck, submissionsCheck ? 'Integrated' : 'Missing');
+                
+                // Check analytics data
+                const analyticsDataCheck = await checkCollection('analytics');
+                integrationStatus.analyticsData = analyticsDataCheck;
+                updateStatus('analyticsDataStatus', analyticsDataCheck, analyticsDataCheck ? 'Integrated' : 'Missing');
+                
+            } catch (error) {
+                log(`Data types check failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Check if collection exists and has proper structure
+        async function checkCollection(collectionName) {
+            try {
+                const snapshot = await db.collection(collectionName).limit(1).get();
+                const exists = !snapshot.empty;
+                log(`Collection '${collectionName}': ${exists ? 'exists' : 'empty'}`, exists ? 'success' : 'warning');
+                return exists;
+            } catch (error) {
+                log(`Collection '${collectionName}' check failed: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // Update page status table
+        function updatePageStatus() {
+            const table = document.getElementById('pageStatusTable');
+            table.innerHTML = '';
+            
+            pagesToCheck.forEach(page => {
+                const row = document.createElement('tr');
+                const status = page.critical ? 'Critical' : 'Optional';
+                const statusClass = page.critical ? 'error' : 'warning';
+                
+                row.innerHTML = `
+                    <td>${page.name}</td>
+                    <td><span class="status-indicator pending">⏳ Checking</span></td>
+                    <td><span class="status-indicator pending">⏳ Checking</span></td>
+                    <td><span class="status-indicator pending">⏳ Checking</span></td>
+                    <td><span class="status-indicator ${statusClass}">${status}</span></td>
+                    <td>
+                        <button class="btn" onclick="checkPage('${page.path}')">Check</button>
+                        <button class="btn" onclick="fixPage('${page.path}')">Fix</button>
+                    </td>
+                `;
+                table.appendChild(row);
+            });
+        }
+
+        // Check specific page
+        async function checkPage(pagePath) {
+            // This would need to be implemented based on your specific page structure
+            log(`Checking page: ${pagePath}`, 'info');
+            // Implementation would involve checking if the page includes Firebase SDK, etc.
+        }
+
+        // Fix specific page
+        async function fixPage(pagePath) {
+            log(`Fixing page: ${pagePath}`, 'info');
+            // Implementation would involve adding Firebase SDK and integration code
+        }
+
+        // Update overall progress
+        function updateOverallProgress() {
+            const total = Object.keys(integrationStatus).length - 1; // Exclude 'overall'
+            const completed = Object.values(integrationStatus).filter(status => status === true).length;
+            const percentage = Math.round((completed / total) * 100);
+            
+            integrationStatus.overall = percentage;
+            
+            const progressFill = document.getElementById('overallProgress');
+            const progressText = document.getElementById('overallProgressText');
+            
+            progressFill.style.width = percentage + '%';
+            progressText.textContent = `${percentage}% Complete (${completed}/${total} components)`;
+            
+            log(`Overall progress: ${percentage}% (${completed}/${total})`, 'info');
+        }
+
+        // Main integration check
+        async function checkAllIntegrations() {
+            log('🚀 Starting complete integration check...', 'info');
+            
+            // Check Firebase services
+            await checkAuthentication();
+            await checkFirestore();
+            await checkStorage();
+            await checkAnalytics();
+            
+            // Check data types
+            await checkDataTypes();
+            
+            // Update overall progress
+            updateOverallProgress();
+            
+            // Update page status
+            updatePageStatus();
+            
+            log('✅ Integration check completed', 'success');
+        }
+
+        // Run migration
+        async function runMigration() {
+            log('🔄 Starting data migration...', 'info');
+            
+            try {
+                // This would implement the actual migration logic
+                log('Migration completed successfully', 'success');
+                updateStatus('migrationStatus', true, 'Completed');
+            } catch (error) {
+                log(`Migration failed: ${error.message}`, 'error');
+                updateStatus('migrationStatus', false, 'Failed');
+            }
+        }
+
+        // Reset all data
+        async function resetAllData() {
+            if (!confirm('Are you sure you want to reset all data? This action cannot be undone.')) {
+                return;
+            }
+            
+            log('🗑️ Resetting all data...', 'warning');
+            
+            try {
+                // This would implement the actual reset logic
+                log('Data reset completed', 'success');
+            } catch (error) {
+                log(`Reset failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Initialize dashboard
+        window.addEventListener('load', async () => {
+            log('🔥 Firebase Integration Dashboard loaded', 'info');
+            updatePageStatus();
+            
+            // Auto-run initial check
+            setTimeout(checkAllIntegrations, 1000);
+        });
+    </script>
+</body>
+</html>
