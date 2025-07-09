@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Login Error Diagnostic Tool</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+        .error-alert {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+        }
+        .diagnostic-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 5px solid #4299e1;
+        }
+        .test-results {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            margin: 15px 0;
+            min-height: 100px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #4299e1;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            margin: 10px 5px;
+            cursor: pointer;
+            border: none;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background: #3182ce;
+            transform: translateY(-2px);
+        }
+        .btn-danger {
+            background: #e53e3e;
+        }
+        .btn-danger:hover {
+            background: #c53030;
+        }
+        .btn-success {
+            background: #38a169;
+        }
+        .btn-success:hover {
+            background: #2f855a;
+        }
+        .status-box {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        .status-good {
+            background: #c6f6d5;
+            border: 2px solid #38a169;
+            color: #1a202c;
+        }
+        .status-bad {
+            background: #fed7d7;
+            border: 2px solid #e53e3e;
+            color: #1a202c;
+        }
+        .status-warning {
+            background: #feebc8;
+            border: 2px solid #d69e2e;
+            color: #1a202c;
+        }
+        .form-group {
+            margin: 20px 0;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #4299e1;
+        }
+        .quick-actions {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 25px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="error-alert">
+            <h1>🚨 Login Error Detected</h1>
+            <p>Error: "Login failed. Please check your credentials."</p>
+            <p>Let's diagnose and fix this issue step by step</p>
+        </div>
+
+        <div class="diagnostic-section">
+            <h2>🔍 Step 1: Check Firebase Connection</h2>
+            <p>First, let's verify that Firebase is properly connected and configured.</p>
+            <button class="btn btn-success" onclick="testFirebaseConnection()">🔥 Test Firebase Connection</button>
+            <div id="firebaseStatus" class="test-results">
+                Click the button above to test Firebase connection...
+            </div>
+        </div>
+
+        <div class="diagnostic-section">
+            <h2>🔑 Step 2: Check Authentication Service</h2>
+            <p>Let's verify that Firebase Authentication is working properly.</p>
+            <button class="btn btn-success" onclick="testAuthService()">🔐 Test Auth Service</button>
+            <div id="authStatus" class="test-results">
+                Click the button above to test authentication service...
+            </div>
+        </div>
+
+        <div class="diagnostic-section">
+            <h2>📋 Step 3: Test Login with Specific Credentials</h2>
+            <p>Enter credentials to test the exact login process:</p>
+            
+            <div class="form-group">
+                <label for="testEmail">Email:</label>
+                <input type="email" id="testEmail" placeholder="Enter your email">
+            </div>
+            
+            <div class="form-group">
+                <label for="testPassword">Password:</label>
+                <input type="password" id="testPassword" placeholder="Enter your password">
+            </div>
+            
+            <button class="btn btn-success" onclick="testLogin()">🧪 Test Login</button>
+            <button class="btn btn-danger" onclick="clearResults()">🗑️ Clear Results</button>
+            
+            <div id="loginTestResults" class="test-results">
+                Enter credentials above and click "Test Login" to diagnose the issue...
+            </div>
+        </div>
+
+        <div class="diagnostic-section">
+            <h2>📊 Step 4: Common Solutions</h2>
+            <div id="solutions">
+                <div class="status-warning">
+                    <strong>⚠️ Most Common Causes:</strong>
+                    <ul>
+                        <li>Account doesn't exist (need to register first)</li>
+                        <li>Wrong password entered</li>
+                        <li>Email not verified (if verification is required)</li>
+                        <li>Firebase rules not updated yet</li>
+                        <li>Network/connection issues</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <h2>⚡ Quick Actions</h2>
+            <a href="https://gesturequiz-platform-live.web.app/quiz-app/register.html" target="_blank" class="btn" style="background: rgba(255,255,255,0.2); border: 2px solid white;">📝 Try Registration</a>
+            <a href="https://console.firebase.google.com/project/gesturequiz-platform-live/authentication/users" target="_blank" class="btn" style="background: rgba(255,255,255,0.2); border: 2px solid white;">👥 Check Firebase Users</a>
+            <a href="https://console.firebase.google.com/project/gesturequiz-platform-live/firestore/rules" target="_blank" class="btn" style="background: rgba(255,255,255,0.2); border: 2px solid white;">🔐 Update Rules</a>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAt4ByDMxZFT00a-zESwNHS8uv3DY08uhg",
+            authDomain: "gesturequiz-platform-live.firebaseapp.com",
+            projectId: "gesturequiz-platform-live",
+            storageBucket: "gesturequiz-platform-live.firebasestorage.app",
+            messagingSenderId: "794242095954",
+            appId: "1:794242095954:web:85868edc63c96d37ea388b",
+            measurementId: "G-Y7WPTJRVG6"
+        };
+
+        // Initialize Firebase
+        let auth, db;
+        
+        function testFirebaseConnection() {
+            const statusDiv = document.getElementById('firebaseStatus');
+            statusDiv.innerHTML = 'Testing Firebase connection...';
+            
+            try {
+                // Initialize Firebase
+                firebase.initializeApp(firebaseConfig);
+                auth = firebase.auth();
+                db = firebase.firestore();
+                
+                statusDiv.innerHTML = `
+                    <div style="color: #48bb78;">✅ SUCCESS: Firebase initialized successfully</div>
+                    <div>📊 Project ID: ${firebaseConfig.projectId}</div>
+                    <div>🔑 API Key: ${firebaseConfig.apiKey.substring(0, 20)}...</div>
+                    <div>🌐 Auth Domain: ${firebaseConfig.authDomain}</div>
+                    <div>⏰ Connected at: ${new Date().toLocaleTimeString()}</div>
+                `;
+                
+                // Update solutions
+                updateSolutions('firebase_good');
+                
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <div style="color: #f56565;">❌ ERROR: Firebase connection failed</div>
+                    <div>Error: ${error.message}</div>
+                    <div>⏰ Failed at: ${new Date().toLocaleTimeString()}</div>
+                `;
+                updateSolutions('firebase_bad');
+            }
+        }
+
+        function testAuthService() {
+            const statusDiv = document.getElementById('authStatus');
+            
+            if (!auth) {
+                statusDiv.innerHTML = '<div style="color: #f56565;">❌ ERROR: Firebase not initialized. Run connection test first.</div>';
+                return;
+            }
+            
+            statusDiv.innerHTML = 'Testing authentication service...';
+            
+            try {
+                // Test auth state
+                auth.onAuthStateChanged((user) => {
+                    if (user) {
+                        statusDiv.innerHTML = `
+                            <div style="color: #48bb78;">✅ SUCCESS: User is currently signed in</div>
+                            <div>👤 User ID: ${user.uid}</div>
+                            <div>📧 Email: ${user.email}</div>
+                            <div>✉️ Email Verified: ${user.emailVerified}</div>
+                            <div>⏰ Last Sign In: ${new Date(user.metadata.lastSignInTime).toLocaleString()}</div>
+                        `;
+                        updateSolutions('auth_logged_in');
+                    } else {
+                        statusDiv.innerHTML = `
+                            <div style="color: #ed8936;">⚠️ INFO: No user currently signed in</div>
+                            <div>🔐 Authentication service is working</div>
+                            <div>📝 User needs to log in</div>
+                            <div>⏰ Checked at: ${new Date().toLocaleTimeString()}</div>
+                        `;
+                        updateSolutions('auth_logged_out');
+                    }
+                });
+                
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <div style="color: #f56565;">❌ ERROR: Authentication service failed</div>
+                    <div>Error: ${error.message}</div>
+                    <div>⏰ Failed at: ${new Date().toLocaleTimeString()}</div>
+                `;
+                updateSolutions('auth_bad');
+            }
+        }
+
+        function testLogin() {
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+            const resultsDiv = document.getElementById('loginTestResults');
+            
+            if (!email || !password) {
+                resultsDiv.innerHTML = '<div style="color: #f56565;">❌ ERROR: Please enter both email and password</div>';
+                return;
+            }
+            
+            if (!auth) {
+                resultsDiv.innerHTML = '<div style="color: #f56565;">❌ ERROR: Firebase not initialized. Run connection test first.</div>';
+                return;
+            }
+            
+            resultsDiv.innerHTML = `Testing login for: ${email}...`;
+            
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    resultsDiv.innerHTML = `
+                        <div style="color: #48bb78;">🎉 SUCCESS: Login successful!</div>
+                        <div>👤 User ID: ${user.uid}</div>
+                        <div>📧 Email: ${user.email}</div>
+                        <div>✉️ Email Verified: ${user.emailVerified}</div>
+                        <div>⏰ Logged in at: ${new Date().toLocaleTimeString()}</div>
+                        <div style="margin-top: 15px; color: #48bb78;">✅ The login system is working correctly!</div>
+                    `;
+                    updateSolutions('login_success');
+                })
+                .catch((error) => {
+                    let errorMessage = '';
+                    let solution = '';
+                    
+                    switch (error.code) {
+                        case 'auth/user-not-found':
+                            errorMessage = 'No account found with this email address';
+                            solution = 'SOLUTION: Register a new account first';
+                            updateSolutions('user_not_found');
+                            break;
+                        case 'auth/wrong-password':
+                            errorMessage = 'Incorrect password';
+                            solution = 'SOLUTION: Check your password or reset it';
+                            updateSolutions('wrong_password');
+                            break;
+                        case 'auth/invalid-email':
+                            errorMessage = 'Invalid email format';
+                            solution = 'SOLUTION: Enter a valid email address';
+                            updateSolutions('invalid_email');
+                            break;
+                        case 'auth/too-many-requests':
+                            errorMessage = 'Too many failed login attempts';
+                            solution = 'SOLUTION: Wait a few minutes and try again';
+                            updateSolutions('too_many_requests');
+                            break;
+                        case 'auth/network-request-failed':
+                            errorMessage = 'Network connection problem';
+                            solution = 'SOLUTION: Check your internet connection';
+                            updateSolutions('network_error');
+                            break;
+                        default:
+                            errorMessage = error.message;
+                            solution = 'SOLUTION: Check Firebase configuration and rules';
+                            updateSolutions('other_error');
+                            break;
+                    }
+                    
+                    resultsDiv.innerHTML = `
+                        <div style="color: #f56565;">❌ LOGIN FAILED</div>
+                        <div>🔴 Error Code: ${error.code}</div>
+                        <div>📝 Error: ${errorMessage}</div>
+                        <div style="color: #ed8936; margin-top: 10px;">💡 ${solution}</div>
+                        <div>⏰ Failed at: ${new Date().toLocaleTimeString()}</div>
+                    `;
+                });
+        }
+
+        function clearResults() {
+            document.getElementById('firebaseStatus').innerHTML = 'Click the button above to test Firebase connection...';
+            document.getElementById('authStatus').innerHTML = 'Click the button above to test authentication service...';
+            document.getElementById('loginTestResults').innerHTML = 'Enter credentials above and click "Test Login" to diagnose the issue...';
+            document.getElementById('testEmail').value = '';
+            document.getElementById('testPassword').value = '';
+            updateSolutions('default');
+        }
+
+        function updateSolutions(status) {
+            const solutionsDiv = document.getElementById('solutions');
+            
+            switch (status) {
+                case 'user_not_found':
+                    solutionsDiv.innerHTML = `
+                        <div class="status-bad">
+                            <strong>🎯 SOLUTION FOUND: Account doesn't exist</strong>
+                            <p>The email you're trying to use hasn't been registered yet.</p>
+                            <a href="https://gesturequiz-platform-live.web.app/quiz-app/register.html" target="_blank" class="btn btn-success">📝 Register New Account</a>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'wrong_password':
+                    solutionsDiv.innerHTML = `
+                        <div class="status-bad">
+                            <strong>🎯 SOLUTION FOUND: Wrong password</strong>
+                            <p>The password is incorrect for this email address.</p>
+                            <ul>
+                                <li>Double-check your password</li>
+                                <li>Make sure Caps Lock is off</li>
+                                <li>Try typing the password in a text field first to verify</li>
+                            </ul>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'login_success':
+                    solutionsDiv.innerHTML = `
+                        <div class="status-good">
+                            <strong>🎉 GREAT NEWS: Login is working perfectly!</strong>
+                            <p>The authentication system is functioning correctly. The original error might have been temporary.</p>
+                            <a href="https://gesturequiz-platform-live.web.app" target="_blank" class="btn btn-success">🌐 Go to Website</a>
+                        </div>
+                    `;
+                    break;
+                    
+                default:
+                    solutionsDiv.innerHTML = `
+                        <div class="status-warning">
+                            <strong>⚠️ Most Common Causes:</strong>
+                            <ul>
+                                <li>Account doesn't exist (need to register first)</li>
+                                <li>Wrong password entered</li>
+                                <li>Email not verified (if verification is required)</li>
+                                <li>Firebase rules not updated yet</li>
+                                <li>Network/connection issues</li>
+                            </ul>
+                        </div>
+                    `;
+                    break;
+            }
+        }
+
+        // Auto-run connection test when page loads
+        window.addEventListener('load', () => {
+            setTimeout(testFirebaseConnection, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Console Fix Guide - GestureQuiz Platform</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #4a5568;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        h2 {
+            color: #2d3748;
+            border-bottom: 3px solid #4299e1;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        .step {
+            background: #f7fafc;
+            border-left: 5px solid #4299e1;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        .warning {
+            background: #fed7d7;
+            border-left: 5px solid #e53e3e;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        .success {
+            background: #c6f6d5;
+            border-left: 5px solid #38a169;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        .project-info {
+            background: #e6fffa;
+            border: 2px solid #81e6d9;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #4299e1;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            margin: 10px 5px;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #3182ce;
+        }
+        .btn-danger {
+            background: #e53e3e;
+        }
+        .btn-danger:hover {
+            background: #c53030;
+        }
+        .btn-success {
+            background: #38a169;
+        }
+        .btn-success:hover {
+            background: #2f855a;
+        }
+        ol li {
+            margin: 10px 0;
+            font-weight: 500;
+        }
+        .highlight {
+            background: yellow;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Firebase Console Fix Guide</h1>
+        <p style="text-align: center; font-size: 1.2em; color: #666;">
+            Complete step-by-step guide to fix Firebase permissions in the Console
+        </p>
+
+        <div class="project-info">
+            <h3>📋 Your Firebase Project Details:</h3>
+            <ul>
+                <li><strong>Project ID:</strong> gesturequiz-platform-live</li>
+                <li><strong>Project URL:</strong> <a href="https://console.firebase.google.com/project/gesturequiz-platform-live" target="_blank">https://console.firebase.google.com/project/gesturequiz-platform-live</a></li>
+                <li><strong>Auth Domain:</strong> gesturequiz-platform-live.firebaseapp.com</li>
+            </ul>
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ CRITICAL:</strong> You must complete ALL steps below for the platform to work correctly. Skip any step and users will get permission errors.
+        </div>
+
+        <h2>🔐 Step 1: Fix Firestore Security Rules</h2>
+        <div class="step">
+            <h3>1.1 Navigate to Firestore Rules</h3>
+            <ol>
+                <li>Open <a href="https://console.firebase.google.com/project/gesturequiz-platform-live/firestore/rules" target="_blank" class="btn">Firebase Console - Firestore Rules</a></li>
+                <li>You should see the current rules (likely very restrictive)</li>
+                <li>Click the <span class="highlight">Rules</span> tab if not already selected</li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <h3>1.2 Replace ALL Firestore Rules</h3>
+            <p><strong>Delete everything</strong> in the rules editor and paste this exact code:</p>
+            <div class="code-block">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow authenticated users to read and write their own user documents
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Allow authenticated users to read and write their own profile data
+    match /profiles/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Allow authenticated users to read and write quiz data
+    match /quizzes/{document=**} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Allow authenticated users to read and write scores and analytics
+    match /scores/{document=**} {
+      allow read, write: if request.auth != null;
+    }
+    
+    match /analytics/{document=**} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Allow authenticated users to read and write class management data
+    match /classes/{document=**} {
+      allow read, write: if request.auth != null;
+    }
+    
+    match /classMembers/{document=**} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Allow authenticated users to read and write settings
+    match /settings/{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}</div>
+            <ol start="3">
+                <li>Click the big blue <span class="highlight">PUBLISH</span> button</li>
+                <li>Wait for "Rules published successfully" message</li>
+            </ol>
+        </div>
+
+        <h2>📦 Step 2: Fix Firebase Storage Rules</h2>
+        <div class="step">
+            <h3>2.1 Navigate to Storage Rules</h3>
+            <ol>
+                <li>Open <a href="https://console.firebase.google.com/project/gesturequiz-platform-live/storage/rules" target="_blank" class="btn">Firebase Console - Storage Rules</a></li>
+                <li>Click the <span class="highlight">Rules</span> tab</li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <h3>2.2 Replace ALL Storage Rules</h3>
+            <p><strong>Delete everything</strong> in the rules editor and paste this exact code:</p>
+            <div class="code-block">rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Allow authenticated users to upload and access their own files
+    match /users/{userId}/{allPaths=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Allow authenticated users to access quiz-related files
+    match /quizzes/{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Allow authenticated users to access profile pictures
+    match /profiles/{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Allow authenticated users to access general uploads
+    match /uploads/{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}</div>
+            <ol start="3">
+                <li>Click the big blue <span class="highlight">PUBLISH</span> button</li>
+                <li>Wait for "Rules published successfully" message</li>
+            </ol>
+        </div>
+
+        <h2>🔑 Step 3: Verify Authentication Settings</h2>
+        <div class="step">
+            <h3>3.1 Check Authentication Providers</h3>
+            <ol>
+                <li>Open <a href="https://console.firebase.google.com/project/gesturequiz-platform-live/authentication/providers" target="_blank" class="btn">Firebase Console - Authentication</a></li>
+                <li>Ensure <span class="highlight">Email/Password</span> is ENABLED</li>
+                <li>If not enabled, click on "Email/Password" → Toggle "Enable" → Save</li>
+            </ol>
+        </div>
+
+        <h2>🌐 Step 4: Check Authorized Domains</h2>
+        <div class="step">
+            <h3>4.1 Verify Domain Authorization</h3>
+            <ol>
+                <li>Go to <a href="https://console.firebase.google.com/project/gesturequiz-platform-live/authentication/settings" target="_blank" class="btn">Authentication Settings</a></li>
+                <li>Scroll down to <span class="highlight">Authorized domains</span></li>
+                <li>Ensure these domains are listed:
+                    <ul>
+                        <li>localhost</li>
+                        <li>gesturequiz-platform-live.firebaseapp.com</li>
+                        <li>your-actual-domain.com (if you have one)</li>
+                    </ul>
+                </li>
+                <li>Add any missing domains by clicking <span class="highlight">Add domain</span></li>
+            </ol>
+        </div>
+
+        <h2>⏱️ Step 5: Wait and Test</h2>
+        <div class="step">
+            <h3>5.1 Rule Propagation</h3>
+            <ol>
+                <li><strong>Wait 1-2 minutes</strong> for rules to propagate across Firebase servers</li>
+                <li>Clear your browser cache (Ctrl+F5 or Cmd+Shift+R)</li>
+                <li>Test login and registration using these tools:</li>
+            </ol>
+            <div style="text-align: center; margin: 20px 0;">
+                <a href="login-fix-tool.html" target="_blank" class="btn btn-success">🔍 Test Login</a>
+                <a href="registration-fix-test.html" target="_blank" class="btn btn-success">📝 Test Registration</a>
+                <a href="rules-fix-test.html" target="_blank" class="btn btn-success">🛡️ Test Firestore Access</a>
+            </div>
+        </div>
+
+        <h2>🚨 Troubleshooting</h2>
+        <div class="warning">
+            <h3>If you still get permission errors:</h3>
+            <ol>
+                <li><strong>Double-check</strong> you clicked <span class="highlight">PUBLISH</span> for BOTH Firestore AND Storage rules</li>
+                <li><strong>Wait another 2-3 minutes</strong> - rule changes can take time</li>
+                <li><strong>Clear browser cache completely</strong> and try again</li>
+                <li><strong>Check browser console</strong> for specific error messages</li>
+                <li>Use the <a href="firebase-config-fixer.html" target="_blank" class="btn">Config Diagnostic Tool</a> for advanced debugging</li>
+            </ol>
+        </div>
+
+        <div class="success">
+            <h3>✅ Success Indicators:</h3>
+            <ul>
+                <li>Users can register new accounts without permission errors</li>
+                <li>Users can log in and access the dashboard</li>
+                <li>Firestore read/write operations work correctly</li>
+                <li>No "Permission denied" errors in browser console</li>
+            </ul>
+        </div>
+
+        <h2>📞 Quick Links</h2>
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="https://console.firebase.google.com/project/gesturequiz-platform-live" target="_blank" class="btn">🏠 Firebase Console Home</a>
+            <a href="https://console.firebase.google.com/project/gesturequiz-platform-live/firestore/rules" target="_blank" class="btn">🔐 Firestore Rules</a>
+            <a href="https://console.firebase.google.com/project/gesturequiz-platform-live/storage/rules" target="_blank" class="btn">📦 Storage Rules</a>
+            <a href="https://console.firebase.google.com/project/gesturequiz-platform-live/authentication/providers" target="_blank" class="btn">🔑 Authentication</a>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #e2e8f0;">
+            <p><strong>🎯 After completing these steps, your GestureQuiz platform should be fully functional!</strong></p>
+        </div>
+    </div>
+</body>
+</html>

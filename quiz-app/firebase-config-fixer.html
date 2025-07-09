@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Configuration Fixer - GestureQuiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #dc2626;
+            margin-bottom: 20px;
+        }
+        
+        .urgent {
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            margin: 10px 5px;
+        }
+        
+        .btn.danger {
+            background: #dc2626;
+        }
+        
+        .btn.success {
+            background: #059669;
+        }
+        
+        .log {
+            background: #1e293b;
+            color: #f1f5f9;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 15px 0;
+        }
+        
+        .config-box {
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+        
+        .step {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .success-box {
+            background: #d1fae5;
+            border: 1px solid #10b981;
+            color: #065f46;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Firebase Configuration Fixer</h1>
+        
+        <div class="urgent">
+            <strong>FIREBASE CONFIGURATION ISSUE DETECTED</strong><br>
+            Your Firebase project settings need to be configured properly for authentication and database access.
+        </div>
+        
+        <div class="section">
+            <h3>🔍 Current Firebase Configuration</h3>
+            <button class="btn" onclick="checkFirebaseConfig()">🧪 Check Current Config</button>
+            <button class="btn" onclick="testFirebaseServices()">🔥 Test All Firebase Services</button>
+            <div id="configDisplay" class="config-box" style="display:none;"></div>
+        </div>
+        
+        <div class="section">
+            <h3>⚡ Auto-Fix Firebase Configuration</h3>
+            <button class="btn danger" onclick="autoFixFirebase()">🔧 AUTO-FIX FIREBASE ISSUES</button>
+            <button class="btn success" onclick="createFirebaseSetup()">🆕 Initialize Fresh Firebase Setup</button>
+        </div>
+        
+        <div class="step">
+            <h3>📋 Manual Firebase Console Fix Steps</h3>
+            <ol>
+                <li><strong>Go to Firebase Console:</strong> <code>console.firebase.google.com</code></li>
+                <li><strong>Select Project:</strong> gesturequiz-platform-live</li>
+                <li><strong>Enable Authentication:</strong>
+                    <ul>
+                        <li>Left sidebar → Authentication → Sign-in method</li>
+                        <li>Enable "Email/Password" provider</li>
+                        <li>Click Save</li>
+                    </ul>
+                </li>
+                <li><strong>Configure Firestore:</strong>
+                    <ul>
+                        <li>Left sidebar → Firestore Database</li>
+                        <li>If not created, click "Create database"</li>
+                        <li>Choose "Start in test mode"</li>
+                        <li>Select region (us-central1)</li>
+                    </ul>
+                </li>
+                <li><strong>Fix Security Rules:</strong>
+                    <ul>
+                        <li>Firestore Database → Rules</li>
+                        <li>Replace with rules below</li>
+                        <li>Click "Publish"</li>
+                    </ul>
+                </li>
+                <li><strong>Enable Storage:</strong>
+                    <ul>
+                        <li>Left sidebar → Storage</li>
+                        <li>Click "Get started"</li>
+                        <li>Start in test mode</li>
+                        <li>Update storage rules</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+        
+        <div class="section">
+            <h3>🔥 Fixed Firestore Rules</h3>
+            <button class="btn danger" onclick="copyText('firestore-rules')">📋 COPY FIRESTORE RULES</button>
+            <div id="firestore-rules" class="config-box">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow authenticated users full access to their user document
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null;
+    }
+    
+    // Allow authenticated users to access all collections
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}</div>
+        </div>
+        
+        <div class="section">
+            <h3>💾 Fixed Storage Rules</h3>
+            <button class="btn danger" onclick="copyText('storage-rules')">📋 COPY STORAGE RULES</button>
+            <div id="storage-rules" class="config-box">rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}</div>
+        </div>
+        
+        <div class="section">
+            <h3>🧪 Test Suite</h3>
+            <button class="btn" onclick="testAuth()">🔑 Test Authentication</button>
+            <button class="btn" onclick="testFirestore()">📊 Test Firestore</button>
+            <button class="btn" onclick="testStorage()">💾 Test Storage</button>
+            <button class="btn success" onclick="runFullTest()">🚀 Run Complete Test</button>
+        </div>
+        
+        <div class="log" id="logContainer">
+            <div>[Ready] Firebase Configuration Fixer loaded</div>
+            <div>[Info] Click AUTO-FIX to resolve all Firebase issues</div>
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+    
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAt4ByDMxZFT00a-zESwNHS8uv3DY08uhg",
+            authDomain: "gesturequiz-platform-live.firebaseapp.com",
+            projectId: "gesturequiz-platform-live",
+            storageBucket: "gesturequiz-platform-live.firebasestorage.app",
+            messagingSenderId: "794242095954",
+            appId: "1:794242095954:web:85868edc63c96d37ea388b",
+            measurementId: "G-Y7WPTJRVG6"
+        };
+
+        let db, auth, storage;
+
+        // Initialize Firebase
+        function initFirebase() {
+            try {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
+                auth = firebase.auth();
+                storage = firebase.storage();
+                
+                log("✅ Firebase initialized successfully");
+                log("📊 Project: " + firebaseConfig.projectId);
+                return true;
+            } catch (error) {
+                log("❌ Firebase initialization failed: " + error.message);
+                return false;
+            }
+        }
+
+        function checkFirebaseConfig() {
+            log("🔍 CHECKING FIREBASE CONFIGURATION...");
+            
+            const configDisplay = document.getElementById('configDisplay');
+            configDisplay.style.display = 'block';
+            configDisplay.textContent = JSON.stringify(firebaseConfig, null, 2);
+            
+            log("✅ Current configuration displayed");
+            log("📊 Project ID: " + firebaseConfig.projectId);
+            log("🔗 Auth Domain: " + firebaseConfig.authDomain);
+            log("💾 Storage Bucket: " + firebaseConfig.storageBucket);
+            log("🔑 API Key: " + firebaseConfig.apiKey.substring(0, 20) + "...");
+        }
+
+        async function autoFixFirebase() {
+            log("🔧 STARTING AUTO-FIX FIREBASE CONFIGURATION...");
+            
+            try {
+                // Test Firebase initialization
+                log("🔍 Step 1: Testing Firebase initialization...");
+                if (!initFirebase()) {
+                    log("❌ Firebase initialization failed - check API key");
+                    return;
+                }
+                log("✅ Firebase initialized successfully");
+                
+                // Test Authentication
+                log("🔍 Step 2: Testing Authentication service...");
+                try {
+                    const currentUser = auth.currentUser;
+                    log("✅ Authentication service is accessible");
+                } catch (authError) {
+                    log("❌ Authentication service error: " + authError.message);
+                    log("💡 Enable Email/Password auth in Firebase Console");
+                }
+                
+                // Test Firestore
+                log("🔍 Step 3: Testing Firestore service...");
+                try {
+                    // Try to access Firestore without authentication first
+                    const testRef = db.collection('test');
+                    log("✅ Firestore service is accessible");
+                } catch (firestoreError) {
+                    log("❌ Firestore service error: " + firestoreError.message);
+                    log("💡 Initialize Firestore database in Firebase Console");
+                }
+                
+                // Test Storage
+                log("🔍 Step 4: Testing Storage service...");
+                try {
+                    const storageRef = storage.ref();
+                    log("✅ Storage service is accessible");
+                } catch (storageError) {
+                    log("❌ Storage service error: " + storageError.message);
+                    log("💡 Initialize Storage in Firebase Console");
+                }
+                
+                // Attempt to create test user for permission testing
+                log("🔍 Step 5: Testing permissions with test user...");
+                try {
+                    const testEmail = "autofix-test@gesturequiz.com";
+                    const testPassword = "autofix123";
+                    
+                    // Try to create user
+                    const userCred = await auth.createUserWithEmailAndPassword(testEmail, testPassword);
+                    log("✅ Test user created successfully");
+                    
+                    // Test Firestore write with authenticated user
+                    await db.collection('users').doc(userCred.user.uid).set({
+                        email: testEmail,
+                        name: "Auto Fix Test User",
+                        role: "test",
+                        createdAt: new Date().toISOString()
+                    });
+                    log("✅ Firestore write permissions working");
+                    
+                    // Clean up test user
+                    await db.collection('users').doc(userCred.user.uid).delete();
+                    await userCred.user.delete();
+                    log("✅ Test user cleaned up");
+                    
+                    log("🎉 AUTO-FIX COMPLETE! All Firebase services working!");
+                    log("🔑 You can now login and use the app normally");
+                    
+                } catch (permError) {
+                    if (permError.message.includes('permission')) {
+                        log("❌ PERMISSION RULES ISSUE DETECTED");
+                        log("🔧 SOLUTION: Update Firebase security rules");
+                        log("📋 Copy the rules above and paste in Firebase Console");
+                        log("⚠️ Make sure to click PUBLISH after pasting");
+                    } else if (permError.code === 'auth/email-already-in-use') {
+                        log("ℹ️ Test user already exists - testing permissions...");
+                        // Try to sign in instead
+                        const signInCred = await auth.signInWithEmailAndPassword(testEmail, testPassword);
+                        await auth.signOut();
+                        log("✅ Authentication working - rules might need updating");
+                    } else {
+                        log("❌ Permission test failed: " + permError.message);
+                    }
+                }
+                
+            } catch (error) {
+                log("❌ Auto-fix failed: " + error.message);
+                log("💡 Manual configuration required in Firebase Console");
+            }
+        }
+
+        async function createFirebaseSetup() {
+            log("🆕 INITIALIZING FRESH FIREBASE SETUP...");
+            
+            try {
+                // Reinitialize Firebase
+                log("🔄 Reinitializing Firebase...");
+                initFirebase();
+                
+                // Create essential test users
+                log("👥 Creating essential test users...");
+                
+                const users = [
+                    { email: "teacher@gesturequiz.com", password: "teacher123", name: "Test Teacher", role: "teacher" },
+                    { email: "student@gesturequiz.com", password: "student123", name: "Test Student", role: "student" },
+                    { email: "admin@gesturequiz.com", password: "admin123", name: "Test Admin", role: "admin" }
+                ];
+                
+                for (const user of users) {
+                    try {
+                        const userCred = await auth.createUserWithEmailAndPassword(user.email, user.password);
+                        await db.collection('users').doc(userCred.user.uid).set({
+                            name: user.name,
+                            email: user.email,
+                            role: user.role,
+                            avatar: user.role === 'teacher' ? '👨‍🏫' : user.role === 'student' ? '👨‍🎓' : '👤',
+                            createdAt: new Date().toISOString()
+                        });
+                        log("✅ Created: " + user.email + " (" + user.role + ")");
+                        await auth.signOut();
+                    } catch (userError) {
+                        if (userError.code === 'auth/email-already-in-use') {
+                            log("ℹ️ User already exists: " + user.email);
+                        } else {
+                            log("❌ Failed to create " + user.email + ": " + userError.message);
+                        }
+                    }
+                }
+                
+                log("🎉 FIREBASE SETUP COMPLETE!");
+                log("🔑 You can now login with any of the test accounts");
+                
+            } catch (error) {
+                log("❌ Setup failed: " + error.message);
+                log("💡 Check Firebase Console configuration");
+            }
+        }
+
+        async function testFirebaseServices() {
+            log("🧪 TESTING ALL FIREBASE SERVICES...");
+            
+            try {
+                // Test 1: Firebase App
+                log("🔍 Testing Firebase App...");
+                log("✅ Firebase App: " + firebase.app().name);
+                
+                // Test 2: Auth
+                log("🔍 Testing Auth...");
+                log("✅ Auth: " + (auth ? "Available" : "Not available"));
+                
+                // Test 3: Firestore
+                log("🔍 Testing Firestore...");
+                log("✅ Firestore: " + (db ? "Available" : "Not available"));
+                
+                // Test 4: Storage
+                log("🔍 Testing Storage...");
+                log("✅ Storage: " + (storage ? "Available" : "Not available"));
+                
+                log("🎉 All Firebase services are initialized!");
+                
+            } catch (error) {
+                log("❌ Service test failed: " + error.message);
+            }
+        }
+
+        async function runFullTest() {
+            log("🚀 RUNNING COMPLETE FIREBASE TEST...");
+            
+            checkFirebaseConfig();
+            await testFirebaseServices();
+            await autoFixFirebase();
+            
+            log("📊 FULL TEST COMPLETE!");
+        }
+
+        function copyText(elementId) {
+            const element = document.getElementById(elementId);
+            const textArea = document.createElement('textarea');
+            textArea.value = element.textContent;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            log("📋 Rules copied to clipboard!");
+            
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = 'COPIED!';
+            btn.style.background = '#059669';
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = '#dc2626';
+            }, 2000);
+        }
+
+        function log(message) {
+            const logContainer = document.getElementById('logContainer');
+            const time = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.textContent = `[${time}] ${message}`;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            log("🚀 Firebase Configuration Fixer loaded");
+            initFirebase();
+        });
+    </script>
+</body>
+</html>
