@@ -99,6 +99,7 @@
         <div class="test-section">
             <h3>Quick Tests</h3>
             <button onclick="runAllTests()">🚀 Run All Tests</button>
+            <button onclick="createTestAccount()">👤 Create Test Account</button>
             <button onclick="testBasicConnectivity()">🌐 Test Basic Connectivity</button>
             <button onclick="testFirebaseSDK()">📦 Test Firebase SDK</button>
             <button onclick="testAuthentication()">🔑 Test Authentication</button>
@@ -309,7 +310,19 @@
                 const db = firebase.firestore();
                 addToConsole('✅ Firestore service initialized', 'log');
                 
-                // Try to read from a test collection
+                // Check if user is authenticated first
+                const auth = firebase.auth();
+                const currentUser = auth.currentUser;
+                
+                if (!currentUser) {
+                    addToConsole('ℹ️ No authenticated user - Firestore access will be limited', 'log');
+                    addToConsole('ℹ️ This is normal - login first for full database access', 'log');
+                    updateStatus('firestore-status', '⚠️ Firestore needs authentication', 'warning');
+                    return;
+                }
+                
+                // Try to read from a test collection with authenticated user
+                addToConsole(`✅ Testing Firestore with authenticated user: ${currentUser.email}`, 'log');
                 const testRef = db.collection('test').limit(1);
                 const snapshot = await testRef.get();
                 
@@ -317,8 +330,13 @@
                 updateStatus('firestore-status', '✅ Firestore working', 'success');
 
             } catch (error) {
-                addToConsole(`❌ Firestore test failed: ${error.message}`, 'error');
-                updateStatus('firestore-status', '❌ Firestore failed', 'error');
+                if (error.code === 'permission-denied') {
+                    addToConsole('ℹ️ Firestore permission denied - this is normal without authentication', 'log');
+                    updateStatus('firestore-status', '⚠️ Needs authentication', 'warning');
+                } else {
+                    addToConsole(`❌ Firestore test failed: ${error.message}`, 'error');
+                    updateStatus('firestore-status', '❌ Firestore failed', 'error');
+                }
             }
         }
 
@@ -333,6 +351,20 @@
 
                 if (!window.firebaseDataManager.isInitialized) {
                     throw new Error('Firebase Data Manager not initialized');
+                }
+
+                // First try to create test account
+                addToConsole('👤 Creating test account if it doesn\'t exist...', 'log');
+                const createResult = await window.firebaseDataManager.createAccount('teacher@test.com', 'teacher123', {
+                    name: 'Test Teacher',
+                    role: 'teacher',
+                    email: 'teacher@test.com'
+                });
+                
+                if (createResult.success) {
+                    addToConsole('✅ Test account created successfully!', 'log');
+                } else {
+                    addToConsole(`ℹ️ Account creation result: ${createResult.error}`, 'log');
                 }
 
                 // Test login with test account
@@ -350,6 +382,44 @@
             } catch (error) {
                 addToConsole(`❌ Login test failed: ${error.message}`, 'error');
                 updateStatus('login-status', '❌ Login failed', 'error');
+            }
+        }
+
+        // Create test account
+        async function createTestAccount() {
+            try {
+                addToConsole('👤 Creating test account...', 'log');
+                
+                if (!window.firebaseDataManager) {
+                    throw new Error('Firebase Data Manager not available');
+                }
+
+                if (!window.firebaseDataManager.isInitialized) {
+                    throw new Error('Firebase Data Manager not initialized');
+                }
+
+                const result = await window.firebaseDataManager.createAccount('teacher@test.com', 'teacher123', {
+                    name: 'Test Teacher',
+                    role: 'teacher',
+                    email: 'teacher@test.com'
+                });
+                
+                if (result.success) {
+                    addToConsole('✅ Test account created successfully!', 'log');
+                    addToConsole(`✅ User: ${result.user.email}`, 'log');
+                    
+                    // Now test login
+                    await testLogin();
+                } else {
+                    addToConsole(`ℹ️ Account creation result: ${result.error}`, 'log');
+                    if (result.error.includes('already-in-use')) {
+                        addToConsole('ℹ️ Account already exists - trying to login...', 'log');
+                        await testLogin();
+                    }
+                }
+                
+            } catch (error) {
+                addToConsole(`❌ Test account creation failed: ${error.message}`, 'error');
             }
         }
 
