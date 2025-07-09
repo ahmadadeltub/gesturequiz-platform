@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cleanup All Classes - Fresh Start</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #d32f2f;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ffeaa7;
+            margin-bottom: 20px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #c3e6cb;
+            margin-bottom: 20px;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #f5c6cb;
+            margin-bottom: 20px;
+        }
+        .step {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+        button {
+            background-color: #d32f2f;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 10px 10px 0;
+        }
+        button:hover {
+            background-color: #b71c1c;
+        }
+        .safe-button {
+            background-color: #28a745;
+        }
+        .safe-button:hover {
+            background-color: #218838;
+        }
+        .info-button {
+            background-color: #17a2b8;
+        }
+        .info-button:hover {
+            background-color: #138496;
+        }
+        .console-output {
+            background: #000;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-top: 20px;
+        }
+        .class-list {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .class-item {
+            background: white;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 3px;
+            border: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .class-item button {
+            padding: 5px 10px;
+            font-size: 12px;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧹 Cleanup All Classes - Fresh Start</h1>
+        
+        <div class="warning">
+            <strong>⚠️ WARNING:</strong> This tool will permanently delete ALL classes from both Firebase and localStorage. This action cannot be undone!
+        </div>
+
+        <div class="step">
+            <h3>Step 1: Login First</h3>
+            <p>You must be logged in to delete classes from Firebase.</p>
+            <button onclick="loginUser()" class="safe-button">🔑 Login with Test Account</button>
+            <button onclick="checkAuthStatus()" class="info-button">🔍 Check Auth Status</button>
+        </div>
+
+        <div class="step">
+            <h3>Step 2: Review Current Classes</h3>
+            <p>See what classes exist before deletion.</p>
+            <button onclick="loadAllClasses()" class="info-button">📚 Load All Classes</button>
+            <div id="class-list" class="class-list"></div>
+        </div>
+
+        <div class="step">
+            <h3>Step 3: Delete All Classes</h3>
+            <p>This will remove ALL classes from both Firebase and localStorage.</p>
+            <button onclick="deleteAllClasses()">🗑️ DELETE ALL CLASSES</button>
+            <button onclick="clearLocalStorageOnly()" class="info-button">📦 Clear localStorage Only</button>
+        </div>
+
+        <div class="step">
+            <h3>Step 4: Verify Clean State</h3>
+            <p>Confirm everything has been cleaned up.</p>
+            <button onclick="verifyCleanState()" class="safe-button">✅ Verify Clean State</button>
+        </div>
+
+        <div class="console-output" id="console-output">🧹 Cleanup tool ready...\nPlease login first, then load classes to see what needs to be deleted.\n</div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+    <!-- Firebase Configuration -->
+    <script src="quiz-app/js/firebase-config.js?v=20250709-cleanup"></script>
+    
+    <!-- Data Managers -->
+    <script src="quiz-app/js/firebase-data-manager.js?v=20250709-cleanup"></script>
+
+    <script>
+        // Console capture
+        function addToConsole(message, type = 'log') {
+            const consoleOutput = document.getElementById('console-output');
+            const timestamp = new Date().toLocaleTimeString();
+            const emoji = type === 'error' ? '❌' : type === 'warn' ? '⚠️' : '✅';
+            consoleOutput.textContent += `[${timestamp}] ${emoji} ${message}\n`;
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+
+        // Login function
+        async function loginUser() {
+            try {
+                addToConsole('🔑 Logging in with test account...', 'log');
+                
+                if (!window.firebaseDataManager) {
+                    throw new Error('Firebase Data Manager not available');
+                }
+
+                const result = await window.firebaseDataManager.signIn('teacher@test.com', 'teacher123');
+                
+                if (result.success) {
+                    addToConsole('✅ Login successful!', 'log');
+                    addToConsole(`✅ Logged in as: ${result.user.email}`, 'log');
+                } else {
+                    throw new Error(result.error || 'Login failed');
+                }
+                
+            } catch (error) {
+                addToConsole(`❌ Login failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Check authentication status
+        function checkAuthStatus() {
+            try {
+                if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
+                    const currentUser = window.firebaseDataManager.getCurrentUser();
+                    if (currentUser) {
+                        addToConsole(`✅ Firebase authenticated as: ${currentUser.email}`, 'log');
+                    } else {
+                        addToConsole('❌ No Firebase authentication found', 'error');
+                    }
+                } else {
+                    addToConsole('❌ Firebase not initialized', 'error');
+                }
+
+                const localUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                if (localUser.email) {
+                    addToConsole(`📦 localStorage user: ${localUser.email}`, 'log');
+                } else {
+                    addToConsole('📦 No localStorage user found', 'log');
+                }
+            } catch (error) {
+                addToConsole(`❌ Error checking auth: ${error.message}`, 'error');
+            }
+        }
+
+        // Load all classes
+        async function loadAllClasses() {
+            try {
+                addToConsole('📚 Loading all classes...', 'log');
+                
+                const classList = document.getElementById('class-list');
+                classList.innerHTML = '';
+
+                let firebaseClasses = [];
+                let localClasses = [];
+
+                // Get Firebase classes
+                if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
+                    const currentUser = window.firebaseDataManager.getCurrentUser();
+                    if (currentUser) {
+                        const result = await window.firebaseDataManager.getClasses(currentUser.uid);
+                        if (result.success) {
+                            firebaseClasses = result.data;
+                            addToConsole(`🔥 Found ${firebaseClasses.length} classes in Firebase`, 'log');
+                        }
+                    }
+                }
+
+                // Get localStorage classes
+                localClasses = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+                addToConsole(`📦 Found ${localClasses.length} classes in localStorage`, 'log');
+
+                // Display Firebase classes
+                if (firebaseClasses.length > 0) {
+                    const firebaseSection = document.createElement('div');
+                    firebaseSection.innerHTML = '<h4>🔥 Firebase Classes:</h4>';
+                    firebaseClasses.forEach(cls => {
+                        const item = document.createElement('div');
+                        item.className = 'class-item';
+                        item.innerHTML = `
+                            <span><strong>${cls.name}</strong> (ID: ${cls.id})</span>
+                            <button onclick="deleteSpecificClass('${cls.id}', 'firebase')">🗑️ Delete</button>
+                        `;
+                        firebaseSection.appendChild(item);
+                    });
+                    classList.appendChild(firebaseSection);
+                }
+
+                // Display localStorage classes
+                if (localClasses.length > 0) {
+                    const localSection = document.createElement('div');
+                    localSection.innerHTML = '<h4>📦 localStorage Classes:</h4>';
+                    localClasses.forEach(cls => {
+                        const item = document.createElement('div');
+                        item.className = 'class-item';
+                        item.innerHTML = `
+                            <span><strong>${cls.name}</strong> (ID: ${cls.id})</span>
+                            <button onclick="deleteSpecificClass('${cls.id}', 'localStorage')">🗑️ Delete</button>
+                        `;
+                        localSection.appendChild(item);
+                    });
+                    classList.appendChild(localSection);
+                }
+
+                if (firebaseClasses.length === 0 && localClasses.length === 0) {
+                    classList.innerHTML = '<p>✅ No classes found in either Firebase or localStorage</p>';
+                }
+
+            } catch (error) {
+                addToConsole(`❌ Error loading classes: ${error.message}`, 'error');
+            }
+        }
+
+        // Delete specific class
+        async function deleteSpecificClass(classId, source) {
+            try {
+                addToConsole(`🗑️ Deleting class ${classId} from ${source}...`, 'log');
+                
+                if (source === 'firebase') {
+                    if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
+                        const result = await window.firebaseDataManager.deleteClass(classId);
+                        if (result.success) {
+                            addToConsole(`✅ Class deleted from Firebase`, 'log');
+                        } else {
+                            throw new Error(result.error);
+                        }
+                    }
+                }
+
+                // Also remove from localStorage
+                const classes = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+                const updatedClasses = classes.filter(cls => cls.id !== classId);
+                localStorage.setItem('teacherClasses', JSON.stringify(updatedClasses));
+                addToConsole(`✅ Class removed from localStorage`, 'log');
+
+                // Refresh the list
+                await loadAllClasses();
+                
+            } catch (error) {
+                addToConsole(`❌ Error deleting class: ${error.message}`, 'error');
+            }
+        }
+
+        // Delete all classes
+        async function deleteAllClasses() {
+            if (!confirm('🚨 Are you absolutely sure you want to delete ALL classes? This cannot be undone!')) {
+                return;
+            }
+
+            try {
+                addToConsole('🗑️ Starting complete class cleanup...', 'log');
+                
+                let deletedCount = 0;
+
+                // Delete from Firebase
+                if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
+                    const currentUser = window.firebaseDataManager.getCurrentUser();
+                    if (currentUser) {
+                        const result = await window.firebaseDataManager.getClasses(currentUser.uid);
+                        if (result.success) {
+                            const classes = result.data;
+                            addToConsole(`🔥 Deleting ${classes.length} classes from Firebase...`, 'log');
+                            
+                            for (const cls of classes) {
+                                const deleteResult = await window.firebaseDataManager.deleteClass(cls.id);
+                                if (deleteResult.success) {
+                                    deletedCount++;
+                                    addToConsole(`✅ Deleted "${cls.name}" from Firebase`, 'log');
+                                } else {
+                                    addToConsole(`❌ Failed to delete "${cls.name}": ${deleteResult.error}`, 'error');
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Clear localStorage
+                localStorage.removeItem('teacherClasses');
+                addToConsole('📦 Cleared all classes from localStorage', 'log');
+
+                addToConsole(`🎉 Cleanup complete! Deleted ${deletedCount} classes total`, 'log');
+                
+                // Refresh the list
+                await loadAllClasses();
+                
+            } catch (error) {
+                addToConsole(`❌ Error during cleanup: ${error.message}`, 'error');
+            }
+        }
+
+        // Clear localStorage only
+        function clearLocalStorageOnly() {
+            localStorage.removeItem('teacherClasses');
+            addToConsole('📦 Cleared teacherClasses from localStorage', 'log');
+            loadAllClasses();
+        }
+
+        // Verify clean state
+        async function verifyCleanState() {
+            try {
+                addToConsole('🔍 Verifying clean state...', 'log');
+                
+                // Check Firebase
+                if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
+                    const currentUser = window.firebaseDataManager.getCurrentUser();
+                    if (currentUser) {
+                        const result = await window.firebaseDataManager.getClasses(currentUser.uid);
+                        if (result.success) {
+                            const count = result.data.length;
+                            if (count === 0) {
+                                addToConsole('✅ Firebase is clean - no classes found', 'log');
+                            } else {
+                                addToConsole(`⚠️ Firebase still has ${count} classes`, 'warn');
+                            }
+                        }
+                    }
+                }
+
+                // Check localStorage
+                const localClasses = JSON.parse(localStorage.getItem('teacherClasses') || '[]');
+                if (localClasses.length === 0) {
+                    addToConsole('✅ localStorage is clean - no classes found', 'log');
+                } else {
+                    addToConsole(`⚠️ localStorage still has ${localClasses.length} classes`, 'warn');
+                }
+
+                addToConsole('🎯 Verification complete! You can now start fresh on the teacher dashboard.', 'log');
+                
+            } catch (error) {
+                addToConsole(`❌ Error during verification: ${error.message}`, 'error');
+            }
+        }
+
+        // Initialize when page loads
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                checkAuthStatus();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
