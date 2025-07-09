@@ -133,7 +133,27 @@
         </div>
 
         <div class="section">
-            <h3>🔍 Current Classes</h3>
+            <h3>� Authentication Required</h3>
+            <div id="auth-section">
+                <div id="login-form" style="display: block;">
+                    <div class="status info">Please log in to test Firebase deletion functionality</div>
+                    <div style="margin: 15px 0;">
+                        <input type="email" id="loginEmail" placeholder="Email" style="margin: 5px; padding: 10px; width: 200px; border: 1px solid #ddd; border-radius: 5px;">
+                        <input type="password" id="loginPassword" placeholder="Password" style="margin: 5px; padding: 10px; width: 200px; border: 1px solid #ddd; border-radius: 5px;">
+                    </div>
+                    <button onclick="loginUser()" class="success">🔐 Login</button>
+                    <button onclick="useTestAccount()" class="info">👤 Use Test Account</button>
+                </div>
+                <div id="user-info" style="display: none;">
+                    <div class="status success">Logged in successfully!</div>
+                    <p>User: <span id="current-user-email"></span></p>
+                    <button onclick="logoutUser()" class="warning">🚪 Logout</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>�🔍 Current Classes</h3>
             <div id="current-classes" class="class-list">
                 <div class="status info">Loading classes...</div>
             </div>
@@ -235,6 +255,73 @@
             const element = document.getElementById(elementId);
             element.textContent = message;
             element.className = `status ${type}`;
+        }
+
+        // Authentication functions
+        async function loginUser() {
+            try {
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                
+                if (!email || !password) {
+                    throw new Error('Please enter both email and password');
+                }
+                
+                addToConsole(`🔐 Attempting to login with email: ${email}`, 'log');
+                
+                if (!window.firebaseDataManager) {
+                    throw new Error('Firebase Data Manager not available');
+                }
+                
+                const result = await window.firebaseDataManager.signIn(email, password);
+                
+                if (result.success) {
+                    addToConsole(`✅ Login successful!`, 'log');
+                    updateAuthUI(result.user);
+                    await loadCurrentClasses();
+                } else {
+                    throw new Error(result.error || 'Login failed');
+                }
+                
+            } catch (error) {
+                addToConsole(`❌ Login failed: ${error.message}`, 'error');
+                alert(`Login failed: ${error.message}`);
+            }
+        }
+
+        async function useTestAccount() {
+            // Use common test credentials
+            document.getElementById('loginEmail').value = 'teacher@test.com';
+            document.getElementById('loginPassword').value = 'test123';
+            await loginUser();
+        }
+
+        async function logoutUser() {
+            try {
+                if (window.firebaseDataManager) {
+                    await window.firebaseDataManager.signOut();
+                    addToConsole('🚪 Logged out successfully', 'log');
+                }
+                updateAuthUI(null);
+            } catch (error) {
+                addToConsole(`❌ Logout failed: ${error.message}`, 'error');
+            }
+        }
+
+        function updateAuthUI(user) {
+            const loginForm = document.getElementById('login-form');
+            const userInfo = document.getElementById('user-info');
+            const userEmail = document.getElementById('current-user-email');
+            
+            if (user) {
+                loginForm.style.display = 'none';
+                userInfo.style.display = 'block';
+                userEmail.textContent = user.email;
+            } else {
+                loginForm.style.display = 'block';
+                userInfo.style.display = 'none';
+                userEmail.textContent = '';
+            }
         }
 
         async function loadCurrentClasses() {
@@ -613,10 +700,28 @@
             setTimeout(() => {
                 addToConsole('🎯 Auto-starting diagnostic in 2 seconds...', 'log');
                 setTimeout(() => {
+                    checkAuthState();
                     loadCurrentClasses();
                 }, 2000);
             }, 1000);
         });
+
+        // Check if user is already authenticated
+        function checkAuthState() {
+            try {
+                if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
+                    const currentUser = window.firebaseDataManager.getCurrentUser();
+                    if (currentUser) {
+                        addToConsole(`✅ Already authenticated as: ${currentUser.email}`, 'log');
+                        updateAuthUI(currentUser);
+                        return;
+                    }
+                }
+                addToConsole('⚠️ No user authenticated - please log in to test Firebase features', 'warn');
+            } catch (error) {
+                addToConsole(`❌ Error checking auth state: ${error.message}`, 'error');
+            }
+        }
 
         // Error monitoring
         window.addEventListener('error', (event) => {
