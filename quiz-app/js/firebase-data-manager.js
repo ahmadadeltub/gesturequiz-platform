@@ -3,6 +3,10 @@
  * Handles all online data storage, authentication, and real-time sync
  */
 
+console.log('🔍 DEBUG: Loading firebase-data-manager.js - checking for firebaseConfig...');
+console.log('🔍 DEBUG: typeof firebaseConfig:', typeof firebaseConfig);
+console.log('🔍 DEBUG: window.firebaseConfig exists:', !!window.firebaseConfig);
+
 class FirebaseDataManager {
     constructor() {
         this.app = null;
