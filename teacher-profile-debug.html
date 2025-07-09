@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Profile Debug Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .success { 
+            background: #d1f2eb; 
+            color: #00695c; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 10px 0;
+            border-left: 4px solid #00695c;
+        }
+        .error { 
+            background: #fdeaea; 
+            color: #c62d42; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 10px 0;
+            border-left: 4px solid #c62d42;
+        }
+        .warning { 
+            background: #fff3cd; 
+            color: #856404; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 10px 0;
+            border-left: 4px solid #856404;
+        }
+        .info { 
+            background: #e3f2fd; 
+            color: #1565c0; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 10px 0;
+            border-left: 4px solid #1565c0;
+        }
+        .btn {
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .btn:hover {
+            background: #5a6fd8;
+        }
+        .log-output {
+            background: #f1f3f4;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .emoji-selector {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            margin: 10px 0;
+        }
+        .emoji-option {
+            font-size: 1.5rem;
+            padding: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .emoji-option:hover {
+            background: #f0f2ff;
+            border-color: #667eea;
+        }
+        .emoji-option.selected {
+            background: #667eea;
+            color: white;
+            border-color: #5a6fd8;
+        }
+        .current-state {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .avatar-display {
+            font-size: 2.5rem;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #667eea;
+            border-radius: 50%;
+            background: #f0f2ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Teacher Profile Save Debug</h1>
+        
+        <div class="info">
+            <strong>Purpose:</strong> Debug why teacher profile icons aren't saving.<br>
+            This will test Firebase authentication, Firestore access, and profile update functionality.
+        </div>
+
+        <div class="test-section">
+            <h3>🧪 Test Firebase Auth State</h3>
+            <button class="btn" onclick="checkAuthState()">Check Authentication</button>
+            <button class="btn" onclick="checkFirestoreAccess()">Test Firestore Access</button>
+            <button class="btn" onclick="loadCurrentProfile()">Load Current Profile</button>
+        </div>
+
+        <div class="test-section">
+            <h3>👤 Current Profile State</h3>
+            <div class="current-state">
+                <div class="avatar-display" id="currentAvatar">👨‍🏫</div>
+                <div>
+                    <h4 id="currentName">Loading...</h4>
+                    <p id="currentEmail">Loading...</p>
+                    <small id="lastUpdated">Last updated: Unknown</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>✏️ Test Profile Update</h3>
+            <input type="text" id="newName" placeholder="New Name" style="padding: 8px; margin: 5px; border-radius: 4px; border: 1px solid #ddd;">
+            <br>
+            <strong>Select New Avatar:</strong>
+            <div class="emoji-selector">
+                <div class="emoji-option" data-emoji="👨‍🏫">👨‍🏫</div>
+                <div class="emoji-option" data-emoji="👩‍🏫">👩‍🏫</div>
+                <div class="emoji-option" data-emoji="🧑‍🏫">🧑‍🏫</div>
+                <div class="emoji-option" data-emoji="👨‍💼">👨‍💼</div>
+                <div class="emoji-option" data-emoji="👩‍💼">👩‍💼</div>
+                <div class="emoji-option" data-emoji="🧑‍💼">🧑‍💼</div>
+                <div class="emoji-option" data-emoji="👨‍💻">👨‍💻</div>
+                <div class="emoji-option" data-emoji="👩‍💻">👩‍💻</div>
+                <div class="emoji-option" data-emoji="🧑‍💻">🧑‍💻</div>
+                <div class="emoji-option" data-emoji="🎯">🎯</div>
+                <div class="emoji-option" data-emoji="📚">📚</div>
+                <div class="emoji-option" data-emoji="🏆">🏆</div>
+            </div>
+            <button class="btn" onclick="testProfileUpdate()">Update Profile</button>
+            <button class="btn" onclick="verifyUpdate()">Verify Update Saved</button>
+        </div>
+
+        <div id="results"></div>
+        <div id="logs" class="log-output" style="display:none;"></div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAt4ByDMxZFT00a-zESwNHS8uv3DY08uhg",
+            authDomain: "gesturequiz-platform-live.firebaseapp.com",
+            projectId: "gesturequiz-platform-live",
+            storageBucket: "gesturequiz-platform-live.firebasestorage.app",
+            messagingSenderId: "794242095954",
+            appId: "1:794242095954:web:85868edc63c96d37ea388b",
+            measurementId: "G-Y7WPTJRVG6"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        const resultsDiv = document.getElementById('results');
+        const logsDiv = document.getElementById('logs');
+        let selectedAvatar = '👨‍🏫';
+        let currentUserId = null;
+
+        function addLog(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            logsDiv.innerHTML += `[${timestamp}] ${message}\n`;
+            logsDiv.style.display = 'block';
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+            console.log(message);
+        }
+
+        function showResult(type, message) {
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = message;
+            resultsDiv.appendChild(div);
+        }
+
+        // Handle emoji selection
+        document.querySelectorAll('.emoji-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.emoji-option').forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedAvatar = this.dataset.emoji;
+                addLog(`Selected avatar: ${selectedAvatar}`);
+            });
+        });
+
+        async function checkAuthState() {
+            resultsDiv.innerHTML = '';
+            logsDiv.innerHTML = '';
+            
+            try {
+                addLog('🔍 Checking Firebase Auth state...');
+                
+                const user = auth.currentUser;
+                if (user) {
+                    currentUserId = user.uid;
+                    addLog(`✅ User authenticated: ${user.email} (${user.uid})`);
+                    addLog(`📊 User metadata: emailVerified=${user.emailVerified}, isAnonymous=${user.isAnonymous}`);
+                    
+                    showResult('success', `<strong>Authentication Success!</strong><br>Email: ${user.email}<br>UID: ${user.uid}`);
+                } else {
+                    // Check localStorage for stored session
+                    const localUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                    if (localUser.uid) {
+                        addLog(`⚠️ No Firebase auth, but found localStorage: ${localUser.email} (${localUser.uid})`);
+                        currentUserId = localUser.uid;
+                        
+                        showResult('warning', `<strong>No Firebase Auth Session</strong><br>Found local session: ${localUser.email}<br>You may need to login again.`);
+                    } else {
+                        addLog(`❌ No authentication found`);
+                        showResult('error', `<strong>Not Authenticated</strong><br>Please login to test profile updates.`);
+                    }
+                }
+                
+            } catch (error) {
+                addLog(`❌ Error checking auth: ${error.message}`);
+                showResult('error', `<strong>Auth Check Failed:</strong> ${error.message}`);
+            }
+        }
+
+        async function checkFirestoreAccess() {
+            if (!currentUserId) {
+                showResult('error', 'Please check authentication first.');
+                return;
+            }
+            
+            try {
+                addLog('🔍 Testing Firestore access...');
+                
+                // Try to read user document
+                const userDoc = await db.collection('users').doc(currentUserId).get();
+                
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    addLog(`✅ Firestore read successful`);
+                    addLog(`📊 User data: ${JSON.stringify(userData, null, 2)}`);
+                    
+                    showResult('success', `<strong>Firestore Access OK!</strong><br>Document exists with ${Object.keys(userData).length} fields.`);
+                } else {
+                    addLog(`⚠️ User document doesn't exist`);
+                    showResult('warning', `<strong>User Document Missing</strong><br>Document doesn't exist in Firestore.`);
+                }
+                
+            } catch (error) {
+                addLog(`❌ Firestore access error: ${error.message}`);
+                showResult('error', `<strong>Firestore Access Failed:</strong> ${error.message}`);
+            }
+        }
+
+        async function loadCurrentProfile() {
+            if (!currentUserId) {
+                showResult('error', 'Please check authentication first.');
+                return;
+            }
+            
+            try {
+                addLog('📖 Loading current profile...');
+                
+                const userDoc = await db.collection('users').doc(currentUserId).get();
+                
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    
+                    // Update UI
+                    document.getElementById('currentAvatar').textContent = userData.avatar || '👨‍🏫';
+                    document.getElementById('currentName').textContent = userData.name || 'Unknown';
+                    document.getElementById('currentEmail').textContent = userData.email || 'Unknown';
+                    document.getElementById('lastUpdated').textContent = `Last updated: ${userData.updatedAt || 'Unknown'}`;
+                    document.getElementById('newName').value = userData.name || '';
+                    
+                    // Select current avatar emoji
+                    document.querySelectorAll('.emoji-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                        if (opt.dataset.emoji === userData.avatar) {
+                            opt.classList.add('selected');
+                            selectedAvatar = userData.avatar;
+                        }
+                    });
+                    
+                    addLog(`✅ Profile loaded successfully`);
+                    showResult('success', `<strong>Profile Loaded!</strong><br>Name: ${userData.name}<br>Avatar: ${userData.avatar}`);
+                } else {
+                    addLog(`❌ Profile document not found`);
+                    showResult('error', 'Profile document not found in database.');
+                }
+                
+            } catch (error) {
+                addLog(`❌ Error loading profile: ${error.message}`);
+                showResult('error', `<strong>Load Failed:</strong> ${error.message}`);
+            }
+        }
+
+        async function testProfileUpdate() {
+            if (!currentUserId) {
+                showResult('error', 'Please check authentication first.');
+                return;
+            }
+            
+            try {
+                const newName = document.getElementById('newName').value;
+                if (!newName) {
+                    showResult('error', 'Please enter a name.');
+                    return;
+                }
+                
+                addLog('🚀 Testing profile update...');
+                
+                const updateData = {
+                    name: newName,
+                    avatar: selectedAvatar,
+                    updatedAt: new Date().toISOString()
+                };
+                
+                addLog(`📝 Update data: ${JSON.stringify(updateData)}`);
+                
+                // Update Firestore
+                await db.collection('users').doc(currentUserId).update(updateData);
+                addLog(`✅ Firestore update successful`);
+                
+                // Update localStorage
+                const localUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                localStorage.setItem('currentUser', JSON.stringify({
+                    ...localUser,
+                    ...updateData
+                }));
+                addLog(`✅ localStorage updated`);
+                
+                // Update UI
+                document.getElementById('currentAvatar').textContent = selectedAvatar;
+                document.getElementById('currentName').textContent = newName;
+                document.getElementById('lastUpdated').textContent = `Last updated: ${updateData.updatedAt}`;
+                
+                showResult('success', `🎉 <strong>Profile Update Successful!</strong><br>Name: ${newName}<br>Avatar: ${selectedAvatar}<br>Changes should persist after refresh.`);
+                
+            } catch (error) {
+                addLog(`❌ Update failed: ${error.message}`);
+                showResult('error', `<strong>Update Failed:</strong> ${error.message}<br>Check console for details.`);
+            }
+        }
+
+        async function verifyUpdate() {
+            if (!currentUserId) {
+                showResult('error', 'Please check authentication first.');
+                return;
+            }
+            
+            try {
+                addLog('🔍 Verifying update was saved...');
+                
+                // Re-read from Firestore
+                const userDoc = await db.collection('users').doc(currentUserId).get();
+                
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    addLog(`📊 Current Firestore data: ${JSON.stringify(userData)}`);
+                    
+                    const expectedName = document.getElementById('newName').value;
+                    if (userData.name === expectedName && userData.avatar === selectedAvatar) {
+                        showResult('success', `✅ <strong>Verification Successful!</strong><br>All changes were saved correctly to Firestore.`);
+                    } else {
+                        showResult('error', `❌ <strong>Verification Failed!</strong><br>Expected: ${expectedName}/${selectedAvatar}<br>Found: ${userData.name}/${userData.avatar}`);
+                    }
+                } else {
+                    showResult('error', 'Profile document not found during verification.');
+                }
+                
+            } catch (error) {
+                addLog(`❌ Verification error: ${error.message}`);
+                showResult('error', `<strong>Verification Failed:</strong> ${error.message}`);
+            }
+        }
+
+        // Initialize
+        addLog('✅ Teacher profile debug tool initialized');
+        addLog('📋 Click "Check Authentication" to start debugging');
+    </script>
+</body>
+</html>

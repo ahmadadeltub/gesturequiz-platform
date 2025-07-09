@@ -1970,10 +1970,46 @@
                         avatar: newAvatar
                     };
                     
-                    // First check if Firebase is available
+                    console.log('🔧 Starting profile update...', updatedData);
+                    
+                    // First try Firebase Auth currentUser (more reliable)
+                    const authUser = firebase.auth().currentUser;
+                    if (authUser) {
+                        console.log('✅ Auth user found:', authUser.uid);
+                        
+                        // Update Firestore directly
+                        await db.collection('users').doc(authUser.uid).update({
+                            ...updatedData,
+                            updatedAt: new Date().toISOString()
+                        });
+                        console.log('✅ Firestore updated successfully');
+                        
+                        showNotification('Profile updated successfully!', 'success');
+                        
+                        // Update UI immediately
+                        updateProfileUI({
+                            name: updatedData.name,
+                            email: authUser.email,
+                            avatar: updatedData.avatar
+                        });
+                        
+                        // Update localStorage for offline access
+                        const localUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                        localStorage.setItem('currentUser', JSON.stringify({
+                            ...localUser,
+                            ...updatedData
+                        }));
+                        
+                        // Close modal
+                        closeProfileModal();
+                        return;
+                    }
+                    
+                    // Fallback: Try firebaseDataManager if auth user not found
                     if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
                         const currentUser = window.firebaseDataManager.getCurrentUser();
                         if (currentUser) {
+                            console.log('✅ DataManager user found:', currentUser.uid);
                             const result = await window.firebaseDataManager.updateUserProfile(currentUser.uid, updatedData);
                             if (result.success) {
                                 showNotification('Profile updated successfully!', 'success');
@@ -2001,16 +2037,17 @@
                         }
                     }
                     
-                    // Fallback to localStorage
-                    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                    // Final fallback to localStorage only
+                    console.log('⚠️ No authenticated user found, using localStorage fallback');
+                    const localUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
                     const updatedUser = {
-                        ...currentUser,
+                        ...localUser,
                         ...updatedData
                     };
                     
                     localStorage.setItem('currentUser', JSON.stringify(updatedUser));
                     
-                    showNotification('Profile updated successfully!', 'success');
+                    showNotification('Profile updated locally! Please login again to sync to server.', 'warning');
                     
                     // Update UI immediately
                     updateProfileUI(updatedUser);
@@ -2019,7 +2056,7 @@
                     closeProfileModal();
                     
                 } catch (error) {
-                    console.error('Error updating profile:', error);
+                    console.error('❌ Error updating profile:', error);
                     showNotification('Error updating profile: ' + error.message, 'error');
                 }
             });
