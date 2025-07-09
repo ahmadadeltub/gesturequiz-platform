@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Profile UI Update Test - GestureQuiz</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: 500;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .test-section {
+            margin: 25px 0;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+        }
+        
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #0056b3;
+        }
+        
+        .btn.success {
+            background: #28a745;
+        }
+        
+        .btn.success:hover {
+            background: #1e7e34;
+        }
+        
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+        
+        .current-state {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .avatar-display {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #007bff;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-user-cog"></i> Teacher Profile UI Update Test</h1>
+            <p>Test the teacher dashboard profile icon update functionality</p>
+        </div>
+
+        <div id="authStatus" class="status warning">
+            <i class="fas fa-spinner fa-spin"></i> Checking authentication...
+        </div>
+
+        <div class="test-section">
+            <h3><i class="fas fa-user"></i> Current Profile State</h3>
+            <div class="current-state">
+                <div class="avatar-display" id="testAvatar">?</div>
+                <div>
+                    <strong id="testName">Loading...</strong><br>
+                    <small id="testEmail">Loading...</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3><i class="fas fa-vial"></i> Profile Update Tests</h3>
+            <p>Click these buttons to test profile updates and observe if the UI updates immediately:</p>
+            
+            <button class="btn" onclick="testAvatarUpdate('🧑‍🏫')">Update to 🧑‍🏫</button>
+            <button class="btn" onclick="testAvatarUpdate('👨‍💻')">Update to 👨‍💻</button>
+            <button class="btn" onclick="testAvatarUpdate('👩‍🏫')">Update to 👩‍🏫</button>
+            <button class="btn" onclick="testAvatarUpdate('🎯')">Update to 🎯</button>
+            <button class="btn success" onclick="openTeacherDashboard()">Open Teacher Dashboard</button>
+        </div>
+
+        <div class="test-section">
+            <h3><i class="fas fa-clipboard-list"></i> Test Log</h3>
+            <div id="testLog" class="log">Starting UI update test...\n</div>
+            <button class="btn" onclick="clearLog()">Clear Log</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Firebase configuration - Using the correct project
+        const firebaseConfig = {
+            apiKey: "AIzaSyBqOCF3DsyQpzPGm0hUKPKvqr7eqGwgzVg",
+            authDomain: "gesturequiz-platform-live.firebaseapp.com",
+            projectId: "gesturequiz-platform-live",
+            storageBucket: "gesturequiz-platform-live.firebasestorage.app",
+            messagingSenderId: "728459806031",
+            appId: "1:728459806031:web:6b5dd3c9dcbe9b9c29a9e6"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let currentUser = null;
+
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('testLog');
+            logElement.textContent += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+
+        function clearLog() {
+            document.getElementById('testLog').textContent = 'Log cleared...\n';
+        }
+
+        function updateTestDisplay(userData) {
+            document.getElementById('testAvatar').textContent = userData.avatar || userData.name?.charAt(0) || '?';
+            document.getElementById('testName').textContent = userData.name || 'Unknown';
+            document.getElementById('testEmail').textContent = userData.email || 'Unknown';
+            log(`UI updated: Avatar=${userData.avatar}, Name=${userData.name}`);
+        }
+
+        async function testAvatarUpdate(newAvatar) {
+            try {
+                log(`\n=== Testing avatar update to: ${newAvatar} ===`);
+                
+                if (!currentUser) {
+                    log('❌ No authenticated user found');
+                    return;
+                }
+
+                const updatedData = {
+                    avatar: newAvatar,
+                    updatedAt: new Date().toISOString()
+                };
+
+                log('📤 Updating Firestore...');
+                
+                // Update Firestore
+                await db.collection('users').doc(currentUser.uid).update(updatedData);
+                log('✅ Firestore updated successfully');
+
+                // Update UI immediately
+                const newUserData = {
+                    ...currentUser,
+                    avatar: newAvatar
+                };
+                
+                updateTestDisplay(newUserData);
+                log('✅ Test UI updated immediately');
+
+                // Also update localStorage
+                const localUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                localStorage.setItem('currentUser', JSON.stringify({
+                    ...localUser,
+                    avatar: newAvatar
+                }));
+                log('✅ localStorage updated');
+
+                // Verify the update took effect
+                setTimeout(async () => {
+                    try {
+                        const doc = await db.collection('users').doc(currentUser.uid).get();
+                        if (doc.exists) {
+                            const data = doc.data();
+                            log(`🔍 Firestore verification: Avatar is now "${data.avatar}"`);
+                            if (data.avatar === newAvatar) {
+                                log('✅ Firestore update verified successfully!');
+                            } else {
+                                log('❌ Firestore update verification failed!');
+                            }
+                        }
+                    } catch (error) {
+                        log(`❌ Verification error: ${error.message}`);
+                    }
+                }, 1000);
+
+            } catch (error) {
+                log(`❌ Error updating avatar: ${error.message}`);
+            }
+        }
+
+        function openTeacherDashboard() {
+            window.open('quiz-app/pages/teacher-dashboard.html', '_blank');
+        }
+
+        // Initialize when page loads
+        firebase.auth().onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('authStatus').innerHTML = `
+                    <i class="fas fa-check-circle"></i> Authenticated as: ${user.email}
+                `;
+                document.getElementById('authStatus').className = 'status success';
+                
+                log(`✅ Authenticated as: ${user.email} (${user.uid})`);
+                
+                // Load current profile data
+                try {
+                    const doc = await db.collection('users').doc(user.uid).get();
+                    if (doc.exists) {
+                        const userData = doc.data();
+                        updateTestDisplay({
+                            ...userData,
+                            email: user.email
+                        });
+                        log('✅ Profile data loaded from Firestore');
+                    } else {
+                        log('⚠️ No profile document found in Firestore');
+                        updateTestDisplay({
+                            name: user.displayName || 'Teacher',
+                            email: user.email,
+                            avatar: '👨‍🏫'
+                        });
+                    }
+                } catch (error) {
+                    log(`❌ Error loading profile: ${error.message}`);
+                }
+                
+            } else {
+                document.getElementById('authStatus').innerHTML = `
+                    <i class="fas fa-exclamation-triangle"></i> Not authenticated. Please login first.
+                `;
+                document.getElementById('authStatus').className = 'status error';
+                log('❌ Not authenticated');
+            }
+        });
+
+        log('🚀 UI Update Test initialized');
+    </script>
+</body>
+</html>

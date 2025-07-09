@@ -1592,6 +1592,8 @@
         }
 
         async function loadUserData() {
+            console.log('📥 Loading user data...');
+            
             // First check if Firebase is available
             if (window.firebaseDataManager && window.firebaseDataManager.isInitialized) {
                 // Use Firebase
@@ -1600,18 +1602,10 @@
                     const profileResult = await window.firebaseDataManager.getUserProfile(currentUser.uid);
                     if (profileResult.success) {
                         const userData = profileResult.data;
-                        document.getElementById('welcomeText').textContent = `Welcome back, ${userData.name}!`;
-                        document.getElementById('userName').textContent = userData.name;
+                        console.log('✅ Loaded user data from Firebase:', userData);
                         
-                        // Update user avatar
-                        const userAvatar = document.getElementById('userAvatar');
-                        if (userData.avatar) {
-                            userAvatar.textContent = userData.avatar;
-                        } else {
-                            // Fallback to initials
-                            const initials = userData.name.split(' ').map(n => n[0]).join('').toUpperCase();
-                            userAvatar.textContent = initials;
-                        }
+                        // Use the consistent UI update function
+                        updateProfileUI(userData);
                         
                         // Save to localStorage for offline access
                         localStorage.setItem('currentUser', JSON.stringify(userData));
@@ -1620,6 +1614,7 @@
                 }
                 
                 // If not signed in, redirect to login
+                console.log('❌ No Firebase user found, redirecting to login');
                 window.location.href = '../index.html';
                 return;
             }
@@ -1627,22 +1622,13 @@
             // Fallback to localStorage
             const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
             if (currentUser.name) {
-                document.getElementById('welcomeText').textContent = `Welcome back, ${currentUser.name}!`;
-                document.getElementById('userName').textContent = currentUser.name;
+                console.log('✅ Loaded user data from localStorage:', currentUser);
                 
-                // Update user avatar
-                const userAvatar = document.getElementById('userAvatar');
-                if (currentUser.avatar) {
-                    userAvatar.textContent = currentUser.avatar;
-                } else {
-                    // Fallback to initials
-                    const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
-                    userAvatar.textContent = initials;
-                }
-            }
-            
-            // Check if user is logged in
-            if (!currentUser.email) {
+                // Use the consistent UI update function
+                updateProfileUI(currentUser);
+            } else {
+                console.log('❌ No user data found, redirecting to login');
+                // Check if user is logged in
                 window.location.href = '../index.html';
             }
         }
@@ -1986,12 +1972,25 @@
                         
                         showNotification('Profile updated successfully!', 'success');
                         
-                        // Update UI immediately
-                        updateProfileUI({
+                        // Update UI immediately with a delay to ensure DOM is ready
+                        const uiUpdateData = {
                             name: updatedData.name,
                             email: authUser.email,
                             avatar: updatedData.avatar
-                        });
+                        };
+                        
+                        // Immediate update
+                        updateProfileUI(uiUpdateData);
+                        
+                        // Additional delayed update to ensure it takes effect
+                        setTimeout(() => {
+                            updateProfileUI(uiUpdateData);
+                        }, 100);
+                        
+                        // Force a page refresh of user data after modal closes
+                        setTimeout(() => {
+                            loadUserData();
+                        }, 500);
                         
                         // Update localStorage for offline access
                         const localUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
@@ -2014,12 +2013,25 @@
                             if (result.success) {
                                 showNotification('Profile updated successfully!', 'success');
                                 
-                                // Update UI immediately
-                                updateProfileUI({
+                                // Update UI immediately with enhanced approach
+                                const uiUpdateData = {
                                     name: updatedData.name,
                                     email: currentUser.email,
                                     avatar: updatedData.avatar
-                                });
+                                };
+                                
+                                // Immediate update
+                                updateProfileUI(uiUpdateData);
+                                
+                                // Additional delayed update to ensure it takes effect
+                                setTimeout(() => {
+                                    updateProfileUI(uiUpdateData);
+                                }, 100);
+                                
+                                // Force reload user data
+                                setTimeout(() => {
+                                    loadUserData();
+                                }, 500);
                                 
                                 // Update localStorage for offline access
                                 const localUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
@@ -2063,24 +2075,73 @@
         });
 
         function updateProfileUI(user) {
+            console.log('🔄 Updating UI with user data:', user);
+            
             // Update welcome text
-            document.getElementById('welcomeText').textContent = `Welcome back, ${user.name}!`;
+            const welcomeElement = document.getElementById('welcomeText');
+            if (welcomeElement) {
+                welcomeElement.textContent = `Welcome back, ${user.name}!`;
+                console.log('✅ Updated welcome text');
+            }
             
             // Update user name in header
             const userNameElement = document.getElementById('userName');
             if (userNameElement) {
                 userNameElement.textContent = user.name;
+                console.log('✅ Updated user name');
             }
             
-            // Update avatar in header
+            // Update avatar in header - Enhanced with multiple update attempts
             const userAvatar = document.getElementById('userAvatar');
-            if (user.avatar) {
-                userAvatar.textContent = user.avatar;
+            if (userAvatar) {
+                const newAvatarContent = user.avatar || user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                
+                // Force immediate update
+                userAvatar.textContent = newAvatarContent;
+                
+                // Force browser to recalculate layout
+                userAvatar.offsetHeight;
+                
+                // Add a visual flash to show the change
+                userAvatar.style.transition = 'all 0.3s ease';
+                userAvatar.style.transform = 'scale(1.1)';
+                userAvatar.style.backgroundColor = 'var(--accent-500)';
+                
+                setTimeout(() => {
+                    userAvatar.style.transform = 'scale(1)';
+                    userAvatar.style.backgroundColor = '';
+                }, 300);
+                
+                console.log(`✅ Updated avatar to: ${newAvatarContent}`);
+                
+                // Double-check after a moment
+                setTimeout(() => {
+                    if (userAvatar.textContent !== newAvatarContent) {
+                        console.log('⚠️ Avatar content mismatch, updating again...');
+                        userAvatar.textContent = newAvatarContent;
+                    }
+                }, 100);
+                
             } else {
-                // Fallback to initials
-                const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
-                userAvatar.textContent = initials;
+                console.error('❌ Could not find userAvatar element');
+                console.log('Available elements with id:', Array.from(document.querySelectorAll('[id]')).map(el => el.id));
             }
+            
+            // Also update the profile modal avatar if it's open
+            const currentProfileAvatar = document.getElementById('currentProfileAvatar');
+            if (currentProfileAvatar && user.avatar) {
+                currentProfileAvatar.textContent = user.avatar;
+                console.log('✅ Updated modal avatar');
+            }
+            
+            // Update ALL avatar elements on the page (safety net)
+            document.querySelectorAll('.user-avatar').forEach((avatar, index) => {
+                const newContent = user.avatar || user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                if (avatar.textContent !== newContent) {
+                    avatar.textContent = newContent;
+                    console.log(`✅ Updated avatar element ${index + 1}: ${newContent}`);
+                }
+            });
         }
 
         function showNotification(message, type = 'info') {
