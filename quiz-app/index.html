@@ -8,16 +8,29 @@
     <meta name="keywords" content="education, quiz, gesture recognition, online learning, free education, hand gestures, interactive learning">
     <meta name="author" content="Ahmad Tubaishat">
     
-    <!-- Favicon -->
+    <!-- PWA Configuration -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <meta name="background-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="GestureQuiz">
+    
+    <!-- Icons for different devices -->
     <link rel="icon" type="image/png" sizes="32x32" href="assets/icon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="assets/icon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/icon-180x180.png">
+    <link rel="mask-icon" href="assets/safari-pinned-tab.svg" color="#667eea">
     
     <!-- External Stylesheets -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
+    <!-- Firebase Scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/firebase-data-manager.js"></script>
     <style>
-        /* Professional SaaS Landing Page - STABLE VERSION */
+        /* Professional SaaS Landing Page */
         :root {
             --primary-600: #0284c7;
             --primary-700: #0369a1;
@@ -88,27 +101,86 @@
         }
 
         .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            font-weight: 700;
             font-size: 1.5rem;
-            font-weight: 800;
             color: var(--primary-600);
             text-decoration: none;
         }
 
-        .nav {
+        .logo i {
+            font-size: 1.8rem;
+        }
+
+        .nav-links {
             display: flex;
             gap: var(--space-8);
             align-items: center;
         }
 
-        .nav-link {
-            color: var(--neutral-700);
+        .nav-links a {
+            color: var(--neutral-600);
             text-decoration: none;
             font-weight: 500;
             transition: color var(--transition-base);
         }
 
-        .nav-link:hover {
+        .nav-links a:hover {
             color: var(--primary-600);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: var(--space-4);
+            align-items: center;
+        }
+
+        .btn-login {
+            color: var(--primary-600);
+            text-decoration: none;
+            font-weight: 600;
+            padding: var(--space-2) var(--space-4);
+            border-radius: var(--radius-lg);
+            transition: all var(--transition-base);
+        }
+
+        .btn-login:hover {
+            background: var(--primary-600);
+            color: white;
+        }
+
+        .btn-register {
+            background: var(--primary-600);
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            padding: var(--space-3) var(--space-6);
+            border-radius: var(--radius-lg);
+            transition: all var(--transition-base);
+        }
+
+        .btn-register:hover {
+            background: var(--primary-700);
+            transform: translateY(-2px);
+        }
+
+        .logo-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-600), var(--accent-500));
+            border-radius: var(--radius-xl);
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: var(--space-3);
         }
 
         .btn {
@@ -116,68 +188,202 @@
             align-items: center;
             gap: var(--space-2);
             padding: var(--space-3) var(--space-6);
-            border-radius: var(--radius-lg);
-            font-weight: 600;
-            text-decoration: none;
-            transition: all var(--transition-base);
             border: none;
+            border-radius: var(--radius-xl);
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
             cursor: pointer;
-            font-size: 0.875rem;
+            transition: all var(--transition-base);
+            white-space: nowrap;
         }
 
         .btn-primary {
-            background: var(--primary-600);
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
             color: white;
             box-shadow: var(--shadow-lg);
         }
 
         .btn-primary:hover {
-            background: var(--primary-700);
             transform: translateY(-2px);
             box-shadow: var(--shadow-xl);
         }
 
-        .btn-secondary {
-            background: white;
-            color: var(--neutral-700);
-            border: 1px solid var(--neutral-200);
+        .btn-outline {
+            background: transparent;
+            color: var(--primary-600);
+            border: 2px solid var(--neutral-200);
         }
 
-        .btn-secondary:hover {
-            background: var(--neutral-50);
+        .btn-outline:hover {
+            background: var(--primary-600);
+            color: white;
             border-color: var(--primary-600);
-            color: var(--primary-600);
         }
 
         /* Hero Section */
         .hero {
-            padding: calc(80px + var(--space-20)) var(--space-6) var(--space-20);
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary-600), var(--accent-600));
+            color: white;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+
+        .hero-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(255,255,255,0.05) 0%, transparent 50%);
+            background-size: 300px 300px;
+            animation: patternMove 20s linear infinite;
+        }
+
+        @keyframes patternMove {
+            0% { background-position: 0 0, 0 0; }
+            100% { background-position: 300px 300px, -300px -300px; }
+        }
+
+        .hero-content {
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-text {
             color: white;
             text-align: center;
+            width: 100%;
         }
 
-        .hero h1 {
-            font-size: 3.5rem;
-            font-weight: 800;
-            line-height: 1.1;
-            margin-bottom: var(--space-6);
-        }
-
-        .hero p {
-            font-size: 1.25rem;
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-3) var(--space-6);
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-full);
+            font-size: 1rem;
+            font-weight: 600;
             margin-bottom: var(--space-8);
-            opacity: 0.9;
-            max-width: 600px;
+            backdrop-filter: blur(15px);
+            animation: fadeInDown 1s ease-out 0.1s both;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                transform: translateY(-30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .hero-title {
+            font-size: clamp(3rem, 8vw, 7rem);
+            font-weight: 900;
+            line-height: 0.9;
+            margin-bottom: var(--space-8);
+            text-align: center;
+            width: 100%;
+            position: relative;
+            letter-spacing: -0.02em;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .hero-title-line {
+            display: block;
+            width: 100%;
+            margin: 0.1em 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-title-line-1 {
+            text-align: left;
+            padding-left: 2vw;
+            animation: slideInLeft 1s ease-out 0.2s both;
+        }
+
+        .hero-title-line-2 {
+            text-align: right;
+            padding-right: 2vw;
+            animation: slideInRight 1s ease-out 0.6s both;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #ffffff, #e0e7ff, #c7d2fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-size: 200% 200%;
+            animation: gradientShift 3s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .hero-description {
+            font-size: 1.35rem;
+            line-height: 1.6;
+            margin-bottom: var(--space-8);
+            opacity: 0.95;
+            max-width: 800px;
             margin-left: auto;
             margin-right: auto;
+            font-weight: 400;
+            animation: fadeInUp 1s ease-out 1s both;
         }
 
-        .hero-buttons {
+        @keyframes fadeInUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .hero-actions {
             display: flex;
             gap: var(--space-4);
-            justify-content: center;
-            flex-wrap: wrap;
+            margin-bottom: var(--space-12);
         }
 
         .btn-large {
@@ -185,384 +391,1703 @@
             font-size: 1.1rem;
         }
 
-        /* Auth Section */
-        .auth-section {
-            padding: var(--space-20) var(--space-6);
-            background: white;
+        .btn-secondary {
+            background: var(--neutral-100);
+            color: var(--neutral-700);
+            border: 1px solid var(--neutral-200);
         }
 
-        .auth-section h2 {
-            text-align: center;
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: var(--space-4);
+        .btn-secondary:hover {
+            background: var(--neutral-200);
             color: var(--neutral-800);
         }
 
-        .auth-section p {
-            text-align: center;
-            font-size: 1.125rem;
-            color: var(--neutral-600);
-            margin-bottom: var(--space-12);
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
+        .gesture-showcase {
+            display: flex;
+            gap: var(--space-6);
+            margin-top: var(--space-8);
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 1s ease-out 1.2s both;
         }
 
-        .auth-options {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: var(--space-8);
-            max-width: 800px;
+        .gesture-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: var(--space-4) var(--space-6);
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: var(--radius-2xl);
+            backdrop-filter: blur(15px);
+            transition: all var(--transition-base);
+            cursor: pointer;
+            min-width: 120px;
+        }
+
+        .gesture-item:hover {
+            transform: translateY(-6px) scale(1.05);
+            background: rgba(255, 255, 255, 0.18);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .gesture-icon {
+            font-size: 3rem;
+            margin-bottom: var(--space-3);
+            animation: gestureFloat 3s ease-in-out infinite;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+        }
+
+        .gesture-item:nth-child(1) .gesture-icon { animation-delay: 0s; }
+        .gesture-item:nth-child(2) .gesture-icon { animation-delay: 0.5s; }
+        .gesture-item:nth-child(3) .gesture-icon { animation-delay: 1s; }
+        .gesture-item:nth-child(4) .gesture-icon { animation-delay: 1.5s; }
+
+        @keyframes gestureFloat {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-10px) scale(1.1); }
+        }
+
+        .gesture-label {
+            font-size: 1rem;
+            font-weight: 600;
+            color: white;
+            opacity: 0.95;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        /* Simple Auth Section Styles */
+        .simple-auth-section {
+            text-align: center;
+            padding: var(--space-6) 0;
+        }
+
+        .simple-auth-section .auth-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+            max-width: 300px;
             margin: 0 auto;
         }
 
-        .auth-card {
-            background: white;
-            border: 2px solid var(--neutral-200);
-            border-radius: var(--radius-2xl);
-            padding: var(--space-8);
-            text-align: center;
+        .simple-auth-section .btn-large {
+            padding: var(--space-4) var(--space-6);
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: var(--radius-xl);
+            min-height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-3);
             transition: all var(--transition-base);
         }
 
-        .auth-card:hover {
-            border-color: var(--primary-600);
-            transform: translateY(-4px);
+        .simple-auth-section .btn-large:hover {
+            transform: translateY(-2px);
             box-shadow: var(--shadow-xl);
         }
 
-        .auth-card h3 {
+        .simple-auth-section .btn-large i {
+            font-size: 1.2rem;
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-4);
+            z-index: 10000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius-3xl);
+            box-shadow: var(--shadow-2xl);
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-6) var(--space-6) var(--space-4) var(--space-6);
+            border-bottom: 1px solid var(--neutral-200);
+        }
+
+        .modal-header h2 {
             font-size: 1.5rem;
             font-weight: 700;
-            margin-bottom: var(--space-4);
+            color: var(--neutral-900);
+        }
+
+        .close-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: var(--neutral-100);
+            border-radius: var(--radius-full);
+            color: var(--neutral-600);
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .close-btn:hover {
+            background: var(--neutral-200);
             color: var(--neutral-800);
         }
 
-        .auth-card p {
+        .modal-body {
+            padding: var(--space-6);
+        }
+
+        /* About Modal Specific Styles */
+        .about-content {
+            line-height: 1.7;
+        }
+
+        .about-content h3 {
+            color: var(--primary-600);
+            margin-bottom: var(--space-3);
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .about-content p {
+            margin-bottom: var(--space-4);
+            color: var(--neutral-700);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-4);
+            margin: var(--space-6) 0;
+        }
+
+        .feature-item {
+            background: var(--neutral-50);
+            padding: var(--space-4);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--neutral-200);
+        }
+
+        .feature-item h4 {
+            color: var(--primary-600);
+            margin-bottom: var(--space-2);
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .feature-item p {
+            font-size: 0.9rem;
             color: var(--neutral-600);
-            margin-bottom: var(--space-6);
+            margin-bottom: 0;
+        }
+
+        /* Enhanced Auth Section Styles */
+        .auth-section {
+            margin-top: var(--space-6);
+            padding: var(--space-6);
+            background: linear-gradient(135deg, var(--primary-50), var(--accent-50));
+            border-radius: var(--radius-3xl);
+            border: 1px solid var(--neutral-200);
             text-align: center;
         }
 
-        .auth-card .btn {
-            width: 100%;
-            justify-content: center;
+        .auth-section h3 {
+            color: var(--neutral-900);
+            margin-bottom: var(--space-4);
+            font-size: 1.3rem;
+            font-weight: 700;
         }
 
-        /* Features Section */
-        .features {
-            padding: var(--space-20) var(--space-6);
+        .auth-buttons {
+            display: flex;
+            gap: var(--space-3);
+            justify-content: center;
+            margin-bottom: var(--space-6);
+        }
+
+        .auth-buttons .btn {
+            min-width: 140px;
+            padding: var(--space-3) var(--space-6);
+            font-weight: 600;
+            border-radius: var(--radius-xl);
+            transition: all var(--transition-base);
+        }
+
+        .auth-buttons .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .test-accounts {
+            background: white;
+            padding: var(--space-5);
+            border-radius: var(--radius-2xl);
+            border: 1px solid var(--neutral-200);
+            margin-top: var(--space-4);
+        }
+
+        .test-accounts h3 {
+            color: var(--neutral-800);
+            margin-bottom: var(--space-3);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .test-credentials {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+        }
+
+        .test-account {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-3) var(--space-4);
+            background: var(--neutral-50);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--neutral-200);
+            font-size: 0.9rem;
+            transition: all var(--transition-base);
+        }
+
+        .test-account:hover {
+            background: var(--primary-50);
+            border-color: var(--primary-600);
+            transform: translateX(4px);
+        }
+
+        .test-account strong {
+            color: var(--primary-600);
+            font-weight: 600;
+        }
+
+        .test-account-credentials {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: var(--neutral-100);
+            padding: var(--space-1) var(--space-2);
+            border-radius: var(--radius-lg);
+            font-size: 0.8rem;
+            color: var(--neutral-700);
+        }
+
+        /* Modern Role Card Enhancements */
+        .role-selection {
+            margin-bottom: var(--space-6);
+        }
+
+        .role-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .role-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--primary-600), var(--accent-500));
+            opacity: 0;
+            transition: opacity var(--transition-base);
+        }
+
+        .role-card:hover::before {
+            opacity: 0.1;
+        }
+
+        .role-card:hover .role-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .role-icon {
+            transition: all var(--transition-base);
+        }
+
+        /* Auth Form Styles */
+        .auth-form-section {
+            padding: var(--space-6) 0;
+        }
+
+        .auth-form-section h3 {
+            text-align: center;
+            margin-bottom: var(--space-6);
+            color: var(--neutral-900);
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: var(--space-4);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: var(--space-2);
+            font-weight: 500;
+            color: var(--neutral-700);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: var(--space-3) var(--space-4);
+            border: 2px solid var(--neutral-200);
+            border-radius: var(--radius-lg);
+            font-size: 1rem;
+            transition: border-color var(--transition-base);
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-600);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: var(--neutral-500);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: var(--space-3);
+            justify-content: space-between;
+            margin-top: var(--space-6);
+        }
+
+        .form-actions .btn {
+            flex: 1;
+        }
+
+        @media (max-width: 480px) {
+            .form-actions {
+                flex-direction: column;
+                gap: var(--space-3);
+            }
+        }
+
+        /* Loading Animation */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.9), rgba(139, 92, 246, 0.9));
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 20000;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-content {
+            text-align: center;
+            color: white;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto var(--space-4);
+        }
+
+        .loading-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 640px) {
+            .auth-buttons {
+                flex-direction: column;
+            }
+            
+            .test-account {
+                flex-direction: column;
+                gap: var(--space-2);
+                text-align: center;
+            }
+        }
+
+        /* Add smooth animations to quiz options */
+        .option {
+            animation: slideInLeft 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .option:nth-child(1) { animation-delay: 0.1s; }
+        .option:nth-child(2) { animation-delay: 0.2s; }
+        .option:nth-child(3) { animation-delay: 0.3s; }
+        .option:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Add pulse animation to gesture icons */
+        .option-letter {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Add interactive hover effects */
+        .btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .role-card:active {
+            transform: translateY(-2px) scale(0.98);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-content {
+                padding: var(--space-8) var(--space-4);
+            }
+            
+            .hero-title {
+                font-size: clamp(2rem, 12vw, 4rem);
+                line-height: 1.1;
+                margin-bottom: var(--space-6);
+            }
+            
+            .hero-title-line-1,
+            .hero-title-line-2 {
+                text-align: center;
+                padding: 0 var(--space-4);
+            }
+            
+            .hero-description {
+                font-size: 1.1rem;
+                padding: 0 var(--space-4);
+            }
+            
+            .gesture-showcase {
+                gap: var(--space-4);
+                padding: 0 var(--space-4);
+            }
+            
+            .gesture-item {
+                min-width: 100px;
+                padding: var(--space-3) var(--space-4);
+            }
+            
+            .gesture-icon {
+                font-size: 2.5rem;
+            }
+            
+            .gesture-label {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: clamp(1.8rem, 10vw, 3rem);
+            }
+            
+            .gesture-showcase {
+                gap: var(--space-3);
+            }
+            
+            .gesture-item {
+                min-width: 80px;
+                padding: var(--space-2) var(--space-3);
+            }
+            
+            .gesture-icon {
+                font-size: 2rem;
+            }
+        }
+
+        /* Adjust modal for simpler content */
+        .modal-content {
+            max-width: 400px;
+        }
+
+        /* Information Section Styles */
+        .info-section {
+            padding: var(--space-20) 0;
             background: var(--neutral-50);
         }
 
-        .features h2 {
-            text-align: center;
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: var(--space-4);
-            color: var(--neutral-800);
+        .info-content {
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
-        .features > p {
+        .section-header {
             text-align: center;
-            font-size: 1.125rem;
+            margin-bottom: var(--space-16);
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--neutral-900);
+            margin-bottom: var(--space-4);
+            line-height: 1.2;
+        }
+
+        .section-header p {
+            font-size: 1.2rem;
             color: var(--neutral-600);
-            margin-bottom: var(--space-12);
             max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
+            margin: 0 auto;
+            line-height: 1.6;
         }
 
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: var(--space-8);
+            margin-bottom: var(--space-20);
         }
 
         .feature-card {
             background: white;
             padding: var(--space-8);
-            border-radius: var(--radius-2xl);
+            border-radius: var(--radius-3xl);
+            box-shadow: var(--shadow-lg);
             border: 1px solid var(--neutral-200);
             transition: all var(--transition-base);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--primary-600), var(--accent-500));
+            opacity: 0;
+            transition: opacity var(--transition-base);
         }
 
         .feature-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-xl);
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-2xl);
+        }
+
+        .feature-card:hover::before {
+            opacity: 0.05;
         }
 
         .feature-icon {
-            width: 60px;
-            height: 60px;
+            width: 64px;
+            height: 64px;
             background: linear-gradient(135deg, var(--primary-600), var(--accent-500));
             border-radius: var(--radius-2xl);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: var(--space-4);
+            margin-bottom: var(--space-6);
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-icon i {
+            font-size: 1.8rem;
             color: white;
-            font-size: 1.5rem;
         }
 
         .feature-card h3 {
-            font-size: 1.25rem;
-            font-weight: 700;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--neutral-900);
             margin-bottom: var(--space-3);
-            color: var(--neutral-800);
+            position: relative;
+            z-index: 1;
         }
 
         .feature-card p {
             color: var(--neutral-600);
             line-height: 1.6;
+            position: relative;
+            z-index: 1;
         }
 
-        /* Footer */
-        .footer {
-            background: var(--neutral-800);
+        .how-it-works {
+            background: white;
+            padding: var(--space-12);
+            border-radius: var(--radius-3xl);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--neutral-200);
+        }
+
+        .how-it-works h2 {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--neutral-900);
+            margin-bottom: var(--space-12);
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-8);
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-4);
+        }
+
+        .step-number {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary-600), var(--accent-500));
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 700;
             color: white;
-            padding: var(--space-12) var(--space-6) var(--space-8);
+            flex-shrink: 0;
+        }
+
+        .step-content h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--neutral-900);
+            margin-bottom: var(--space-2);
+        }
+
+        .step-content p {
+            color: var(--neutral-600);
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 768px) {
+            .section-header h2 {
+                font-size: 2rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: var(--space-6);
+            }
+            
+            .steps {
+                grid-template-columns: 1fr;
+                gap: var(--space-6);
+            }
+            
+            .info-section {
+                padding: var(--space-12) 0;
+            }
+        }
+
+        /* Footer Styles */
+        .footer {
+            background: var(--neutral-900);
+            color: var(--neutral-100);
+            padding: var(--space-8) 0;
+            margin-top: var(--space-16);
+            border-top: 1px solid var(--neutral-700);
+        }
+
+        .footer-content {
             text-align: center;
         }
 
-        .footer p {
-            opacity: 0.8;
+        .footer-info {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+            align-items: center;
         }
 
-        /* Responsive Design */
+        .footer-designer,
+        .footer-contact,
+        .footer-copyright {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: 0.95rem;
+            color: var(--neutral-200);
+        }
+
+        .footer-designer i,
+        .footer-contact i,
+        .footer-copyright i {
+            color: var(--primary-600);
+            font-size: 1rem;
+        }
+
+        .footer-designer strong,
+        .footer-contact strong,
+        .footer-copyright strong {
+            color: white;
+            font-weight: 600;
+        }
+
+        .footer-designer {
+            font-size: 1rem;
+            margin-bottom: var(--space-1);
+        }
+
+        .footer-contact {
+            color: var(--neutral-300);
+        }
+
+        .footer-copyright {
+            color: var(--neutral-300);
+            font-size: 0.9rem;
+            margin-top: var(--space-2);
+        }
+
+        /* Responsive footer */
         @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2.5rem;
+            .footer {
+                padding: var(--space-6) 0;
             }
-
-            .hero p {
-                font-size: 1.1rem;
-            }
-
-            .hero-buttons {
+            
+            .footer-designer,
+            .footer-contact,
+            .footer-copyright {
+                font-size: 0.85rem;
                 flex-direction: column;
-                align-items: center;
+                gap: var(--space-1);
+                text-align: center;
             }
-
-            .nav {
-                display: none;
+            
+            .footer-designer i,
+            .footer-contact i,
+            .footer-copyright i {
+                font-size: 0.9rem;
             }
-
-            .auth-options {
-                grid-template-columns: 1fr;
-            }
-
-            .features-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Success message styles */
-        .success-message {
-            position: fixed;
-            top: 100px;
-            right: 20px;
-            background: #10b981;
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 8px;
-            box-shadow: var(--shadow-xl);
-            z-index: 1001;
-            display: none;
-        }
-
-        .error-message {
-            position: fixed;
-            top: 100px;
-            right: 20px;
-            background: #ef4444;
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 8px;
-            box-shadow: var(--shadow-xl);
-            z-index: 1001;
-            display: none;
         }
     </style>
 </head>
 <body>
-    <!-- Success/Error Messages -->
-    <div id="successMessage" class="success-message"></div>
-    <div id="errorMessage" class="error-message"></div>
-
     <!-- Header -->
     <header class="header">
         <div class="container">
             <div class="header-content">
-                <a href="../" class="logo">GestureQuiz</a>
-                <nav class="nav">
-                    <a href="#features" class="nav-link">Features</a>
-                    <a href="#" class="nav-link">About</a>
-                    <a href="#" class="nav-link">Support</a>
-                    <a href="register.html" class="btn btn-primary">Get Started</a>
-                </nav>
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-hand-paper"></i>
+                    </div>
+                    <span>GestureQuiz</span>
+                </div>
+                
+                <div class="nav-actions">
+                    <button class="btn btn-outline" onclick="showAboutModal()">
+                        <i class="fas fa-info-circle"></i>
+                        About
+                    </button>
+                    <button class="btn btn-primary" onclick="showLoginModal()">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Sign In
+                    </button>
+                </div>
             </div>
         </div>
     </header>
 
     <!-- Hero Section -->
     <section class="hero">
+        <div class="hero-background"></div>
         <div class="container">
-            <h1>Welcome to GestureQuiz</h1>
-            <p>Transform your classroom with interactive gesture-based learning. Create engaging quizzes, manage students, and revolutionize education with cutting-edge technology.</p>
-            <div class="hero-buttons">
-                <a href="register.html" class="btn btn-primary btn-large">
-                    <i class="fas fa-rocket"></i>
-                    Start Free Trial
-                </a>
-                <a href="../" class="btn btn-secondary btn-large">
-                    <i class="fas fa-arrow-left"></i>
-                    Back to Main Site
-                </a>
+            <div class="hero-content">
+                <div class="hero-text">
+                    <div class="hero-badge">
+                        <i class="fas fa-magic"></i>
+                        <span>AI-Powered Learning Platform</span>
+                    </div>
+                    
+                    <h1 class="hero-title">
+                        <span class="hero-title-line hero-title-line-1">Transform Learning with</span>
+                        <span class="hero-title-line hero-title-line-2">
+                            <span class="gradient-text">Hand Gestures</span>
+                        </span>
+                    </h1>
+                    
+                    <p class="hero-description">
+                        Experience the future of education with our revolutionary gesture-based quiz platform. 
+                        Make learning interactive, engaging, and accessible for everyone.
+                    </p>
+                    
+                    <div class="gesture-showcase">
+                        <div class="gesture-item">
+                            <span class="gesture-icon">👍</span>
+                            <span class="gesture-label">Thumbs Up</span>
+                        </div>
+                        <div class="gesture-item">
+                            <span class="gesture-icon">✌️</span>
+                            <span class="gesture-label">Peace Sign</span>
+                        </div>
+                        <div class="gesture-item">
+                            <span class="gesture-icon">👌</span>
+                            <span class="gesture-label">OK Sign</span>
+                        </div>
+                        <div class="gesture-item">
+                            <span class="gesture-icon">✋</span>
+                            <span class="gesture-label">Open Hand</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Auth Section -->
-    <section class="auth-section">
+    <!-- Information Section -->
+    <section class="info-section">
         <div class="container">
-            <h2>Choose Your Role</h2>
-            <p>Get started with GestureQuiz by selecting your role. Create an account or sign in to access your personalized dashboard.</p>
+            <div class="info-content">
+                <div class="section-header">
+                    <h2>Revolutionize Learning with Gesture Technology</h2>
+                    <p>GestureQuiz brings a new dimension to education by combining cutting-edge gesture recognition with interactive learning experiences.</p>
+                </div>
+                
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-hand-paper"></i>
+                        </div>
+                        <h3>Gesture-Based Interaction</h3>
+                        <p>Answer questions using natural hand gestures. No need for keyboards or mice - just use your hands to interact with quizzes in an intuitive way.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h3>Enhanced Learning</h3>
+                        <p>Kinesthetic learning through physical gestures helps improve memory retention and makes studying more engaging and interactive.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3>For Everyone</h3>
+                        <p>Perfect for students, teachers, and educational institutions. Create custom quizzes or take existing ones across various subjects and difficulty levels.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3>Real-Time Analytics</h3>
+                        <p>Track progress, analyze performance, and get insights into learning patterns with comprehensive analytics and reporting tools.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h3>Cross-Platform</h3>
+                        <p>Access your quizzes from any device with a camera. Works seamlessly on computers, tablets, and smartphones with modern web browsers.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3>Secure & Private</h3>
+                        <p>Your data is protected with enterprise-grade security. All gesture recognition happens locally in your browser for maximum privacy.</p>
+                    </div>
+                </div>
+                
+                <div class="how-it-works">
+                    <h2>How GestureQuiz Works</h2>
+                    <div class="steps">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h4>Choose Your Role</h4>
+                                <p>Sign up as a student to take quizzes or as a teacher to create and manage them.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h4>Allow Camera Access</h4>
+                                <p>Grant permission for gesture recognition. Your camera stays private - nothing is recorded or stored.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h4>Start Learning</h4>
+                                <p>Use hand gestures to answer questions. Each gesture corresponds to a different answer option.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="step">
+                            <div class="step-number">4</div>
+                            <div class="step-content">
+                                <h4>Track Progress</h4>
+                                <p>View your results, track improvement, and identify areas for focused learning.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Welcome to GestureQuiz</h2>
+                <button class="close-btn" onclick="hideLoginModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="simple-auth-section">
+                    <div class="auth-buttons">
+                        <button class="btn btn-primary btn-large" onclick="showSignInForm()">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Sign In
+                        </button>
+                        <button class="btn btn-outline btn-large" onclick="showSignUpForm()">
+                            <i class="fas fa-user-plus"></i>
+                            Create Account
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Sign In Form Section (hidden by default) -->
+                <div id="signInSection" class="auth-form-section" style="display: none;">
+                    <h3>Sign In to Your Account</h3>
+                    
+                    <form id="signInForm">
+                        <div class="form-group">
+                            <label for="signInEmail">Email</label>
+                            <input type="email" id="signInEmail" class="form-input" required placeholder="Enter your email">
+                        </div>
+                        <div class="form-group">
+                            <label for="signInPassword">Password</label>
+                            <input type="password" id="signInPassword" class="form-input" required placeholder="Enter your password">
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-outline" onclick="showInitialAuth()">
+                                <i class="fas fa-arrow-left"></i>
+                                Back
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-sign-in-alt"></i>
+                                Sign In
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Sign Up Form Section (hidden by default) -->
+                <div id="signUpSection" class="auth-form-section" style="display: none;">
+                    <h3>Create Your Account</h3>
+                    <form id="signUpForm">
+                        <div class="form-group">
+                            <label for="signUpName">Full Name</label>
+                            <input type="text" id="signUpName" class="form-input" required placeholder="Enter your full name">
+                        </div>
+                        <div class="form-group">
+                            <label for="signUpEmail">Email</label>
+                            <input type="email" id="signUpEmail" class="form-input" required placeholder="Enter your email">
+                        </div>
+                        <div class="form-group">
+                            <label for="signUpPassword">Password</label>
+                            <input type="password" id="signUpPassword" class="form-input" required placeholder="Create a password" minlength="6">
+                        </div>
+                        <div class="form-group">
+                            <label for="signUpRole">Account Type</label>
+                            <select id="signUpRole" class="form-input" required>
+                                <option value="">Choose your role</option>
+                                <option value="teacher">Teacher</option>
+                                <option value="student">Student</option>
+                            </select>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-outline" onclick="showInitialAuth()">
+                                <i class="fas fa-arrow-left"></i>
+                                Back
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-user-plus"></i>
+                                Create Account
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Modal -->
+    <div id="aboutModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>About GestureQuiz</h2>
+                <button class="close-btn" onclick="hideAboutModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="about-content">
+                    <h3>Revolutionizing Learning Through Gesture Recognition</h3>
+                    <p>
+                        GestureQuiz is an innovative platform that transforms the way we learn and interact with educational content. 
+                        By leveraging advanced gesture recognition technology, GestureQuiz offers a unique and engaging learning experience 
+                        that adapts to the needs of each user.
+                    </p>
+                    <h4>Our Mission</h4>
+                    <p>
+                        To make learning accessible, interactive, and enjoyable for everyone, everywhere. We believe that education should 
+                        be a dynamic and engaging experience, and we are committed to breaking down the barriers to learning through 
+                        innovative technology.
+                    </p>
+                    <h4>Features</h4>
+                    <div class="feature-grid">
+                        <div class="feature-item">
+                            <h4>Interactive Quizzes</h4>
+                            <p>Quizzes that respond to your gestures, making learning fun and engaging.</p>
+                        </div>
+                        <div class="feature-item">
+                            <h4>AI-Powered Analytics</h4>
+                            <p>Track your progress with intelligent analytics that adapt to your learning pace.</p>
+                        </div>
+                        <div class="feature-item">
+                            <h4>Diverse Topics</h4>
+                            <p>A wide range of topics and quizzes to choose from, catering to all interests and levels.</p>
+                        </div>
+                        <div class="feature-item">
+                            <h4>Any Device, Anytime</h4>
+                            <p>Accessible on any device, allowing you to learn whenever and wherever you want.</p>
+                        </div>
+                    </div>
+                    <h4>Get Involved</h4>
+                    <p>
+                        Join us on our mission to revolutionize learning! Whether you're a student, teacher, or lifelong learner, 
+                        GestureQuiz has something to offer you. Sign up today and experience the future of learning.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Setting up your dashboard...</div>
+        </div>
+    </div>
+
+    <script>
+        // Simple modal functions
+        function showLoginModal() {
+            document.getElementById('loginModal').classList.add('active');
+        }
+
+        function hideLoginModal() {
+            document.getElementById('loginModal').classList.remove('active');
+            // Reset to initial auth state and clear forms
+            showInitialAuth();
             
-            <div class="auth-options">
-                <div class="auth-card">
-                    <h3><i class="fas fa-chalkboard-teacher" style="margin-right: 0.5rem; color: var(--primary-600);"></i>Teachers</h3>
-                    <p>Create interactive quizzes, manage classes, track student progress, and revolutionize your teaching with gesture-based learning.</p>
-                    <a href="register.html?role=teacher" class="btn btn-primary">
-                        <i class="fas fa-user-plus"></i>
-                        Register as Teacher
-                    </a>
-                </div>
-                
-                <div class="auth-card">
-                    <h3><i class="fas fa-graduation-cap" style="margin-right: 0.5rem; color: var(--accent-500);"></i>Students</h3>
-                    <p>Join classes, participate in interactive quizzes, learn through gestures, and engage with educational content like never before.</p>
-                    <a href="register.html?role=student" class="btn btn-primary">
-                        <i class="fas fa-user-plus"></i>
-                        Register as Student
-                    </a>
-                </div>
-            </div>
+            // Clear form fields
+            const signInForm = document.getElementById('signInForm');
+            const signUpForm = document.getElementById('signUpForm');
+            if (signInForm) signInForm.reset();
+            if (signUpForm) signUpForm.reset();
+        }
 
-            <div style="text-align: center; margin-top: 2rem;">
-                <p style="color: var(--neutral-600);">Already have an account? 
-                    <a href="login.html" style="color: var(--primary-600); text-decoration: none; font-weight: 600;">Sign In</a>
-                </p>
-            </div>
-        </div>
-    </section>
+        function showAboutModal() {
+            document.getElementById('aboutModal').classList.add('active');
+        }
 
-    <!-- Features Section -->
-    <section class="features" id="features">
-        <div class="container">
-            <h2>Platform Features</h2>
-            <p>Everything you need to create engaging, interactive learning experiences with gesture recognition technology.</p>
+        function hideAboutModal() {
+            document.getElementById('aboutModal').classList.remove('active');
+        }
+
+        function showLoadingScreen() {
+            document.getElementById('loadingOverlay').classList.add('active');
+            setTimeout(() => {
+                document.getElementById('loadingOverlay').classList.remove('active');
+            }, 2000);
+        }
+
+        // Role selection removed - users must register/login properly
+        function selectRole(role) {
+            // Direct users to registration page
+            window.location.href = 'register.html';
+        }
+
+        // Authentication Functions
+        function showSignInForm() {
+            document.querySelector('.simple-auth-section').style.display = 'none';
+            document.getElementById('signInSection').style.display = 'block';
+            document.getElementById('signUpSection').style.display = 'none';
+        }
+
+        function showSignUpForm() {
+            document.querySelector('.simple-auth-section').style.display = 'none';
+            document.getElementById('signInSection').style.display = 'none';
+            document.getElementById('signUpSection').style.display = 'block';
+        }
+
+        function showInitialAuth() {
+            document.querySelector('.simple-auth-section').style.display = 'block';
+            document.getElementById('signInSection').style.display = 'none';
+            document.getElementById('signUpSection').style.display = 'none';
+        }
+
+        // Remove unused localStorage functions
+        function initializeUserStorage() {
+            // No longer needed in production
+        }
+
+        // Firebase Data Manager instance
+        let firebaseDataManager = null;
+        
+        // Clear any test data from localStorage
+        function clearTestData() {
+            // Remove any test accounts or demo data
+            const testEmails = [
+                'test@teacher.com',
+                'test@student.com',
+                'teacher@test.com',
+                'student@test.com',
+                'ahmadadeltub@gmail.com',
+                'std1@demo.com',
+                'std2@demo.com',
+                'teacher@gesturequiz.com',
+                'student@gesturequiz.com',
+                'student2@gesturequiz.com'
+            ];
             
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-hand-paper"></i>
-                    </div>
-                    <h3>Gesture Recognition</h3>
-                    <p>Advanced AI-powered gesture recognition allows students to answer questions using natural hand movements, making learning more interactive and engaging.</p>
-                </div>
+            // Check if current user is a test account
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            if (currentUser.email && testEmails.includes(currentUser.email)) {
+                localStorage.removeItem('currentUser');
+                console.log('Removed test user from localStorage');
+            }
+            
+            // Remove demo content but keep legitimate user data
+            const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+            const filteredUsers = users.filter(user => !testEmails.includes(user.email));
+            
+            if (filteredUsers.length < users.length) {
+                localStorage.setItem('registeredUsers', JSON.stringify(filteredUsers));
+                console.log('Removed test accounts from localStorage');
+            }
+            
+            // Remove demo quizzes
+            const quizzes = JSON.parse(localStorage.getItem('gestureQuizzes') || '[]');
+            const filteredQuizzes = quizzes.filter(quiz => !testEmails.includes(quiz.createdBy));
+            
+            if (filteredQuizzes.length < quizzes.length) {
+                localStorage.setItem('gestureQuizzes', JSON.stringify(filteredQuizzes));
+                console.log('Removed demo quizzes from localStorage');
+            }
+        }
+
+        // Initialize Firebase
+        async function initializeFirebase() {
+            try {
+                firebaseDataManager = new FirebaseDataManager();
+                await firebaseDataManager.initialize();
                 
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <h3>Real-time Analytics</h3>
-                    <p>Get instant insights into student performance with comprehensive analytics and progress tracking for data-driven teaching decisions.</p>
-                </div>
+                // Override the auth state handler to prevent automatic redirects on landing page
+                firebaseDataManager.onUserSignedIn = function(user) {
+                    console.log('👤 User authenticated but staying on landing page:', user.email);
+                    // Do NOT redirect - this is the landing page
+                    // Users must manually click "Go to Dashboard" or login
+                };
                 
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <h3>Class Management</h3>
-                    <p>Efficiently manage multiple classes, students, and assignments with our intuitive dashboard designed for educators.</p>
-                </div>
+                firebaseDataManager.onUserSignedOut = function() {
+                    console.log('👤 User signed out - staying on landing page');
+                    // Stay on landing page
+                };
                 
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-mobile-alt"></i>
-                    </div>
-                    <h3>Cross-Platform</h3>
-                    <p>Access your quizzes and classes from any device - desktop, tablet, or mobile - with seamless synchronization across platforms.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <h3>Secure & Private</h3>
-                    <p>Enterprise-grade security ensures student data is protected with end-to-end encryption and GDPR compliance.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <h3>Real-time Interaction</h3>
-                    <p>Conduct live quizzes with instant feedback, real-time leaderboards, and immediate result sharing to keep students engaged.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+                console.log('✅ Firebase initialized for production (no auto-redirect)');
+                return true;
+            } catch (error) {
+                console.error('❌ Firebase initialization failed:', error);
+                alert('Unable to connect to the server. Please check your internet connection and try again.');
+                return false;
+            }
+        }
+
+        // Handle Sign Up with Firebase
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Clear any existing test data in production mode
+            clearTestData();
+            
+            // Initialize Firebase
+            const firebaseReady = await initializeFirebase();
+            if (!firebaseReady) {
+                return;
+            }
+            
+            const signUpForm = document.getElementById('signUpForm');
+            if (signUpForm) {
+                signUpForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const name = document.getElementById('signUpName').value.trim();
+                    const email = document.getElementById('signUpEmail').value.trim();
+                    const password = document.getElementById('signUpPassword').value;
+                    const role = document.getElementById('signUpRole').value;
+                    
+                    if (!name || !email || !password || !role) {
+                        alert('Please fill in all fields.');
+                        return;
+                    }
+                    
+                    if (password.length < 6) {
+                        alert('Password must be at least 6 characters long.');
+                        return;
+                    }
+                    
+                    try {
+                        // Show loading
+                        const submitButton = e.target.querySelector('button[type="submit"]');
+                        const originalText = submitButton.innerHTML;
+                        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
+                        submitButton.disabled = true;
+                        
+                        // Create user with Firebase
+                        const result = await firebaseDataManager.createAccount(email, password, {
+                            name: name,
+                            role: role,
+                            createdAt: new Date().toISOString()
+                        });
+                        
+                        if (result.success) {
+                            alert('✅ Account created successfully! You can now sign in.');
+                            showSignInForm();
+                            
+                            // Clear form
+                            signUpForm.reset();
+                        } else {
+                            alert('❌ Registration failed: ' + result.error);
+                        }
+                        
+                        // Restore button
+                        submitButton.innerHTML = originalText;
+                        submitButton.disabled = false;
+                        
+                    } catch (error) {
+                        console.error('Registration error:', error);
+                        alert('❌ Registration failed. Please try again.');
+                        
+                        // Restore button
+                        const submitButton = e.target.querySelector('button[type="submit"]');
+                        submitButton.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
+                        submitButton.disabled = false;
+                    }
+                });
+            }
+            
+            const signInForm = document.getElementById('signInForm');
+            if (signInForm) {
+                signInForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const email = document.getElementById('signInEmail').value.trim();
+                    const password = document.getElementById('signInPassword').value;
+                    
+                    if (!email || !password) {
+                        alert('Please enter both email and password.');
+                        return;
+                    }
+                    
+                    try {
+                        // Show loading
+                        const submitButton = e.target.querySelector('button[type="submit"]');
+                        const originalText = submitButton.innerHTML;
+                        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
+                        submitButton.disabled = true;
+                        
+                        // Sign in with Firebase
+                        const result = await firebaseDataManager.signIn(email, password);
+                        
+                        if (result.success) {
+                            // Get user data
+                            const userData = await firebaseDataManager.getUserData(result.user.uid);
+                            
+                            hideLoginModal();
+                            showLoadingScreen();
+                            
+                            setTimeout(() => {
+                                if (userData.role === 'teacher') {
+                                    window.location.href = 'pages/teacher-dashboard.html';
+                                } else {
+                                    window.location.href = 'pages/student-dashboard.html';
+                                }
+                            }, 2000);
+                        } else {
+                            alert('❌ Sign in failed: ' + result.error);
+                        }
+                        
+                        // Restore button
+                        submitButton.innerHTML = originalText;
+                        submitButton.disabled = false;
+                        
+                    } catch (error) {
+                        console.error('Sign in error:', error);
+                        alert('❌ Sign in failed. Please check your credentials.');
+                        
+                        // Restore button
+                        const submitButton = e.target.querySelector('button[type="submit"]');
+                        submitButton.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+                        submitButton.disabled = false;
+                    }
+                });
+            }
+        });
+
+        // Close modals when clicking outside
+        document.addEventListener('click', function(e) {
+            const loginModal = document.getElementById('loginModal');
+            const aboutModal = document.getElementById('aboutModal');
+            
+            if (e.target === loginModal) {
+                hideLoginModal();
+            }
+            if (e.target === aboutModal) {
+                hideAboutModal();
+            }
+        });
+
+        // Add keyboard support
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                hideLoginModal();
+                hideAboutModal();
+            }
+        });
+
+        console.log('✅ GestureQuiz Production Platform Ready!');
+        console.log('🔥 Firebase Authentication Active');
+        console.log('☁️ Cloud Storage Integration Active');
+        console.log('� Ready for Real Users!');
+        
+        // Initialize demo content function
+        function initializeDemoContent() {
+            // Production mode - no demo content
+            console.log('Production mode: No demo content created');
+        }
+        
+        // Production mode - no sample quizzes
+        function createSampleQuizzes() {
+            console.log('Production mode: No sample quizzes created');
+        }
+        
+        // Production mode - no default accounts
+        window.resetToDefaultAccounts = function() {
+            console.log('Production mode: No default accounts available');
+            alert('Production mode: Please register a new account to get started.');
+        };
+        
+        // Production mode - no test data
+        window.createTestData = function() {
+            console.log('Production mode: No test data available');
+            alert('Production mode: Please register a new account and create real content.');
+        };
+        
+        // Production mode - no demo content initialization
+        // Users must register and create their own content
+    </script>
 
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2025 GestureQuiz. All rights reserved. Made with ❤️ for educators and students worldwide.</p>
+            <div class="footer-content">
+                <div class="footer-info">
+                    <div class="footer-designer">
+                        <i class="fas fa-code"></i>
+                        <span>Design and created by: <strong>Eng. Ahmad Tubaishat</strong></span>
+                    </div>
+                    <div class="footer-contact">
+                        <i class="fas fa-mobile-alt"></i>
+                        <span>Mobile: <strong>+974-66983311</strong></span>
+                    </div>
+                    <div class="footer-copyright">
+                        <i class="fas fa-copyright"></i>
+                        <span>This website copyright to <strong>Ahmad Tubaishat</strong></span>
+                    </div>
+                </div>
+            </div>
         </div>
     </footer>
 
-    <!-- Minimal JavaScript - NO automatic actions, NO redirects, NO Firebase -->
+    <!-- PWA Installation and Service Worker -->
     <script>
-        // Only essential functionality - no automatic actions
-        console.log('🎉 GestureQuiz Platform Landing - Stable Version Loaded');
-        console.log('✅ No automatic redirects or Firebase loading');
-        console.log('🔗 Ready for user interaction');
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('✅ Service Worker registered:', registration);
+                        
+                        // Check for updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // New content available, show update notification
+                                    showUpdateNotification();
+                                }
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.error('❌ Service Worker registration failed:', error);
+                    });
+            });
+        }
+
+        // PWA Installation Prompt
+        let deferredPrompt;
         
-        // Simple message system (only for manual use)
-        function showMessage(message, type = 'info') {
-            try {
-                const messageEl = document.getElementById(type === 'error' ? 'errorMessage' : 'successMessage');
-                if (messageEl) {
-                    messageEl.textContent = message;
-                    messageEl.style.display = 'block';
-                    
-                    setTimeout(() => {
-                        messageEl.style.display = 'none';
-                    }, 5000);
-                }
-            } catch (error) {
-                console.error('Message system error:', error);
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('💻 PWA install prompt available');
+            e.preventDefault();
+            deferredPrompt = e;
+            showInstallButton();
+        });
+
+        function showInstallButton() {
+            // Create install button if it doesn't exist
+            if (!document.getElementById('installButton')) {
+                const installButton = document.createElement('button');
+                installButton.id = 'installButton';
+                installButton.innerHTML = '<i class="fas fa-download"></i> Install App';
+                installButton.className = 'btn btn-primary';
+                installButton.style.cssText = `
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    z-index: 9999;
+                    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+                    animation: pulse 2s infinite;
+                `;
+                
+                installButton.addEventListener('click', installApp);
+                document.body.appendChild(installButton);
             }
         }
 
-        // Smooth scrolling for anchor links
-        document.addEventListener('click', function(e) {
-            if (e.target.tagName === 'A' && e.target.getAttribute('href')?.startsWith('#')) {
-                e.preventDefault();
-                const targetId = e.target.getAttribute('href').substring(1);
-                const targetElement = document.getElementById(targetId);
-                if (targetElement) {
-                    targetElement.scrollIntoView({ behavior: 'smooth' });
+        async function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const choiceResult = await deferredPrompt.userChoice;
+                
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('✅ User accepted PWA installation');
+                    hideInstallButton();
+                } else {
+                    console.log('❌ User dismissed PWA installation');
                 }
+                
+                deferredPrompt = null;
             }
+        }
+
+        function hideInstallButton() {
+            const installButton = document.getElementById('installButton');
+            if (installButton) {
+                installButton.remove();
+            }
+        }
+
+        // Check if app is already installed
+        window.addEventListener('appinstalled', () => {
+            console.log('✅ PWA installed successfully');
+            hideInstallButton();
         });
 
-        // Show welcome message after 2 seconds (non-intrusive)
-        setTimeout(() => {
-            console.log('🌟 Welcome to GestureQuiz Platform - Ready to get started!');
-        }, 2000);
+        function showUpdateNotification() {
+            const notification = document.createElement('div');
+            notification.innerHTML = `
+                <div style="
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #667eea;
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 10px;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                    z-index: 10000;
+                    max-width: 300px;
+                ">
+                    <h4 style="margin: 0 0 10px 0; font-size: 1rem;">
+                        <i class="fas fa-sync"></i> Update Available
+                    </h4>
+                    <p style="margin: 0 0 15px 0; font-size: 0.9rem;">
+                        A new version of GestureQuiz is available.
+                    </p>
+                    <button onclick="updateApp()" style="
+                        background: white;
+                        color: #667eea;
+                        border: none;
+                        padding: 8px 15px;
+                        border-radius: 5px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        margin-right: 10px;
+                    ">Update Now</button>
+                    <button onclick="this.parentElement.parentElement.remove()" style="
+                        background: transparent;
+                        color: white;
+                        border: 1px solid rgba(255,255,255,0.3);
+                        padding: 8px 15px;
+                        border-radius: 5px;
+                        font-weight: 600;
+                        cursor: pointer;
+                    ">Later</button>
+                </div>
+            `;
+            document.body.appendChild(notification);
+        }
+
+        function updateApp() {
+            if (navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+                window.location.reload();
+            }
+        }
+
+        // Enhanced localStorage with sync capabilities
+        class EnhancedStorage {
+            constructor() {
+                this.syncKey = 'gesturequiz-sync-timestamp';
+                this.setupStorageSync();
+            }
+
+            setupStorageSync() {
+                // Listen for storage changes from other tabs
+                window.addEventListener('storage', (e) => {
+                    if (e.key === this.syncKey) {
+                        this.handleDataSync();
+                    }
+                });
+            }
+
+            setItem(key, value) {
+                localStorage.setItem(key, value);
+                this.notifySync();
+            }
+
+            getItem(key) {
+                return localStorage.getItem(key);
+            }
+
+            removeItem(key) {
+                localStorage.removeItem(key);
+                this.notifySync();
+            }
+
+            notifySync() {
+                localStorage.setItem(this.syncKey, Date.now().toString());
+            }
+
+            handleDataSync() {
+                // Emit custom event for components to handle sync
+                window.dispatchEvent(new CustomEvent('dataSync', {
+                    detail: { timestamp: Date.now() }
+                }));
+            }
+
+            // Export data for backup
+            exportData() {
+                const data = {};
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key.startsWith('gesture')) {
+                        data[key] = localStorage.getItem(key);
+                    }
+                }
+                return JSON.stringify(data, null, 2);
+            }
+
+            // Import data from backup
+            importData(jsonData) {
+                try {
+                    const data = JSON.parse(jsonData);
+                    Object.keys(data).forEach(key => {
+                        localStorage.setItem(key, data[key]);
+                    });
+                    this.notifySync();
+                    return true;
+                } catch (error) {
+                    console.error('Failed to import data:', error);
+                    return false;
+                }
+            }
+        }
+
+        // Initialize enhanced storage
+        window.enhancedStorage = new EnhancedStorage();
+
+        console.log('🚀 GestureQuiz PWA initialized');
+        console.log('📱 Ready for installation and offline use');
     </script>
 </body>
 </html>
