@@ -154,9 +154,15 @@
         }
 
         .submit-btn:disabled {
-            background: #ccc;
+            background: #6c757d;
             cursor: not-allowed;
             transform: none;
+            opacity: 0.6;
+        }
+
+        .submit-btn:disabled:hover {
+            transform: none;
+            box-shadow: none;
         }
 
         .login-link {
@@ -404,13 +410,26 @@
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Registration page loaded');
+            console.log('🔗 Location:', window.location.href);
+            console.log('📱 User agent:', navigator.userAgent);
             setupEventListeners();
+            
+            // Add a visual indicator that the page is ready
+            setTimeout(() => {
+                const header = document.querySelector('.register-header p');
+                if (header) {
+                    header.textContent = 'Create your account to start learning (Page Ready ✅)';
+                }
+            }, 500);
         });
 
         function setupEventListeners() {
-            // Role selection
+            // Role selection with improved event handling
             document.querySelectorAll('.role-option').forEach(option => {
-                option.addEventListener('click', function() {
+                option.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('Role option clicked:', this.dataset.role);
+                    
                     // Remove previous selection
                     document.querySelectorAll('.role-option').forEach(opt => opt.classList.remove('selected'));
                     
@@ -418,17 +437,64 @@
                     this.classList.add('selected');
                     selectedRole = this.dataset.role;
                     
+                    console.log('✅ Role selected:', selectedRole);
+                    
+                    // Enable submit button when role is selected - ENHANCED
+                    const submitBtn = document.getElementById('submitBtn');
+                    submitBtn.disabled = false;
+                    submitBtn.style.opacity = '1';
+                    submitBtn.style.cursor = 'pointer';
+                    submitBtn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                    submitBtn.style.transform = 'none';
+                    
+                    console.log('✅ Submit button enabled:', !submitBtn.disabled);
+                    
                     // Show/hide additional fields
                     document.getElementById('teacherFields').classList.toggle('show', selectedRole === 'teacher');
                     document.getElementById('studentFields').classList.toggle('show', selectedRole === 'student');
+                    
+                    // Also add event listeners for mouse and touch events for better compatibility
+                    submitBtn.onmousedown = null;
+                    submitBtn.ontouchstart = null;
+                });
+                
+                // Add additional event listeners for better mobile compatibility
+                option.addEventListener('touchstart', function(e) {
+                    this.click();
                 });
             });
 
             // Password strength checker
             document.getElementById('password').addEventListener('input', checkPasswordStrength);
 
-            // Form submission
-            document.getElementById('registerForm').addEventListener('submit', handleRegistration);
+            // Form submission with enhanced event handling
+            const form = document.getElementById('registerForm');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Multiple event listeners for better compatibility
+            form.addEventListener('submit', handleRegistration);
+            submitBtn.addEventListener('click', function(e) {
+                console.log('Submit button clicked directly');
+                if (!submitBtn.disabled) {
+                    console.log('Button is enabled, proceeding with form submission');
+                    if (form.checkValidity()) {
+                        handleRegistration(e);
+                    } else {
+                        console.log('Form validation failed');
+                    }
+                } else {
+                    console.log('Button is disabled, preventing submission');
+                    e.preventDefault();
+                }
+            });
+            
+            // Initially disable submit button with enhanced styling
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.6';
+            submitBtn.style.cursor = 'not-allowed';
+            submitBtn.style.background = '#6c757d';
+            
+            console.log('✅ Event listeners setup complete');
         }
 
         function checkPasswordStrength() {
@@ -465,27 +531,34 @@
 
         async function handleRegistration(e) {
             e.preventDefault();
+            console.log('🚀 handleRegistration called');
+            console.log('📋 Current selectedRole:', selectedRole);
 
             if (!selectedRole) {
+                console.log('❌ No role selected');
                 showError('Please select whether you are a teacher or student.');
                 return;
             }
 
-            const formData = new FormData(e.target);
+            const formData = new FormData(e.target.form || e.target);
             const data = Object.fromEntries(formData);
+            console.log('📝 Form data collected:', data);
 
             // Validation
             if (!data.fullName || !data.email || !data.password) {
+                console.log('❌ Missing required fields');
                 showError('Please fill in all required fields.');
                 return;
             }
 
             if (data.password !== data.confirmPassword) {
+                console.log('❌ Passwords do not match');
                 showError('Passwords do not match.');
                 return;
             }
 
             if (data.password.length < 6) {
+                console.log('❌ Password too short');
                 showError('Password must be at least 6 characters long.');
                 return;
             }
@@ -494,6 +567,7 @@
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<div class="loading"></div> Creating Account...';
+            console.log('🔄 Submit button disabled, starting registration...');
 
             try {
                 console.log('🚀 Starting registration process for:', data.email);
@@ -542,6 +616,8 @@
                     })
                 };
 
+                console.log('💾 Saving user data to Firestore...');
+                
                 // Save user data to Firestore
                 await db.collection('users').doc(user.uid).set(userData);
                 console.log('✅ Firestore user document created');
@@ -564,18 +640,21 @@
                 
                 // Store user data for immediate access
                 localStorage.setItem('currentUser', JSON.stringify(userData));
+                console.log('✅ User data stored in localStorage');
 
                 // Redirect after 2 seconds
                 setTimeout(() => {
                     if (selectedRole === 'teacher') {
+                        console.log('🎯 Redirecting to teacher dashboard...');
                         window.location.href = 'pages/teacher-dashboard.html';
                     } else {
+                        console.log('🎯 Redirecting to student dashboard...');
                         window.location.href = 'pages/student-dashboard.html';
                     }
                 }, 2000);
 
             } catch (error) {
-                console.error('Registration error:', error);
+                console.error('❌ Registration error:', error);
                 let errorMessage = 'An error occurred during registration. Please try again.';
                 
                 if (error.message.includes('email already exists')) {
@@ -609,6 +688,7 @@
                 // Re-enable submit button
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
+                console.log('🔄 Submit button re-enabled');
             }
         }
 
