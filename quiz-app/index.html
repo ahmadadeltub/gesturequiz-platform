@@ -493,19 +493,18 @@
             font-size: 1.2rem;
         }
 
-        /* Modal Styles */
+        /* Modern Modal Styles - Matching Login/Register Pages */
         .modal {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(8px);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: none;
             align-items: center;
             justify-content: center;
-            padding: var(--space-4);
+            padding: 20px;
             z-index: 10000;
         }
 
@@ -515,49 +514,83 @@
 
         .modal-content {
             background: white;
-            border-radius: var(--radius-3xl);
-            box-shadow: var(--shadow-2xl);
-            max-width: 500px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            max-width: 450px;
             width: 100%;
             max-height: 90vh;
             overflow-y: auto;
         }
 
         .modal-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: var(--space-6) var(--space-6) var(--space-4) var(--space-6);
-            border-bottom: 1px solid var(--neutral-200);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 30px;
+            position: relative;
         }
 
         .modal-header h2 {
-            font-size: 1.5rem;
+            font-size: 28px;
+            margin-bottom: 10px;
             font-weight: 700;
-            color: var(--neutral-900);
+        }
+
+        .modal-header p {
+            opacity: 0.9;
+            font-size: 16px;
+            margin: 0;
         }
 
         .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
             width: 36px;
             height: 36px;
             border: none;
-            background: var(--neutral-100);
-            border-radius: var(--radius-full);
-            color: var(--neutral-600);
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            color: white;
             cursor: pointer;
-            transition: all var(--transition-base);
+            transition: all 0.3s ease;
+            font-size: 16px;
         }
 
         .close-btn:hover {
-            background: var(--neutral-200);
-            color: var(--neutral-800);
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
         }
 
         .modal-body {
-            padding: var(--space-6);
+            padding: 40px;
+        }
+
+        /* Modern Auth Section Styles */
+        .simple-auth-section {
+            text-align: center;
+        }
+
+        .auth-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .auth-form-section {
+            text-align: left;
+        }
+
+        .auth-form-section h3 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 24px;
+            font-weight: 600;
         }
 
         /* About Modal Specific Styles */
@@ -742,68 +775,111 @@
         }
 
         .form-group {
-            margin-bottom: var(--space-4);
+            margin-bottom: 25px;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: var(--space-2);
+            margin-bottom: 8px;
             font-weight: 500;
-            color: var(--neutral-700);
+            color: #333;
         }
 
         .form-input {
             width: 100%;
-            padding: var(--space-3) var(--space-4);
-            border: 2px solid var(--neutral-200);
-            border-radius: var(--radius-lg);
-            font-size: 1rem;
-            transition: border-color var(--transition-base);
+            padding: 15px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
             background: white;
+            font-family: 'Inter', sans-serif;
         }
 
         .form-input:focus {
             outline: none;
-            border-color: var(--primary-600);
-            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .form-input::placeholder {
-            color: var(--neutral-500);
+            color: #a0a0a0;
         }
 
         .form-actions {
             display: flex;
-            gap: var(--space-3);
+            gap: 15px;
             justify-content: space-between;
-            margin-top: var(--space-6);
+            margin-top: 30px;
         }
 
         .form-actions .btn {
             flex: 1;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            border: none;
         }
 
-        /* Enhanced Form Styles */
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .btn-large {
+            width: 100%;
+            padding: 18px;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        /* Enhanced Modern Form Styles */
         .role-specific-fields {
-            margin-top: var(--space-4);
-            padding-top: var(--space-4);
-            border-top: 1px solid var(--neutral-200);
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid #e1e5e9;
         }
 
         .form-options {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: var(--space-4);
-            font-size: 0.9rem;
+            margin-bottom: 25px;
+            font-size: 14px;
         }
 
         .remember-me {
             display: flex;
             align-items: center;
-            gap: var(--space-2);
+            gap: 8px;
             cursor: pointer;
-            color: var(--neutral-600);
+            color: #666;
         }
 
         .remember-me input[type="checkbox"] {
@@ -812,34 +888,35 @@
         }
 
         .forgot-password {
-            color: var(--primary-600);
+            color: #667eea;
             text-decoration: none;
-            transition: color var(--transition-base);
+            font-size: 14px;
+            transition: color 0.3s ease;
         }
 
         .forgot-password:hover {
-            color: var(--primary-700);
             text-decoration: underline;
+            color: #764ba2;
         }
 
         .error-message {
-            background-color: #fee2e2;
-            border: 1px solid #fecaca;
-            color: #dc2626;
-            padding: var(--space-3);
-            border-radius: var(--radius-lg);
-            margin-bottom: var(--space-4);
-            font-size: 0.9rem;
+            background-color: #ffebee;
+            border: 1px solid #ffcdd2;
+            color: #c62828;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
         }
 
         .success-message {
-            background-color: #dcfce7;
-            border: 1px solid #bbf7d0;
-            color: #166534;
-            padding: var(--space-3);
-            border-radius: var(--radius-lg);
-            margin-bottom: var(--space-4);
-            font-size: 0.9rem;
+            background-color: #e8f5e8;
+            border: 1px solid #c8e6c9;
+            color: #2e7d32;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
         }
 
         .form-input textarea {
@@ -850,19 +927,82 @@
 
         .form-input optgroup {
             font-weight: 600;
-            color: var(--neutral-700);
+            color: #333;
         }
 
         .form-input option {
             font-weight: 400;
-            color: var(--neutral-600);
+            color: #666;
+        }
+
+        /* Role Selection Cards */
+        .role-selection {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .role-option {
+            flex: 1;
+            text-align: center;
+            padding: 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .role-option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .role-option.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .role-option i {
+            font-size: 24px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .role-option h4 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
         }
 
         @media (max-width: 640px) {
             .form-options {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: var(--space-2);
+                gap: 10px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .role-selection {
+                flex-direction: column;
+            }
+            
+            .modal-content {
+                margin: 10px;
+                max-width: calc(100% - 20px);
+            }
+            
+            .modal-header {
+                padding: 25px 20px;
+            }
+            
+            .modal-body {
+                padding: 30px 20px;
             }
         }
 
@@ -1464,11 +1604,12 @@
         </div>
     </section>
 
-    <!-- Login Modal -->
+    <!-- Modern Login Modal -->
     <div id="loginModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Welcome to GestureQuiz</h2>
+                <h2><i class="fas fa-graduation-cap"></i> Welcome to GestureQuiz</h2>
+                <p>Your gateway to interactive learning</p>
                 <button class="close-btn" onclick="hideLoginModal()">
                     <i class="fas fa-times"></i>
                 </button>
@@ -1478,29 +1619,29 @@
                     <div class="auth-buttons">
                         <button class="btn btn-primary btn-large" onclick="showSignInForm()">
                             <i class="fas fa-sign-in-alt"></i>
-                            Sign In
+                            Sign In to Your Account
                         </button>
                         <button class="btn btn-outline btn-large" onclick="showSignUpForm()">
                             <i class="fas fa-user-plus"></i>
-                            Create Account
+                            Create New Account
                         </button>
                     </div>
                 </div>
                 
-                <!-- Sign In Form Section (hidden by default) -->
+                <!-- Modern Sign In Form Section -->
                 <div id="signInSection" class="auth-form-section" style="display: none;">
-                    <h3>Sign In to Your Account</h3>
+                    <h3><i class="fas fa-sign-in-alt"></i> Sign In</h3>
                     
                     <div id="authErrorMessage" class="error-message" style="display: none;"></div>
                     <div id="authSuccessMessage" class="success-message" style="display: none;"></div>
                     
                     <form id="signInForm">
                         <div class="form-group">
-                            <label for="signInEmail">Email Address</label>
-                            <input type="email" id="signInEmail" class="form-input" required placeholder="Enter your email" autocomplete="email">
+                            <label for="signInEmail"><i class="fas fa-envelope"></i> Email Address</label>
+                            <input type="email" id="signInEmail" class="form-input" required placeholder="Enter your email address" autocomplete="email">
                         </div>
                         <div class="form-group">
-                            <label for="signInPassword">Password</label>
+                            <label for="signInPassword"><i class="fas fa-lock"></i> Password</label>
                             <input type="password" id="signInPassword" class="form-input" required placeholder="Enter your password" autocomplete="current-password">
                         </div>
                         <div class="form-options">
@@ -1523,63 +1664,63 @@
                     </form>
                 </div>
                 
-                <!-- Sign Up Form Section (hidden by default) -->
+                <!-- Modern Sign Up Form Section -->
                 <div id="signUpSection" class="auth-form-section" style="display: none;">
-                    <h3>Create Your Account</h3>
+                    <h3><i class="fas fa-user-plus"></i> Create Account</h3>
                     <form id="signUpForm">
                         <div class="form-group">
-                            <label for="signUpName">Full Name *</label>
+                            <label for="signUpName"><i class="fas fa-user"></i> Full Name *</label>
                             <input type="text" id="signUpName" class="form-input" required placeholder="Enter your full name">
                         </div>
                         <div class="form-group">
-                            <label for="signUpEmail">Email Address *</label>
-                            <input type="email" id="signUpEmail" class="form-input" required placeholder="Enter your email">
+                            <label for="signUpEmail"><i class="fas fa-envelope"></i> Email Address *</label>
+                            <input type="email" id="signUpEmail" class="form-input" required placeholder="Enter your email address">
                         </div>
                         <div class="form-group">
-                            <label for="signUpPassword">Password *</label>
-                            <input type="password" id="signUpPassword" class="form-input" required placeholder="Create a password (min. 6 characters)" minlength="6">
+                            <label for="signUpPassword"><i class="fas fa-lock"></i> Password *</label>
+                            <input type="password" id="signUpPassword" class="form-input" required placeholder="Create a secure password (min. 6 characters)" minlength="6">
                         </div>
                         <div class="form-group">
-                            <label for="signUpRole">Account Type *</label>
+                            <label for="signUpRole"><i class="fas fa-user-tag"></i> Account Type *</label>
                             <select id="signUpRole" class="form-input" required onchange="toggleRoleFields()">
                                 <option value="">Choose your role</option>
-                                <option value="teacher">Teacher</option>
-                                <option value="student">Student</option>
+                                <option value="teacher">👨‍🏫 Teacher / Educator</option>
+                                <option value="student">👨‍🎓 Student / Learner</option>
                             </select>
                         </div>
 
                         <!-- Teacher Additional Fields -->
                         <div id="teacherFields" class="role-specific-fields" style="display: none;">
                             <div class="form-group">
-                                <label for="school">School/Institution *</label>
-                                <input type="text" id="school" class="form-input" placeholder="Enter your school or institution">
+                                <label for="school"><i class="fas fa-school"></i> School/Institution *</label>
+                                <input type="text" id="school" class="form-input" placeholder="Enter your school or institution name">
                             </div>
                             <div class="form-group">
-                                <label for="subject">Subject Area *</label>
-                                <input type="text" id="subject" class="form-input" placeholder="e.g., Mathematics, Science, English">
+                                <label for="subject"><i class="fas fa-book"></i> Subject Area *</label>
+                                <input type="text" id="subject" class="form-input" placeholder="e.g., Mathematics, Science, English, History">
                             </div>
                             <div class="form-group">
-                                <label for="experience">Teaching Experience *</label>
+                                <label for="experience"><i class="fas fa-medal"></i> Teaching Experience *</label>
                                 <select id="experience" class="form-input">
-                                    <option value="">Select experience level</option>
-                                    <option value="New Teacher">New Teacher (0-2 years)</option>
-                                    <option value="Experienced">Experienced (3-10 years)</option>
-                                    <option value="Veteran">Veteran (10+ years)</option>
+                                    <option value="">Select your experience level</option>
+                                    <option value="New Teacher">🌱 New Teacher (0-2 years)</option>
+                                    <option value="Experienced">📚 Experienced (3-10 years)</option>
+                                    <option value="Veteran">🏆 Veteran (10+ years)</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="teacherBio">Bio (Optional)</label>
-                                <textarea id="teacherBio" class="form-input" rows="3" placeholder="Tell us about yourself and your teaching experience"></textarea>
+                                <label for="teacherBio"><i class="fas fa-info-circle"></i> Bio (Optional)</label>
+                                <textarea id="teacherBio" class="form-input" rows="3" placeholder="Tell us about yourself and your teaching experience..."></textarea>
                             </div>
                         </div>
 
                         <!-- Student Additional Fields -->
                         <div id="studentFields" class="role-specific-fields" style="display: none;">
                             <div class="form-group">
-                                <label for="grade">Grade Level *</label>
+                                <label for="grade"><i class="fas fa-graduation-cap"></i> Grade Level *</label>
                                 <select id="grade" class="form-input">
-                                    <option value="">Select your grade</option>
-                                    <optgroup label="Elementary School">
+                                    <option value="">Select your current grade</option>
+                                    <optgroup label="🏫 Elementary School">
                                         <option value="1st Grade">1st Grade</option>
                                         <option value="2nd Grade">2nd Grade</option>
                                         <option value="3rd Grade">3rd Grade</option>
@@ -1587,17 +1728,17 @@
                                         <option value="5th Grade">5th Grade</option>
                                         <option value="6th Grade">6th Grade</option>
                                     </optgroup>
-                                    <optgroup label="Middle School">
+                                    <optgroup label="🎒 Middle School">
                                         <option value="7th Grade">7th Grade</option>
                                         <option value="8th Grade">8th Grade</option>
                                         <option value="9th Grade">9th Grade</option>
                                     </optgroup>
-                                    <optgroup label="High School">
+                                    <optgroup label="🎓 High School">
                                         <option value="10th Grade">10th Grade</option>
                                         <option value="11th Grade">11th Grade</option>
                                         <option value="12th Grade">12th Grade</option>
                                     </optgroup>
-                                    <optgroup label="Higher Education">
+                                    <optgroup label="🏛️ Higher Education">
                                         <option value="College Freshman">College Freshman</option>
                                         <option value="College Sophomore">College Sophomore</option>
                                         <option value="College Junior">College Junior</option>
@@ -1607,8 +1748,8 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="parentEmail">Parent/Guardian Email (Optional)</label>
-                                <input type="email" id="parentEmail" class="form-input" placeholder="For students under 18">
+                                <label for="parentEmail"><i class="fas fa-user-friends"></i> Parent/Guardian Email (Optional)</label>
+                                <input type="email" id="parentEmail" class="form-input" placeholder="For students under 18 (optional)">
                             </div>
                         </div>
 
