@@ -783,10 +783,86 @@
             flex: 1;
         }
 
-        @media (max-width: 480px) {
-            .form-actions {
+        /* Enhanced Form Styles */
+        .role-specific-fields {
+            margin-top: var(--space-4);
+            padding-top: var(--space-4);
+            border-top: 1px solid var(--neutral-200);
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-4);
+            font-size: 0.9rem;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            cursor: pointer;
+            color: var(--neutral-600);
+        }
+
+        .remember-me input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .forgot-password {
+            color: var(--primary-600);
+            text-decoration: none;
+            transition: color var(--transition-base);
+        }
+
+        .forgot-password:hover {
+            color: var(--primary-700);
+            text-decoration: underline;
+        }
+
+        .error-message {
+            background-color: #fee2e2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: var(--space-3);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-4);
+            font-size: 0.9rem;
+        }
+
+        .success-message {
+            background-color: #dcfce7;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+            padding: var(--space-3);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-4);
+            font-size: 0.9rem;
+        }
+
+        .form-input textarea {
+            min-height: 80px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .form-input optgroup {
+            font-weight: 600;
+            color: var(--neutral-700);
+        }
+
+        .form-input option {
+            font-weight: 400;
+            color: var(--neutral-600);
+        }
+
+        @media (max-width: 640px) {
+            .form-options {
                 flex-direction: column;
-                gap: var(--space-3);
+                align-items: flex-start;
+                gap: var(--space-2);
             }
         }
 
@@ -1415,14 +1491,24 @@
                 <div id="signInSection" class="auth-form-section" style="display: none;">
                     <h3>Sign In to Your Account</h3>
                     
+                    <div id="authErrorMessage" class="error-message" style="display: none;"></div>
+                    <div id="authSuccessMessage" class="success-message" style="display: none;"></div>
+                    
                     <form id="signInForm">
                         <div class="form-group">
-                            <label for="signInEmail">Email</label>
-                            <input type="email" id="signInEmail" class="form-input" required placeholder="Enter your email">
+                            <label for="signInEmail">Email Address</label>
+                            <input type="email" id="signInEmail" class="form-input" required placeholder="Enter your email" autocomplete="email">
                         </div>
                         <div class="form-group">
                             <label for="signInPassword">Password</label>
-                            <input type="password" id="signInPassword" class="form-input" required placeholder="Enter your password">
+                            <input type="password" id="signInPassword" class="form-input" required placeholder="Enter your password" autocomplete="current-password">
+                        </div>
+                        <div class="form-options">
+                            <label class="remember-me">
+                                <input type="checkbox" id="rememberMe" name="rememberMe">
+                                <span>Remember me</span>
+                            </label>
+                            <a href="#" class="forgot-password" onclick="showForgotPassword()">Forgot password?</a>
                         </div>
                         <div class="form-actions">
                             <button type="button" class="btn btn-outline" onclick="showInitialAuth()">
@@ -1442,25 +1528,90 @@
                     <h3>Create Your Account</h3>
                     <form id="signUpForm">
                         <div class="form-group">
-                            <label for="signUpName">Full Name</label>
+                            <label for="signUpName">Full Name *</label>
                             <input type="text" id="signUpName" class="form-input" required placeholder="Enter your full name">
                         </div>
                         <div class="form-group">
-                            <label for="signUpEmail">Email</label>
+                            <label for="signUpEmail">Email Address *</label>
                             <input type="email" id="signUpEmail" class="form-input" required placeholder="Enter your email">
                         </div>
                         <div class="form-group">
-                            <label for="signUpPassword">Password</label>
-                            <input type="password" id="signUpPassword" class="form-input" required placeholder="Create a password" minlength="6">
+                            <label for="signUpPassword">Password *</label>
+                            <input type="password" id="signUpPassword" class="form-input" required placeholder="Create a password (min. 6 characters)" minlength="6">
                         </div>
                         <div class="form-group">
-                            <label for="signUpRole">Account Type</label>
-                            <select id="signUpRole" class="form-input" required>
+                            <label for="signUpRole">Account Type *</label>
+                            <select id="signUpRole" class="form-input" required onchange="toggleRoleFields()">
                                 <option value="">Choose your role</option>
                                 <option value="teacher">Teacher</option>
                                 <option value="student">Student</option>
                             </select>
                         </div>
+
+                        <!-- Teacher Additional Fields -->
+                        <div id="teacherFields" class="role-specific-fields" style="display: none;">
+                            <div class="form-group">
+                                <label for="school">School/Institution *</label>
+                                <input type="text" id="school" class="form-input" placeholder="Enter your school or institution">
+                            </div>
+                            <div class="form-group">
+                                <label for="subject">Subject Area *</label>
+                                <input type="text" id="subject" class="form-input" placeholder="e.g., Mathematics, Science, English">
+                            </div>
+                            <div class="form-group">
+                                <label for="experience">Teaching Experience *</label>
+                                <select id="experience" class="form-input">
+                                    <option value="">Select experience level</option>
+                                    <option value="New Teacher">New Teacher (0-2 years)</option>
+                                    <option value="Experienced">Experienced (3-10 years)</option>
+                                    <option value="Veteran">Veteran (10+ years)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="teacherBio">Bio (Optional)</label>
+                                <textarea id="teacherBio" class="form-input" rows="3" placeholder="Tell us about yourself and your teaching experience"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Student Additional Fields -->
+                        <div id="studentFields" class="role-specific-fields" style="display: none;">
+                            <div class="form-group">
+                                <label for="grade">Grade Level *</label>
+                                <select id="grade" class="form-input">
+                                    <option value="">Select your grade</option>
+                                    <optgroup label="Elementary School">
+                                        <option value="1st Grade">1st Grade</option>
+                                        <option value="2nd Grade">2nd Grade</option>
+                                        <option value="3rd Grade">3rd Grade</option>
+                                        <option value="4th Grade">4th Grade</option>
+                                        <option value="5th Grade">5th Grade</option>
+                                        <option value="6th Grade">6th Grade</option>
+                                    </optgroup>
+                                    <optgroup label="Middle School">
+                                        <option value="7th Grade">7th Grade</option>
+                                        <option value="8th Grade">8th Grade</option>
+                                        <option value="9th Grade">9th Grade</option>
+                                    </optgroup>
+                                    <optgroup label="High School">
+                                        <option value="10th Grade">10th Grade</option>
+                                        <option value="11th Grade">11th Grade</option>
+                                        <option value="12th Grade">12th Grade</option>
+                                    </optgroup>
+                                    <optgroup label="Higher Education">
+                                        <option value="College Freshman">College Freshman</option>
+                                        <option value="College Sophomore">College Sophomore</option>
+                                        <option value="College Junior">College Junior</option>
+                                        <option value="College Senior">College Senior</option>
+                                        <option value="Graduate Student">Graduate Student</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="parentEmail">Parent/Guardian Email (Optional)</label>
+                                <input type="email" id="parentEmail" class="form-input" placeholder="For students under 18">
+                            </div>
+                        </div>
+
                         <div class="form-actions">
                             <button type="button" class="btn btn-outline" onclick="showInitialAuth()">
                                 <i class="fas fa-arrow-left"></i>
@@ -1852,6 +2003,262 @@
         
         // Production mode - no demo content initialization
         // Users must register and create their own content
+
+        // Enhanced Form Functions
+        function toggleRoleFields() {
+            const role = document.getElementById('signUpRole').value;
+            const teacherFields = document.getElementById('teacherFields');
+            const studentFields = document.getElementById('studentFields');
+            
+            // Hide all role-specific fields first
+            teacherFields.style.display = 'none';
+            studentFields.style.display = 'none';
+            
+            // Show appropriate fields based on selected role
+            if (role === 'teacher') {
+                teacherFields.style.display = 'block';
+            } else if (role === 'student') {
+                studentFields.style.display = 'block';
+            }
+        }
+
+        function showForgotPassword() {
+            // Simple alert for forgot password (can be enhanced with actual functionality)
+            alert('Forgot Password feature will be available soon. Please contact support if you need assistance.');
+        }
+
+        function showAuthError(message) {
+            const errorElement = document.getElementById('authErrorMessage');
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+                setTimeout(() => {
+                    errorElement.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function showAuthSuccess(message) {
+            const successElement = document.getElementById('authSuccessMessage');
+            if (successElement) {
+                successElement.textContent = message;
+                successElement.style.display = 'block';
+                setTimeout(() => {
+                    successElement.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // Enhanced storage and sync functions
+        class EnhancedStorage {
+            constructor() {
+                this.syncKey = 'gesturequiz-sync-timestamp';
+                this.setupStorageSync();
+            }
+
+            setupStorageSync() {
+                // Listen for storage changes from other tabs
+                window.addEventListener('storage', (e) => {
+                    if (e.key === this.syncKey) {
+                        this.handleDataSync();
+                    }
+                });
+            }
+
+            setItem(key, value) {
+                localStorage.setItem(key, value);
+                this.notifySync();
+            }
+
+            getItem(key) {
+                return localStorage.getItem(key);
+            }
+
+            removeItem(key) {
+                localStorage.removeItem(key);
+                this.notifySync();
+            }
+
+            notifySync() {
+                localStorage.setItem(this.syncKey, Date.now().toString());
+            }
+
+            handleDataSync() {
+                // Emit custom event for components to handle sync
+                window.dispatchEvent(new CustomEvent('dataSync', {
+                    detail: { timestamp: Date.now() }
+                }));
+            }
+
+            // Export data for backup
+            exportData() {
+                const data = {};
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key.startsWith('gesture')) {
+                        data[key] = localStorage.getItem(key);
+                    }
+                }
+                return JSON.stringify(data, null, 2);
+            }
+
+            // Import data from backup
+            importData(jsonData) {
+                try {
+                    const data = JSON.parse(jsonData);
+                    Object.keys(data).forEach(key => {
+                        localStorage.setItem(key, data[key]);
+                    });
+                    this.notifySync();
+                    return true;
+                } catch (error) {
+                    console.error('Failed to import data:', error);
+                    return false;
+                }
+            }
+        }
+
+        // Initialize enhanced storage
+        window.enhancedStorage = new EnhancedStorage();
+
+        console.log('🚀 GestureQuiz PWA initialized');
+        console.log('📱 Ready for installation and offline use');
+
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('✅ Service Worker registered:', registration);
+                        
+                        // Check for updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // New content available, show update notification
+                                    showUpdateNotification();
+                                }
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.error('❌ Service Worker registration failed:', error);
+                    });
+            });
+        }
+
+        // PWA Installation Prompt
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('💻 PWA install prompt available');
+            e.preventDefault();
+            deferredPrompt = e;
+            showInstallButton();
+        });
+
+        function showInstallButton() {
+            // Create install button if it doesn't exist
+            if (!document.getElementById('installButton')) {
+                const installButton = document.createElement('button');
+                installButton.id = 'installButton';
+                installButton.innerHTML = '<i class="fas fa-download"></i> Install App';
+                installButton.className = 'btn btn-primary';
+                installButton.style.cssText = `
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    z-index: 9999;
+                    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+                    animation: pulse 2s infinite;
+                `;
+                
+                installButton.addEventListener('click', installApp);
+                document.body.appendChild(installButton);
+            }
+        }
+
+        async function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const choiceResult = await deferredPrompt.userChoice;
+                
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('✅ User accepted PWA installation');
+                    hideInstallButton();
+                } else {
+                    console.log('❌ User dismissed PWA installation');
+                }
+                
+                deferredPrompt = null;
+            }
+        }
+
+        function hideInstallButton() {
+            const installButton = document.getElementById('installButton');
+            if (installButton) {
+                installButton.remove();
+            }
+        }
+
+        // Check if app is already installed
+        window.addEventListener('appinstalled', () => {
+            console.log('✅ PWA installed successfully');
+            hideInstallButton();
+        });
+
+        function showUpdateNotification() {
+            const notification = document.createElement('div');
+            notification.innerHTML = `
+                <div style="
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #667eea;
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 10px;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                    z-index: 10000;
+                    max-width: 300px;
+                ">
+                    <h4 style="margin: 0 0 10px 0; font-size: 1rem;">
+                        <i class="fas fa-sync"></i> Update Available
+                    </h4>
+                    <p style="margin: 0 0 15px 0; font-size: 0.9rem;">
+                        A new version of GestureQuiz is available.
+                    </p>
+                    <button onclick="updateApp()" style="
+                        background: white;
+                        color: #667eea;
+                        border: none;
+                        padding: 8px 15px;
+                        border-radius: 5px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        margin-right: 10px;
+                    ">Update Now</button>
+                    <button onclick="this.parentElement.parentElement.remove()" style="
+                        background: transparent;
+                        color: white;
+                        border: 1px solid rgba(255,255,255,0.3);
+                        padding: 8px 15px;
+                        border-radius: 5px;
+                        font-weight: 600;
+                        cursor: pointer;
+                    ">Later</button>
+                </div>
+            `;
+            document.body.appendChild(notification);
+        }
+
+        function updateApp() {
+            if (navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+                window.location.reload();
+            }
+        }
     </script>
 
     <!-- Footer -->
@@ -2013,81 +2420,6 @@
                 window.location.reload();
             }
         }
-
-        // Enhanced localStorage with sync capabilities
-        class EnhancedStorage {
-            constructor() {
-                this.syncKey = 'gesturequiz-sync-timestamp';
-                this.setupStorageSync();
-            }
-
-            setupStorageSync() {
-                // Listen for storage changes from other tabs
-                window.addEventListener('storage', (e) => {
-                    if (e.key === this.syncKey) {
-                        this.handleDataSync();
-                    }
-                });
-            }
-
-            setItem(key, value) {
-                localStorage.setItem(key, value);
-                this.notifySync();
-            }
-
-            getItem(key) {
-                return localStorage.getItem(key);
-            }
-
-            removeItem(key) {
-                localStorage.removeItem(key);
-                this.notifySync();
-            }
-
-            notifySync() {
-                localStorage.setItem(this.syncKey, Date.now().toString());
-            }
-
-            handleDataSync() {
-                // Emit custom event for components to handle sync
-                window.dispatchEvent(new CustomEvent('dataSync', {
-                    detail: { timestamp: Date.now() }
-                }));
-            }
-
-            // Export data for backup
-            exportData() {
-                const data = {};
-                for (let i = 0; i < localStorage.length; i++) {
-                    const key = localStorage.key(i);
-                    if (key.startsWith('gesture')) {
-                        data[key] = localStorage.getItem(key);
-                    }
-                }
-                return JSON.stringify(data, null, 2);
-            }
-
-            // Import data from backup
-            importData(jsonData) {
-                try {
-                    const data = JSON.parse(jsonData);
-                    Object.keys(data).forEach(key => {
-                        localStorage.setItem(key, data[key]);
-                    });
-                    this.notifySync();
-                    return true;
-                } catch (error) {
-                    console.error('Failed to import data:', error);
-                    return false;
-                }
-            }
-        }
-
-        // Initialize enhanced storage
-        window.enhancedStorage = new EnhancedStorage();
-
-        console.log('🚀 GestureQuiz PWA initialized');
-        console.log('📱 Ready for installation and offline use');
     </script>
 </body>
 </html>
