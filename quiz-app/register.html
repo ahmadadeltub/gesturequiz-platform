@@ -363,7 +363,7 @@
                     </div>
                 </div>
 
-                <button type="submit" class="submit-btn" id="submitBtn">
+                <button type="button" class="submit-btn" id="submitBtn" onclick="handleButtonClick()">
                     <i class="fas fa-user-plus"></i>
                     Create Account
                 </button>
@@ -406,6 +406,30 @@
 
     <script>
         let selectedRole = '';
+
+        // Direct button click handler for maximum compatibility
+        function handleButtonClick() {
+            console.log('🔘 Direct button click handler called');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (submitBtn.disabled) {
+                console.log('❌ Button is disabled');
+                showError('Please select whether you are a teacher or student first.');
+                return;
+            }
+            
+            console.log('✅ Button is enabled, processing registration...');
+            
+            // Create a synthetic form submission event
+            const form = document.getElementById('registerForm');
+            const formEvent = new Event('submit', {
+                bubbles: true,
+                cancelable: true
+            });
+            
+            // Manually trigger the form submission
+            handleRegistration(formEvent);
+        }
 
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
@@ -540,8 +564,17 @@
                 return;
             }
 
-            const formData = new FormData(e.target.form || e.target);
+            // Get form data directly from form elements
+            const form = document.getElementById('registerForm');
+            const formData = new FormData(form);
             const data = Object.fromEntries(formData);
+            
+            // Also get data directly from inputs to ensure we have everything
+            data.fullName = document.getElementById('fullName').value;
+            data.email = document.getElementById('email').value;
+            data.password = document.getElementById('password').value;
+            data.confirmPassword = document.getElementById('confirmPassword').value;
+            
             console.log('📝 Form data collected:', data);
 
             // Validation
@@ -561,6 +594,16 @@
                 console.log('❌ Password too short');
                 showError('Password must be at least 6 characters long.');
                 return;
+            }
+
+            // Additional validation for student role
+            if (selectedRole === 'student') {
+                const grade = document.getElementById('grade').value;
+                if (!grade) {
+                    console.log('❌ No grade selected for student');
+                    showError('Please select your grade level.');
+                    return;
+                }
             }
 
             // Disable submit button
