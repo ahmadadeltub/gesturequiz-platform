@@ -314,7 +314,7 @@
                 <div id="studentFields" class="additional-fields">
                     <div class="form-group">
                         <label for="grade">Grade Level *</label>
-                        <select id="grade" name="grade">
+                        <select id="grade" name="grade" required>
                             <option value="">Select your grade</option>
                             <optgroup label="Elementary School">
                                 <option value="1st Grade">1st Grade</option>
@@ -564,6 +564,11 @@
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
             updateDebug('Page loaded - setting up events');
+
+            // Initialize form state - remove required from grade field initially
+            const gradeSelect = document.getElementById('grade');
+            gradeSelect.removeAttribute('required');
+            updateDebug('Removed required attribute from grade field initially');
 
             // Role selection
             document.querySelectorAll('.role-option').forEach(option => {
