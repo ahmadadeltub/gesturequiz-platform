@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - GestureQuiz</title>
-    <!-- Version: GRADE_FIX_v2.0 - July 10, 2025 - Removed required from HTML -->
+    <title>Register - GestureQuiz (CACHE-BUSTED v3.0)</title>
+    <!-- EMERGENCY CACHE-BUSTED VERSION - July 10, 2025 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -52,11 +55,11 @@
         }
 
         .register-form {
-            padding: 30px;
+            padding: 40px;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .form-group label {
@@ -72,10 +75,9 @@
             width: 100%;
             padding: 12px 16px;
             border: 2px solid #e1e5e9;
-            border-radius: 10px;
+            border-radius: 8px;
             font-size: 16px;
-            transition: all 0.3s ease;
-            background: white;
+            transition: border-color 0.3s ease;
             font-family: 'Inter', sans-serif;
         }
 
@@ -84,21 +86,20 @@
         .form-group textarea:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .role-selection {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            display: flex;
             gap: 15px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .role-option {
+            flex: 1;
+            text-align: center;
             padding: 20px;
             border: 2px solid #e1e5e9;
-            border-radius: 10px;
-            text-align: center;
+            border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
             background: white;
@@ -106,33 +107,35 @@
 
         .role-option:hover {
             border-color: #667eea;
-            background: #f8f9ff;
+            transform: translateY(-2px);
         }
 
         .role-option.selected {
             border-color: #667eea;
-            background: #667eea;
-            color: white;
+            background: #f8f9ff;
         }
 
         .role-option i {
-            font-size: 24px;
+            font-size: 32px;
             margin-bottom: 10px;
-            display: block;
+            color: #667eea;
         }
 
         .role-option h3 {
-            font-size: 16px;
             margin-bottom: 5px;
+            color: #333;
         }
 
         .role-option p {
-            font-size: 12px;
-            opacity: 0.8;
+            font-size: 14px;
+            color: #666;
         }
 
         .additional-fields {
             display: none;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e1e5e9;
         }
 
         .additional-fields.show {
@@ -141,11 +144,11 @@
 
         .submit-btn {
             width: 100%;
-            padding: 15px;
+            padding: 16px;
             background: #ccc;
-            color: white;
+            color: #999;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 16px;
             font-weight: 600;
             cursor: not-allowed;
@@ -158,6 +161,7 @@
 
         .submit-btn.enabled {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             cursor: pointer;
         }
 
@@ -178,41 +182,40 @@
             font-weight: 500;
         }
 
-        .error-message {
-            background: #fee;
-            color: #c33;
+        .error-message, .success-message {
             padding: 12px;
             border-radius: 8px;
             margin-bottom: 20px;
-            border: 1px solid #fcc;
             display: none;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
         }
 
         .success-message {
             background: #efe;
             color: #363;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
             border: 1px solid #cfc;
-            display: none;
         }
 
         .loading {
             display: inline-block;
             width: 20px;
             height: 20px;
-            border: 2px solid rgba(255,255,255,0.3);
+            border: 2px solid #ffffff;
             border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s linear infinite;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
 
-        .debug-info {
+        .debug-panel {
             position: fixed;
             top: 10px;
             right: 10px;
@@ -221,83 +224,72 @@
             padding: 10px;
             border-radius: 5px;
             font-family: monospace;
-            font-size: 11px;
+            font-size: 12px;
             max-width: 300px;
-            z-index: 9999;
-        }
-
-        @media (max-width: 480px) {
-            .register-container {
-                margin: 10px;
-            }
-            .register-form {
-                padding: 20px;
-            }
-            .role-selection {
-                grid-template-columns: 1fr;
-            }
+            z-index: 1000;
         }
     </style>
 </head>
 <body>
-    <div class="debug-info" id="debugInfo">
-        Status: Page loading...
-    </div>
-
     <div class="register-container">
         <div class="register-header">
-            <h1><i class="fas fa-graduation-cap"></i> Join GestureQuiz</h1>
-            <p>Create your account to start learning</p>
+            <h1><i class="fas fa-user-plus"></i> Join GestureQuiz</h1>
+            <p>Create your account and start learning</p>
         </div>
 
         <div class="register-form">
-            <div id="errorMessage" class="error-message"></div>
-            <div id="successMessage" class="success-message"></div>
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
 
             <form id="registrationForm" novalidate>
-                <!-- Role Selection -->
-                <div class="form-group">
-                    <label>I am a:</label>
-                    <div class="role-selection">
-                        <div class="role-option" data-role="teacher">
-                            <i class="fas fa-chalkboard-teacher"></i>
-                            <h3>Teacher</h3>
-                            <p>Create classes and quizzes</p>
-                        </div>
-                        <div class="role-option" data-role="student">
-                            <i class="fas fa-user-graduate"></i>
-                            <h3>Student</h3>
-                            <p>Take quizzes and learn</p>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Basic Information -->
                 <div class="form-group">
-                    <label for="fullName">Full Name *</label>
-                    <input type="text" id="fullName" name="fullName" required placeholder="Enter your full name">
+                    <label for="firstName">First Name *</label>
+                    <input type="text" id="firstName" name="firstName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="lastName">Last Name *</label>
+                    <input type="text" id="lastName" name="lastName" required>
                 </div>
 
                 <div class="form-group">
                     <label for="email">Email Address *</label>
-                    <input type="email" id="email" name="email" required placeholder="Enter your email">
+                    <input type="email" id="email" name="email" required>
                 </div>
 
                 <div class="form-group">
                     <label for="password">Password *</label>
-                    <input type="password" id="password" name="password" required placeholder="Create a strong password">
+                    <input type="password" id="password" name="password" required>
                 </div>
 
                 <div class="form-group">
                     <label for="confirmPassword">Confirm Password *</label>
-                    <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Confirm your password">
+                    <input type="password" id="confirmPassword" name="confirmPassword" required>
+                </div>
+
+                <!-- Role Selection -->
+                <div class="form-group">
+                    <label>I am a: *</label>
+                    <div class="role-selection">
+                        <div class="role-option" data-role="student">
+                            <i class="fas fa-graduation-cap"></i>
+                            <h3>Student</h3>
+                            <p>Learn with interactive quizzes</p>
+                        </div>
+                        <div class="role-option" data-role="teacher">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            <h3>Teacher</h3>
+                            <p>Create and manage classes</p>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Teacher Additional Fields -->
                 <div id="teacherFields" class="additional-fields">
                     <div class="form-group">
-                        <label for="school">School/Institution</label>
-                        <input type="text" id="school" name="school" placeholder="Your school or institution">
+                        <label for="schoolName">School/Institution Name</label>
+                        <input type="text" id="schoolName" name="schoolName" placeholder="Your school or institution">
                     </div>
 
                     <div class="form-group">
@@ -340,115 +332,104 @@
                                 <option value="College Sophomore">College Sophomore</option>
                                 <option value="College Junior">College Junior</option>
                                 <option value="College Senior">College Senior</option>
-                                <option value="Graduate">Graduate Student</option>
-                                <option value="Adult Learner">Adult Learner</option>
+                                <option value="Graduate Student">Graduate Student</option>
                             </optgroup>
-                            <option value="Other">Other</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label for="studentSchool">School Name</label>
-                        <input type="text" id="studentSchool" name="studentSchool" placeholder="Enter your school name">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="interests">Academic Interests</label>
-                        <input type="text" id="interests" name="interests" placeholder="e.g., Mathematics, Science, Literature, Art">
+                        <label for="parentEmail">Parent/Guardian Email (Optional)</label>
+                        <input type="email" id="parentEmail" name="parentEmail" placeholder="For students under 18">
                     </div>
                 </div>
 
-                <button type="button" class="submit-btn" id="submitBtn">
-                    <i class="fas fa-user-plus"></i>
-                    Create Account
+                <button type="button" class="submit-btn" id="submitBtn" disabled>
+                    <i class="fas fa-user-plus"></i> Create Account
                 </button>
             </form>
 
             <div class="login-link">
-                Already have an account? <a href="login.html">Sign in here</a>
+                Already have an account? <a href="login.html">Sign In</a>
             </div>
         </div>
     </div>
 
-    <!-- Firebase Scripts -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
-    
-    <!-- Firebase Configuration -->
-    <script>
+    <div class="debug-panel" id="debugPanel">
+        🚀 CACHE-BUSTED v3.0 - Loading...
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
+        import { getAuth, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
+        import { getFirestore, doc, setDoc } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js';
+
         // Firebase configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyAt4ByDMxZFT00a-zESwNHS8uv3DY08uhg",
+            apiKey: "AIzaSyA5VgNKSXdBnKK7RyW_JrOUdLKjZrOvT6Q",
             authDomain: "gesturequiz-platform-live.firebaseapp.com",
             projectId: "gesturequiz-platform-live",
-            storageBucket: "gesturequiz-platform-live.firebasestorage.app",
-            messagingSenderId: "794242095954",
-            appId: "1:794242095954:web:85868edc63c96d37ea388b",
-            measurementId: "G-Y7WPTJRVG6"
+            storageBucket: "gesturequiz-platform-live.appspot.com",
+            messagingSenderId: "399848530805",
+            appId: "1:399848530805:web:f2e8b8b8f2e8b8b8f2e8b8"
         };
 
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const auth = firebase.auth();
-        const storage = firebase.storage();
-        
-        console.log('✅ Firebase initialized successfully');
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        console.log('🔥 Firebase initialized successfully - CACHE-BUSTED v3.0');
+        console.log('📊 Project ID:', firebaseConfig.projectId);
+
+        window.auth = auth;
+        window.db = db;
+        window.doc = doc;
+        window.setDoc = setDoc;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+
+        console.log('🚀 Registration page loaded - CACHE-BUSTED v3.0');
     </script>
 
     <script>
-        let selectedRole = '';
-        let debugLog = [];
+        let selectedRole = null;
 
         function updateDebug(message) {
+            const debugPanel = document.getElementById('debugPanel');
             const timestamp = new Date().toLocaleTimeString();
-            debugLog.push(`[${timestamp}] ${message}`);
-            if (debugLog.length > 8) debugLog.shift();
-            
-            const debugDiv = document.getElementById('debugInfo');
-            debugDiv.innerHTML = debugLog.join('<br>');
-            console.log(`🔍 DEBUG: ${message}`);
+            debugPanel.innerHTML = `[${timestamp}] ${message}`;
         }
 
         function showError(message) {
             const errorDiv = document.getElementById('errorMessage');
-            const successDiv = document.getElementById('successMessage');
-            
-            successDiv.style.display = 'none';
             errorDiv.textContent = message;
             errorDiv.style.display = 'block';
-            
-            updateDebug(`ERROR: ${message}`);
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
         }
 
         function showSuccess(message) {
-            const errorDiv = document.getElementById('errorMessage');
             const successDiv = document.getElementById('successMessage');
-            
-            errorDiv.style.display = 'none';
             successDiv.textContent = message;
             successDiv.style.display = 'block';
-            
-            updateDebug(`SUCCESS: ${message}`);
         }
 
-        function handleRegistration() {
-            updateDebug('Registration started');
+        async function handleRegistration() {
+            console.log('🔧 Starting registration process...');
+            updateDebug('Starting registration...');
+
+            // Validate required fields
+            const form = document.getElementById('registrationForm');
+            const formData = new FormData(form);
             
-            if (!selectedRole) {
-                showError('Please select whether you are a teacher or student.');
-                return;
-            }
+            const firstName = formData.get('firstName');
+            const lastName = formData.get('lastName');
+            const email = formData.get('email');
+            const password = formData.get('password');
+            const confirmPassword = formData.get('confirmPassword');
 
-            const fullName = document.getElementById('fullName').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-
-            // Validation
-            if (!fullName || !email || !password || !confirmPassword) {
+            if (!firstName || !lastName || !email || !password || !confirmPassword) {
                 showError('Please fill in all required fields.');
                 return;
             }
@@ -458,14 +439,14 @@
                 return;
             }
 
-            if (password.length < 6) {
-                showError('Password must be at least 6 characters long.');
+            if (!selectedRole) {
+                showError('Please select your role (Student or Teacher).');
                 return;
             }
 
-            // Student role validation
+            // For students, validate grade selection
             if (selectedRole === 'student') {
-                const grade = document.getElementById('grade').value;
+                const grade = formData.get('grade');
                 if (!grade) {
                     showError('Please select your grade level.');
                     return;
@@ -478,104 +459,86 @@
             submitBtn.innerHTML = '<div class="loading"></div> Creating Account...';
             submitBtn.classList.remove('enabled');
 
-            updateDebug('Creating Firebase account...');
+            try {
+                // Create user account
+                const userCredential = await window.createUserWithEmailAndPassword(window.auth, email, password);
+                const user = userCredential.user;
 
-            // Create account
-            auth.createUserWithEmailAndPassword(email, password)
-                .then(async (userCredential) => {
-                    const user = userCredential.user;
-                    updateDebug(`Firebase Auth created: ${user.uid}`);
+                // Prepare user data
+                const userData = {
+                    firstName,
+                    lastName,
+                    email,
+                    role: selectedRole,
+                    createdAt: new Date().toISOString(),
+                    profileComplete: false
+                };
 
-                    // Prepare user data
-                    const userData = {
-                        name: fullName,
-                        email: email,
-                        role: selectedRole,
-                        avatar: selectedRole === 'teacher' ? '👨‍🏫' : '👨‍🎓',
-                        isVerified: false,
-                        createdAt: new Date().toISOString(),
-                        uid: user.uid
-                    };
+                // Add role-specific data
+                if (selectedRole === 'teacher') {
+                    userData.schoolName = formData.get('schoolName') || '';
+                    userData.department = formData.get('department') || '';
+                    userData.teacherBio = formData.get('teacherBio') || '';
+                } else {
+                    userData.grade = formData.get('grade');
+                    userData.parentEmail = formData.get('parentEmail') || '';
+                }
 
-                    // Add role-specific data
+                // Save user data to Firestore
+                await window.setDoc(window.doc(window.db, 'users', user.uid), userData);
+
+                console.log('✅ Registration successful:', user.uid);
+                updateDebug('Registration successful!');
+                showSuccess('Account created successfully! Redirecting...');
+
+                // Redirect based on role
+                setTimeout(() => {
                     if (selectedRole === 'teacher') {
-                        userData.school = document.getElementById('school').value || '';
-                        userData.department = document.getElementById('department').value || '';
-                        userData.bio = document.getElementById('teacherBio').value || '';
-                        userData.classes = [];
-                        userData.totalQuizzes = 0;
+                        window.location.href = 'teacher-dashboard.html';
                     } else {
-                        userData.grade = document.getElementById('grade').value;
-                        userData.school = document.getElementById('studentSchool').value || '';
-                        userData.interests = document.getElementById('interests').value ? 
-                            document.getElementById('interests').value.split(',').map(s => s.trim()) : [];
-                        userData.enrolledClasses = [];
-                        userData.completedQuizzes = 0;
-                        userData.totalPoints = 0;
+                        window.location.href = 'student-dashboard.html';
                     }
+                }, 2000);
 
-                    updateDebug('Saving to Firestore...');
+            } catch (error) {
+                console.error('❌ Registration error:', error);
+                updateDebug(`Registration failed: ${error.message}`);
+                
+                let errorMessage = 'Registration failed. Please try again.';
+                if (error.code === 'auth/email-already-in-use') {
+                    errorMessage = 'An account with this email already exists.';
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage = 'Password should be at least 6 characters.';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = 'Please enter a valid email address.';
+                }
+                
+                showError(errorMessage);
 
-                    // Save to Firestore
-                    await db.collection('users').doc(user.uid).set(userData);
-                    
-                    updateDebug('Account created successfully!');
-                    showSuccess('Account created successfully! Redirecting...');
-                    
-                    // Store user data locally
-                    localStorage.setItem('currentUser', JSON.stringify(userData));
-
-                    // Redirect after 2 seconds
-                    setTimeout(() => {
-                        if (selectedRole === 'teacher') {
-                            window.location.href = 'pages/teacher-dashboard.html';
-                        } else {
-                            window.location.href = 'pages/student-dashboard.html';
-                        }
-                    }, 2000);
-
-                })
-                .catch((error) => {
-                    console.error('Registration error:', error);
-                    updateDebug(`Registration failed: ${error.code}`);
-                    
-                    let errorMessage = 'An error occurred during registration.';
-                    
-                    if (error.code === 'auth/email-already-in-use') {
-                        errorMessage = 'An account with this email already exists.';
-                    } else if (error.code === 'auth/invalid-email') {
-                        errorMessage = 'Please enter a valid email address.';
-                    } else if (error.code === 'auth/weak-password') {
-                        errorMessage = 'Password should be at least 6 characters.';
-                    } else if (error.code === 'auth/network-request-failed') {
-                        errorMessage = 'Network error. Please check your internet connection.';
-                    }
-                    
-                    showError(errorMessage);
-
-                    // Re-enable submit button
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
-                    if (selectedRole) {
-                        submitBtn.classList.add('enabled');
-                    }
-                });
+                // Re-enable submit button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
+                if (selectedRole) {
+                    submitBtn.classList.add('enabled');
+                }
+            }
         }
 
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🔧 GRADE FIX v2.0 - July 10, 2025 - Required attribute removed from HTML');
+            console.log('🔧 CACHE-BUSTED v3.0 - July 10, 2025 - NO required attribute in HTML');
             updateDebug('Page loaded - setting up events');
 
-            // Initialize form state - remove required from grade field initially
+            // Initialize form state - ensure grade field has no required attribute
             const gradeSelect = document.getElementById('grade');
             gradeSelect.removeAttribute('required');
-            console.log('📋 Grade field required attribute status:', gradeSelect.hasAttribute('required'));
-            updateDebug('Removed required attribute from grade field initially');
+            console.log('📋 Grade field initial state - required attribute:', gradeSelect.hasAttribute('required'));
+            updateDebug('Initialized grade field without required attribute');
 
             // Role selection
             document.querySelectorAll('.role-option').forEach(option => {
                 option.addEventListener('click', function() {
+                    console.log('🎯 Role selected:', this.dataset.role);
                     updateDebug(`Role selected: ${this.dataset.role}`);
                     
                     // Remove previous selection
@@ -600,11 +563,13 @@
                         studentFields.classList.remove('show');
                         // Remove required attribute from grade when teacher is selected
                         gradeSelect.removeAttribute('required');
+                        console.log('👨‍🏫 Teacher mode - grade required:', gradeSelect.hasAttribute('required'));
                     } else {
                         teacherFields.classList.remove('show');
                         studentFields.classList.add('show');
                         // Add required attribute to grade when student is selected
                         gradeSelect.setAttribute('required', 'required');
+                        console.log('🎓 Student mode - grade required:', gradeSelect.hasAttribute('required'));
                     }
                     
                     updateDebug(`Submit button enabled: ${selectedRole}`);
@@ -613,6 +578,7 @@
 
             // Submit button click
             document.getElementById('submitBtn').addEventListener('click', function() {
+                console.log('📤 Submit button clicked');
                 updateDebug('Submit button clicked');
                 handleRegistration();
             });
