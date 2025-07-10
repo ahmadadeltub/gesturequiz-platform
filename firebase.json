@@ -16,8 +16,8 @@
     ],
     "rewrites": [
       {
-        "source": "/quiz-app/**",
-        "destination": "/quiz-app/index.html"
+        "source": "/quiz-app/",
+        "destination": "/index.html"
       },
       {
         "source": "**",
