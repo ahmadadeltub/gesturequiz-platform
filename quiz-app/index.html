@@ -29,7 +29,6 @@
     <!-- Firebase Scripts -->
     <script src="js/firebase-config.js"></script>
     <script src="js/firebase-data-manager.js"></script>
-    <script src="js/firebase-auth.js"></script>
     <style>
         /* Professional SaaS Landing Page */
         :root {
@@ -1651,7 +1650,20 @@
             try {
                 firebaseDataManager = new FirebaseDataManager();
                 await firebaseDataManager.initialize();
-                console.log('✅ Firebase initialized for production');
+                
+                // Override the auth state handler to prevent automatic redirects on landing page
+                firebaseDataManager.onUserSignedIn = function(user) {
+                    console.log('👤 User authenticated but staying on landing page:', user.email);
+                    // Do NOT redirect - this is the landing page
+                    // Users must manually click "Go to Dashboard" or login
+                };
+                
+                firebaseDataManager.onUserSignedOut = function() {
+                    console.log('👤 User signed out - staying on landing page');
+                    // Stay on landing page
+                };
+                
+                console.log('✅ Firebase initialized for production (no auto-redirect)');
                 return true;
             } catch (error) {
                 console.error('❌ Firebase initialization failed:', error);
