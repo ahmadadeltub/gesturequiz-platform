@@ -371,7 +371,8 @@
             projectId: "gesturequiz-platform-live",
             storageBucket: "gesturequiz-platform-live.firebasestorage.app",
             messagingSenderId: "794242095954",
-            appId: "1:794242095954:web:85868edc63c96d37ea388b"
+            appId: "1:794242095954:web:85868edc63c96d37ea388b",
+            measurementId: "G-Y7WPTJRVG6"
         };
 
         // Initialize Firebase
@@ -489,14 +490,14 @@
 
                 console.log('✅ Registration successful:', user.uid);
                 updateDebug('Registration successful!');
-                showSuccess('Account created successfully! Redirecting...');
+                showSuccess(`Account created successfully! Redirecting to ${selectedRole} dashboard...`);
 
                 // Redirect based on role
                 setTimeout(() => {
                     if (selectedRole === 'teacher') {
-                        window.location.href = 'teacher-dashboard.html';
+                        window.location.href = 'pages/teacher-dashboard.html';
                     } else {
-                        window.location.href = 'student-dashboard.html';
+                        window.location.href = 'pages/student-dashboard.html';
                     }
                 }, 2000);
 
