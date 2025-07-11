@@ -9,35 +9,64 @@ const firebaseConfig = {
   measurementId: "G-Y7WPTJRVG6"
 };
 
-// Initialize Firebase - Compatible with both v8 and v9
-if (typeof firebase !== 'undefined') {
-  // Firebase v8 (compat)
-  firebase.initializeApp(firebaseConfig);
-  
-  // Initialize Firebase services
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-  const storage = firebase.storage();
-  
-  // Initialize analytics if available
-  if (firebase.analytics) {
-    const analytics = firebase.analytics();
-    window.analytics = analytics;
+// Initialize Firebase when script loads
+console.log('🔥 Firebase config script loading...');
+
+// Wait for Firebase to be available
+function initializeFirebaseWhenReady() {
+  if (typeof firebase !== 'undefined' && firebase.apps !== undefined) {
+    try {
+      // Initialize Firebase if not already initialized
+      if (firebase.apps.length === 0) {
+        firebase.initializeApp(firebaseConfig);
+        console.log('🔥 Firebase app initialized');
+      }
+      
+      // Initialize Firebase services
+      const auth = firebase.auth();
+      const db = firebase.firestore();
+      const storage = firebase.storage();
+      
+      // Initialize analytics if available
+      if (firebase.analytics) {
+        const analytics = firebase.analytics();
+        window.analytics = analytics;
+      }
+      
+      // Export for use in other files
+      window.firebaseConfig = firebaseConfig;
+      window.auth = auth;
+      window.db = db;
+      window.storage = storage;
+      window.firebase = firebase;
+      
+      console.log('✅ Firebase v8 initialized successfully');
+      console.log('📊 Project ID:', firebaseConfig.projectId);
+      console.log('🔑 Auth Domain:', firebaseConfig.authDomain);
+      console.log('💾 Storage Bucket:', firebaseConfig.storageBucket);
+      
+      // Mark as ready
+      window.firebaseReady = true;
+      
+      // Dispatch ready event
+      window.dispatchEvent(new CustomEvent('firebaseReady'));
+      
+      return true;
+    } catch (error) {
+      console.error('❌ Firebase initialization error:', error);
+      window.firebaseError = error;
+      window.dispatchEvent(new CustomEvent('firebaseError', { detail: error }));
+      return false;
+    }
+  } else {
+    console.log('⏳ Waiting for Firebase SDK...');
+    setTimeout(initializeFirebaseWhenReady, 100);
+    return false;
   }
-  
-  // Export for use in other files
-  window.firebaseConfig = firebaseConfig;
-  window.auth = auth;
-  window.db = db;
-  window.storage = storage;
-  
-  console.log('✅ Firebase v8 initialized successfully');
-  console.log('📊 Project ID:', firebaseConfig.projectId);
-  console.log('🔑 Auth Domain:', firebaseConfig.authDomain);
-  console.log('💾 Storage Bucket:', firebaseConfig.storageBucket);
-} else {
-  console.error('❌ Firebase SDK not loaded');
 }
+
+// Start initialization
+initializeFirebaseWhenReady();
 
 // Test Firebase connection
 window.testFirebaseConnection = async function() {

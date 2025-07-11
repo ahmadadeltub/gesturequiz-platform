@@ -26,12 +26,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Firebase SDK Scripts - MUST be loaded before config -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-analytics.js"></script>
+    <!-- Firebase SDK Bundle - All-in-One -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase.js"></script>
     
     <!-- Firebase Configuration Scripts -->
     <script src="js/firebase-config.js"></script>
@@ -2250,6 +2246,31 @@
         // Initialize Firebase
         async function initializeFirebase() {
             try {
+                // Wait for Firebase to be ready
+                if (!window.firebaseReady) {
+                    console.log('⏳ Waiting for Firebase to be ready...');
+                    await new Promise((resolve, reject) => {
+                        if (window.firebaseReady) {
+                            resolve();
+                            return;
+                        }
+                        
+                        const timeout = setTimeout(() => {
+                            reject(new Error('Firebase initialization timeout'));
+                        }, 10000); // 10 second timeout
+                        
+                        window.addEventListener('firebaseReady', () => {
+                            clearTimeout(timeout);
+                            resolve();
+                        }, { once: true });
+                        
+                        window.addEventListener('firebaseError', (event) => {
+                            clearTimeout(timeout);
+                            reject(event.detail);
+                        }, { once: true });
+                    });
+                }
+                
                 // Check if Firebase is loaded
                 if (typeof firebase === 'undefined') {
                     throw new Error('Firebase SDK not loaded. Please check your internet connection.');
@@ -2258,6 +2279,11 @@
                 // Check internet connectivity
                 if (!navigator.onLine) {
                     throw new Error('No internet connection detected. Please check your connection and try again.');
+                }
+                
+                // Verify Firebase services are available
+                if (!window.auth || !window.db) {
+                    throw new Error('Firebase services not initialized properly.');
                 }
                 
                 // Test Firebase connectivity
@@ -2277,6 +2303,7 @@
                     console.log('👤 User signed out - staying on landing page');
                     // Stay on landing page
                 };
+                
                 
                 console.log('✅ Firebase initialized for production (no auto-redirect)');
                 return true;
@@ -2902,6 +2929,29 @@
                 window.location.reload();
             }
         }
+
+        // Add debug information to help troubleshoot
+        window.debugFirebase = function() {
+            console.log('=== FIREBASE DEBUG INFO ===');
+            console.log('1. Firebase available:', typeof firebase !== 'undefined');
+            console.log('2. Firebase apps:', typeof firebase !== 'undefined' ? firebase.apps.length : 'N/A');
+            console.log('3. Firebase auth available:', typeof window.auth !== 'undefined');
+            console.log('4. Firebase db available:', typeof window.db !== 'undefined');
+            console.log('5. Firebase storage available:', typeof window.storage !== 'undefined');
+            console.log('6. FirebaseDataManager available:', typeof FirebaseDataManager !== 'undefined');
+            console.log('7. Internet online:', navigator.onLine);
+            console.log('8. Current URL:', window.location.href);
+            console.log('=== END DEBUG INFO ===');
+        };
+
+        // Automatically run debug on page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                window.debugFirebase();
+            }, 2000);
+        });
+
+        // ...existing code...
     </script>
 </body>
 </html>
