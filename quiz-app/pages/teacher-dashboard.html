@@ -1509,7 +1509,7 @@
     <!-- Firebase Configuration -->
     <script src="../js/firebase-config.js?v=20250709-003"></script>
 
-    <script src="../js/firebase-data-manager.js?v=20250709-003"></script>
+    <script src="../js/firebase-data-manager-v8.js?v=20250712-fixed"></script>
     <script src="../js/firebase-auth.js?v=20250709-003"></script>
     <script src="../js/live-data-manager.js?v=20250709-003"></script>
     <script src="../js/api-simulator.js?v=20250709-003"></script>
@@ -1540,6 +1540,24 @@
             
             // Setup auto-refresh
             setInterval(refreshDashboard, 30000); // Refresh every 30 seconds
+        }
+
+        // Refresh dashboard data periodically
+        async function refreshDashboard() {
+            try {
+                console.log('🔄 Refreshing dashboard data...');
+                
+                // Reload dashboard stats
+                await loadDashboardStats();
+                
+                // Reload classes
+                await loadClasses();
+                
+                console.log('✅ Dashboard refreshed successfully');
+            } catch (error) {
+                console.error('❌ Error refreshing dashboard:', error);
+                // Don't show error to user for background refresh
+            }
         }
 
         function setupRealTimeUpdates() {
@@ -1577,13 +1595,30 @@
             console.log('📥 Loading user data...');
             
             try {
-                // First try to get the current authenticated Firebase user
-                const authUser = firebase.auth().currentUser;
+                // Check if Firebase is available and initialized
+                if (typeof firebase === 'undefined' || !window.auth || !window.db) {
+                    console.log('⚠️ Firebase not available, using localStorage fallback');
+                    
+                    // Fallback to localStorage
+                    const localUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                    if (localUser.name || localUser.email) {
+                        console.log('✅ Loaded user data from localStorage:', localUser);
+                        updateProfileUI(localUser);
+                        return;
+                    } else {
+                        console.log('❌ No user data found in localStorage, redirecting to login');
+                        window.location.href = '../index.html';
+                        return;
+                    }
+                }
+                
+                // Try to get the current authenticated Firebase user
+                const authUser = window.auth.currentUser;
                 if (authUser) {
                     console.log('✅ Firebase Auth user found:', authUser.uid);
                     
                     // Get user profile data from Firestore
-                    const userDoc = await db.collection('users').doc(authUser.uid).get();
+                    const userDoc = await window.db.collection('users').doc(authUser.uid).get();
                     if (userDoc.exists) {
                         const userData = userDoc.data();
                         console.log('✅ Loaded user profile from Firestore:', userData);
@@ -1592,8 +1627,9 @@
                         const completeUserData = {
                             uid: authUser.uid,
                             email: authUser.email,
-                            name: userData.name || authUser.displayName || 'Teacher',
+                            name: userData.fullName || userData.firstName + ' ' + userData.lastName || authUser.displayName || 'Teacher',
                             avatar: userData.avatar || '👨‍🏫',
+                            role: userData.role || 'teacher',
                             ...userData
                         };
                         
@@ -1615,7 +1651,7 @@
                             updatedAt: new Date().toISOString()
                         };
                         
-                        await db.collection('users').doc(authUser.uid).set(defaultProfile);
+                        await window.db.collection('users').doc(authUser.uid).set(defaultProfile);
                         
                         updateProfileUI({
                             uid: authUser.uid,
@@ -1675,26 +1711,31 @@
                 console.log('📊 Loading real dashboard stats from Firestore...');
                 
                 // Check if Firebase is available
-                if (typeof firebase === 'undefined' || !firebase.auth || !firebase.firestore) {
-                    console.error('❌ Firebase not properly initialized');
-                    showNotification('Firebase connection issue. Please refresh the page.', 'warning');
+                if (typeof firebase === 'undefined' || !window.auth || !window.db) {
+                    console.log('⚠️ Firebase not available, using default stats');
+                    updateDashboardStats({
+                        totalStudents: 0,
+                        totalClasses: 0,
+                        totalQuizzes: 0,
+                        avgScore: 0
+                    });
                     return;
                 }
                 
                 // Get the current authenticated teacher
-                const authUser = firebase.auth().currentUser;
-                if (!authUser) {
+                const teacher = window.auth.currentUser;
+                if (!teacher) {
                     console.error('❌ No authenticated user found');
                     return;
                 }
                 
                 // Get teacher's actual classes from Firestore
-                const classesSnapshot = await db.collection('classes')
-                    .where('teacherId', '==', authUser.uid)
+                const classesSnapshot = await window.db.collection('classes')
+                    .where('teacherId', '==', teacher.uid)
                     .get();
                 
                 const actualClassCount = classesSnapshot.docs.length;
-                console.log(`✅ Found ${actualClassCount} actual classes for teacher ${authUser.email}`);
+                console.log(`✅ Found ${actualClassCount} actual classes for teacher ${teacher.email}`);
                 
                 // Get teacher's actual quizzes from Firestore
                 const quizzesSnapshot = await db.collection('quizzes')
