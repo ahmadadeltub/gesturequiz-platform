@@ -2548,14 +2548,26 @@
             
             const signInForm = document.getElementById('signInForm');
             if (signInForm) {
+                let isSubmitting = false; // Prevent multiple submissions
+                
                 signInForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
+                    e.stopPropagation(); // Prevent event bubbling
+                    
+                    if (isSubmitting) {
+                        console.log('🔒 Form submission already in progress, ignoring...');
+                        return;
+                    }
+                    
+                    isSubmitting = true;
+                    console.log('📝 Sign in form submitted');
                     
                     const email = document.getElementById('signInEmail').value.trim();
                     const password = document.getElementById('signInPassword').value;
                     
                     if (!email || !password) {
                         showAuthError('Please enter both email and password.');
+                        isSubmitting = false;
                         return;
                     }
                     
@@ -2576,15 +2588,10 @@
                             const userProfile = await firebaseDataManager.getUserProfile(result.user.uid);
                             console.log('👤 User profile result:', userProfile);
                             
-                            // Hide modal first
-                            hideLoginModal();
-                            
                             // Check if we got a valid user profile with role
                             if (userProfile.success && userProfile.data && userProfile.data.role) {
                                 const role = userProfile.data.role;
                                 console.log(`🎯 User role detected: ${role}`);
-                                
-                                showAuthSuccess(`Signed in successfully! Redirecting to ${role} dashboard...`);
                                 
                                 let redirectUrl = '';
                                 if (role === 'teacher') {
@@ -2596,12 +2603,16 @@
                                 } else {
                                     console.error('❌ Unknown role:', role);
                                     showAuthError(`Unknown user role: ${role}. Please contact support.`);
+                                    // Restore button on error
+                                    submitButton.innerHTML = originalText;
+                                    submitButton.disabled = false;
                                     return;
                                 }
                                 
-                                // Immediate redirect - no delay
-                                console.log(`🚀 Redirecting NOW to: ${redirectUrl}`);
-                                window.location.href = redirectUrl;
+                                // IMMEDIATE REDIRECT - Don't restore button, don't hide modal, just redirect
+                                console.log(`🚀 REDIRECTING IMMEDIATELY to: ${redirectUrl}`);
+                                window.location.replace(redirectUrl); // Use replace instead of href to prevent back button issues
+                                return; // Exit immediately after redirect
                                 
                             } else {
                                 console.error('❌ No valid role found, user profile:', userProfile);
@@ -2611,9 +2622,10 @@
                             showAuthError('❌ Sign in failed: ' + result.error);
                         }
                         
-                        // Restore button
+                        // Restore button on error
                         submitButton.innerHTML = originalText;
                         submitButton.disabled = false;
+                        isSubmitting = false;
                         
                     } catch (error) {
                         console.error('Sign in error:', error);
@@ -2623,6 +2635,7 @@
                         const submitButton = e.target.querySelector('button[type="submit"]');
                         submitButton.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
                         submitButton.disabled = false;
+                        isSubmitting = false;
                     }
                 });
             }
