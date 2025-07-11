@@ -26,7 +26,14 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Firebase Scripts -->
+    <!-- Firebase SDK Scripts - MUST be loaded before config -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-analytics.js"></script>
+    
+    <!-- Firebase Configuration Scripts -->
     <script src="js/firebase-config.js"></script>
     <script src="js/firebase-data-manager.js"></script>
     <style>
@@ -2243,6 +2250,19 @@
         // Initialize Firebase
         async function initializeFirebase() {
             try {
+                // Check if Firebase is loaded
+                if (typeof firebase === 'undefined') {
+                    throw new Error('Firebase SDK not loaded. Please check your internet connection.');
+                }
+                
+                // Check internet connectivity
+                if (!navigator.onLine) {
+                    throw new Error('No internet connection detected. Please check your connection and try again.');
+                }
+                
+                // Test Firebase connectivity
+                console.log('🔥 Testing Firebase connectivity...');
+                
                 firebaseDataManager = new FirebaseDataManager();
                 await firebaseDataManager.initialize();
                 
@@ -2262,11 +2282,129 @@
                 return true;
             } catch (error) {
                 console.error('❌ Firebase initialization failed:', error);
-                alert('Unable to connect to the server. Please check your internet connection and try again.');
+                
+                // Show user-friendly error message
+                showConnectionError(error.message);
                 return false;
             }
         }
 
+        // Show connection error with retry option
+        function showConnectionError(errorMessage) {
+            const errorContainer = document.createElement('div');
+            errorContainer.id = 'connectionError';
+            errorContainer.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                background: linear-gradient(135deg, #dc2626, #b91c1c);
+                color: white;
+                padding: 15px 20px;
+                text-align: center;
+                z-index: 10001;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                border-bottom: 1px solid rgba(255,255,255,0.2);
+            `;
+            
+            errorContainer.innerHTML = `
+                <div style="max-width: 800px; margin: 0 auto;">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 20px;"></i>
+                        <strong>Connection Error</strong>
+                    </div>
+                    <p style="margin: 0 0 10px 0; opacity: 0.9;">${errorMessage}</p>
+                    <div style="display: flex; justify-content: center; gap: 15px;">
+                        <button onclick="retryConnection()" style="
+                            background: rgba(255,255,255,0.2);
+                            color: white;
+                            border: 1px solid rgba(255,255,255,0.3);
+                            padding: 8px 16px;
+                            border-radius: 6px;
+                            cursor: pointer;
+                            font-weight: 600;
+                        ">Retry Connection</button>
+                        <button onclick="document.getElementById('connectionError').remove()" style="
+                            background: transparent;
+                            color: white;
+                            border: 1px solid rgba(255,255,255,0.3);
+                            padding: 8px 16px;
+                            border-radius: 6px;
+                            cursor: pointer;
+                        ">Continue Offline</button>
+                    </div>
+                </div>
+            `;
+            
+            // Remove existing error if present
+            const existingError = document.getElementById('connectionError');
+            if (existingError) {
+                existingError.remove();
+            }
+            
+            document.body.appendChild(errorContainer);
+        }
+
+        // Retry connection function
+        async function retryConnection() {
+            document.getElementById('connectionError').remove();
+            console.log('🔄 Retrying Firebase connection...');
+            
+            // Show loading indicator
+            const loadingDiv = document.createElement('div');
+            loadingDiv.id = 'connectionRetry';
+            loadingDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: rgba(102, 126, 234, 0.9);
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                z-index: 10001;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            `;
+            loadingDiv.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top: 2px solid white; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <span>Reconnecting...</span>
+                </div>
+            `;
+            document.body.appendChild(loadingDiv);
+            
+            try {
+                const success = await initializeFirebase();
+                loadingDiv.remove();
+                
+                if (success) {
+                    // Show success message
+                    const successDiv = document.createElement('div');
+                    successDiv.style.cssText = `
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        background: linear-gradient(135deg, #059669, #047857);
+                        color: white;
+                        padding: 15px 20px;
+                        border-radius: 8px;
+                        z-index: 10001;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    `;
+                    successDiv.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Connected successfully!</span>
+                        </div>
+                    `;
+                    document.body.appendChild(successDiv);
+                    
+                    setTimeout(() => successDiv.remove(), 3000);
+                }
+            } catch (error) {
+                loadingDiv.remove();
+                showConnectionError('Still unable to connect. Please check your internet connection and try again.');
+            }
+        }
         // Handle Sign Up with Firebase
         document.addEventListener('DOMContentLoaded', async function() {
             // Clear any existing test data in production mode
@@ -2629,167 +2767,6 @@
         console.log('🚀 GestureQuiz PWA initialized');
         console.log('📱 Ready for installation and offline use');
 
-        // Service Worker Registration
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(registration => {
-                        console.log('✅ Service Worker registered:', registration);
-                        
-                        // Check for updates
-                        registration.addEventListener('updatefound', () => {
-                            const newWorker = registration.installing;
-                            newWorker.addEventListener('statechange', () => {
-                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    // New content available, show update notification
-                                    showUpdateNotification();
-                                }
-                            });
-                        });
-                    })
-                    .catch(error => {
-                        console.error('❌ Service Worker registration failed:', error);
-                    });
-            });
-        }
-
-        // PWA Installation Prompt
-        let deferredPrompt;
-        
-        window.addEventListener('beforeinstallprompt', (e) => {
-            console.log('💻 PWA install prompt available');
-            e.preventDefault();
-            deferredPrompt = e;
-            showInstallButton();
-        });
-
-        function showInstallButton() {
-            // Create install button if it doesn't exist
-            if (!document.getElementById('installButton')) {
-                const installButton = document.createElement('button');
-                installButton.id = 'installButton';
-                installButton.innerHTML = '<i class="fas fa-download"></i> Install App';
-                installButton.className = 'btn btn-primary';
-                installButton.style.cssText = `
-                    position: fixed;
-                    bottom: 20px;
-                    right: 20px;
-                    z-index: 9999;
-                    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-                    animation: pulse 2s infinite;
-                `;
-                
-                installButton.addEventListener('click', installApp);
-                document.body.appendChild(installButton);
-            }
-        }
-
-        async function installApp() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const choiceResult = await deferredPrompt.userChoice;
-                
-                if (choiceResult.outcome === 'accepted') {
-                    console.log('✅ User accepted PWA installation');
-                    hideInstallButton();
-                } else {
-                    console.log('❌ User dismissed PWA installation');
-                }
-                
-                deferredPrompt = null;
-            }
-        }
-
-        function hideInstallButton() {
-            const installButton = document.getElementById('installButton');
-            if (installButton) {
-                installButton.remove();
-            }
-        }
-
-        // Check if app is already installed
-        window.addEventListener('appinstalled', () => {
-            console.log('✅ PWA installed successfully');
-            hideInstallButton();
-        });
-
-        function showUpdateNotification() {
-            const notification = document.createElement('div');
-            notification.innerHTML = `
-                <div style="
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    background: #667eea;
-                    color: white;
-                    padding: 15px 20px;
-                    border-radius: 10px;
-                    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-                    z-index: 10000;
-                    max-width: 300px;
-                ">
-                    <h4 style="margin: 0 0 10px 0; font-size: 1rem;">
-                        <i class="fas fa-sync"></i> Update Available
-                    </h4>
-                    <p style="margin: 0 0 15px 0; font-size: 0.9rem;">
-                        A new version of GestureQuiz is available.
-                    </p>
-                    <button onclick="updateApp()" style="
-                        background: white;
-                        color: #667eea;
-                        border: none;
-                        padding: 8px 15px;
-                        border-radius: 5px;
-                        font-weight: 600;
-                        cursor: pointer;
-                        margin-right: 10px;
-                    ">Update Now</button>
-                    <button onclick="this.parentElement.parentElement.remove()" style="
-                        background: transparent;
-                        color: white;
-                        border: 1px solid rgba(255,255,255,0.3);
-                        padding: 8px 15px;
-                        border-radius: 5px;
-                        font-weight: 600;
-                        cursor: pointer;
-                    ">Later</button>
-                </div>
-            `;
-            document.body.appendChild(notification);
-        }
-
-        function updateApp() {
-            if (navigator.serviceWorker.controller) {
-                navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
-                window.location.reload();
-            }
-        }
-    </script>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-info">
-                    <div class="footer-designer">
-                        <i class="fas fa-code"></i>
-                        <span>Design and created by: <strong>Eng. Ahmad Tubaishat</strong></span>
-                    </div>
-                    <div class="footer-contact">
-                        <i class="fas fa-mobile-alt"></i>
-                        <span>Mobile: <strong>+974-66983311</strong></span>
-                    </div>
-                    <div class="footer-copyright">
-                        <i class="fas fa-copyright"></i>
-                        <span>This website copyright to <strong>Ahmad Tubaishat</strong></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <!-- PWA Installation and Service Worker -->
-    <script>
         // Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {

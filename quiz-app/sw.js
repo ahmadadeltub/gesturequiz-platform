@@ -1,7 +1,7 @@
 // GestureQuiz Service Worker for Offline Functionality
-const CACHE_NAME = 'gesturequiz-v1.0.0';
-const STATIC_CACHE = 'gesturequiz-static-v1';
-const DYNAMIC_CACHE = 'gesturequiz-dynamic-v1';
+const CACHE_NAME = 'gesturequiz-v2.1.0';
+const STATIC_CACHE = 'gesturequiz-static-v2.1';
+const DYNAMIC_CACHE = 'gesturequiz-dynamic-v2.1';
 
 // Resources to cache immediately
 const STATIC_ASSETS = [
