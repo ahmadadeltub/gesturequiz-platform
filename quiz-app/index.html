@@ -2296,15 +2296,17 @@
                 firebaseDataManager = new FirebaseDataManager();
                 await firebaseDataManager.initialize();
                 
-                // Set up auth state handlers for landing page
+                // Set up auth state handlers for landing page  
                 firebaseDataManager.onUserSignedIn = function(user) {
-                    console.log('👤 User authenticated on landing page:', user.email);
-                    // Allow manual redirects from login form
-                    // Auto-redirect is handled by the login form submit handler
+                    console.log('� Auth state changed - User signed in:', user.email);
+                    console.log('🔔 Current page:', window.location.href);
+                    // Don't auto-redirect from auth state change on landing page
+                    // Manual redirects happen in form submit handlers only
                 };
                 
                 firebaseDataManager.onUserSignedOut = function() {
-                    console.log('👤 User signed out - staying on landing page');
+                    console.log('� Auth state changed - User signed out');
+                    console.log('🔔 Current page:', window.location.href);
                     // Stay on landing page
                 };
                 
@@ -2574,13 +2576,15 @@
                             const userProfile = await firebaseDataManager.getUserProfile(result.user.uid);
                             console.log('👤 User profile result:', userProfile);
                             
+                            // Hide modal first
                             hideLoginModal();
-                            showAuthSuccess('Signed in successfully! Redirecting...');
                             
-                            // Immediate redirect with better error handling
+                            // Check if we got a valid user profile with role
                             if (userProfile.success && userProfile.data && userProfile.data.role) {
                                 const role = userProfile.data.role;
                                 console.log(`🎯 User role detected: ${role}`);
+                                
+                                showAuthSuccess(`Signed in successfully! Redirecting to ${role} dashboard...`);
                                 
                                 let redirectUrl = '';
                                 if (role === 'teacher') {
@@ -2595,14 +2599,13 @@
                                     return;
                                 }
                                 
-                                // Redirect after a short delay to show success message
-                                setTimeout(() => {
-                                    console.log(`🚀 Redirecting to: ${redirectUrl}`);
-                                    window.location.href = redirectUrl;
-                                }, 1000);
+                                // Immediate redirect - no delay
+                                console.log(`🚀 Redirecting NOW to: ${redirectUrl}`);
+                                window.location.href = redirectUrl;
+                                
                             } else {
                                 console.error('❌ No valid role found, user profile:', userProfile);
-                                showAuthError('Unable to determine user role. Please contact support.');
+                                showAuthError('Unable to determine user role. Please try signing in again.');
                             }
                         } else {
                             showAuthError('❌ Sign in failed: ' + result.error);
