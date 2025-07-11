@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign-In Debug Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .error { color: red; background: #ffebee; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { color: green; background: #e8f5e8; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .form-group { margin: 15px 0; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        button { background: #007bff; color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer; margin: 10px 0; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .debug { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0; font-family: monospace; }
+    </style>
+    
+    <!-- Firebase SDK Bundle - All-in-One -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase.js"></script>
+    
+    <!-- Firebase Configuration Scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/firebase-data-manager-v8.js"></script>
+</head>
+<body>
+    <h1>🔍 Sign-In Debug Test</h1>
+    
+    <div id="status">Initializing...</div>
+    
+    <form id="signInForm">
+        <div id="authErrorMessage" style="display: none;" class="error"></div>
+        <div id="authSuccessMessage" style="display: none;" class="success"></div>
+        
+        <div class="form-group">
+            <label for="signInEmail">Email Address</label>
+            <input type="email" id="signInEmail" required placeholder="Enter your email">
+        </div>
+        <div class="form-group">
+            <label for="signInPassword">Password</label>
+            <input type="password" id="signInPassword" required placeholder="Enter your password">
+        </div>
+        
+        <button type="submit">🔐 Sign In</button>
+    </form>
+    
+    <div class="debug">
+        <h3>Debug Information:</h3>
+        <div id="debugInfo">No debug info yet...</div>
+    </div>
+
+    <script>
+        console.log('🔍 Sign-in debug test starting...');
+        
+        let firebaseDataManager = null;
+        
+        // Status update function
+        function updateStatus(message, isError = false) {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = message;
+            statusEl.style.color = isError ? 'red' : 'black';
+            console.log(message);
+        }
+        
+        function updateDebugInfo(info) {
+            const debugEl = document.getElementById('debugInfo');
+            debugEl.innerHTML += `<p>${new Date().toLocaleTimeString()}: ${info}</p>`;
+            console.log('DEBUG:', info);
+        }
+        
+        // Initialize Firebase
+        async function initFirebase() {
+            try {
+                updateStatus('🔥 Waiting for Firebase to be ready...');
+                updateDebugInfo('Starting Firebase initialization');
+                
+                // Wait for Firebase to be ready with timeout
+                let attempts = 0;
+                while (!window.firebaseReady && attempts < 100) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    attempts++;
+                }
+                
+                if (!window.firebaseReady) {
+                    throw new Error('Firebase initialization timeout');
+                }
+                
+                updateStatus('🔥 Creating FirebaseDataManager...');
+                updateDebugInfo('Firebase ready, creating DataManager');
+                
+                firebaseDataManager = new FirebaseDataManager();
+                await firebaseDataManager.initialize();
+                
+                updateStatus('✅ Firebase initialized successfully!');
+                updateDebugInfo('FirebaseDataManager initialized successfully');
+                
+                return true;
+            } catch (error) {
+                console.error('Firebase init error:', error);
+                updateStatus(`❌ Firebase initialization failed: ${error.message}`, true);
+                updateDebugInfo(`Firebase init failed: ${error.message}`);
+                return false;
+            }
+        }
+        
+        // Sign in function with detailed debugging
+        async function handleSignIn(e) {
+            e.preventDefault();
+            console.log('🔐 Sign in form submitted');
+            updateDebugInfo('Sign in form submitted');
+            
+            if (!firebaseDataManager) {
+                showError('Firebase not initialized');
+                updateDebugInfo('ERROR: Firebase not initialized');
+                return;
+            }
+            
+            try {
+                const email = document.getElementById('signInEmail').value.trim();
+                const password = document.getElementById('signInPassword').value;
+                
+                updateDebugInfo(`Attempting sign in for email: ${email}`);
+                
+                if (!email || !password) {
+                    showError('Please enter both email and password.');
+                    updateDebugInfo('ERROR: Missing email or password');
+                    return;
+                }
+                
+                // Show loading
+                const submitButton = e.target.querySelector('button[type="submit"]');
+                const originalText = submitButton.textContent;
+                submitButton.textContent = '⏳ Signing In...';
+                submitButton.disabled = true;
+                
+                updateDebugInfo('Calling firebaseDataManager.signIn()');
+                
+                // Sign in with Firebase
+                const result = await firebaseDataManager.signIn(email, password);
+                
+                updateDebugInfo(`Sign in result: ${JSON.stringify({ success: result.success, hasUser: !!result.user })}`);
+                
+                if (result.success) {
+                    updateDebugInfo('Sign in successful, getting user profile...');
+                    console.log('✅ Sign in successful, getting user profile...');
+                    
+                    // Get user profile
+                    const userProfile = await firebaseDataManager.getUserProfile(result.user.uid);
+                    updateDebugInfo(`User profile result: ${JSON.stringify(userProfile)}`);
+                    console.log('👤 User profile result:', userProfile);
+                    
+                    showSuccess('Signed in successfully!');
+                    
+                    if (userProfile.success && userProfile.data) {
+                        updateDebugInfo(`User role: ${userProfile.data.role}`);
+                        updateDebugInfo(`User data: ${JSON.stringify(userProfile.data)}`);
+                        
+                        setTimeout(() => {
+                            if (userProfile.data.role === 'teacher') {
+                                updateDebugInfo('Redirecting to teacher dashboard...');
+                                console.log('🎯 Redirecting to teacher dashboard');
+                                window.location.href = 'pages/teacher-dashboard.html';
+                            } else if (userProfile.data.role === 'student') {
+                                updateDebugInfo('Redirecting to student dashboard...');
+                                console.log('🎯 Redirecting to student dashboard');
+                                window.location.href = 'pages/student-dashboard.html';
+                            } else {
+                                updateDebugInfo(`ERROR: Invalid role "${userProfile.data.role}"`);
+                                console.error('❌ No valid role found, staying on landing page');
+                                showError('Unable to determine user role. Please contact support.');
+                            }
+                        }, 2000);
+                    } else {
+                        updateDebugInfo('ERROR: No user profile data found');
+                        console.error('❌ No user profile found');
+                        showError('User profile not found. Please contact support.');
+                    }
+                } else {
+                    updateDebugInfo(`Sign in failed: ${result.error}`);
+                    showError('❌ Sign in failed: ' + result.error);
+                }
+                
+                // Restore button
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
+                
+            } catch (error) {
+                console.error('Sign in error:', error);
+                updateDebugInfo(`Sign in exception: ${error.message}`);
+                showError('❌ Sign in failed: ' + error.message);
+                
+                // Restore button
+                const submitButton = e.target.querySelector('button[type="submit"]');
+                submitButton.textContent = '🔐 Sign In';
+                submitButton.disabled = false;
+            }
+        }
+        
+        function showError(message) {
+            const errorEl = document.getElementById('authErrorMessage');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+            setTimeout(() => {
+                errorEl.style.display = 'none';
+            }, 5000);
+        }
+        
+        function showSuccess(message) {
+            const successEl = document.getElementById('authSuccessMessage');
+            successEl.textContent = message;
+            successEl.style.display = 'block';
+            setTimeout(() => {
+                successEl.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🚀 Debug page loaded, initializing...');
+            updateDebugInfo('Page loaded, starting initialization');
+            
+            // Initialize Firebase
+            const firebaseReady = await initFirebase();
+            if (!firebaseReady) {
+                return;
+            }
+            
+            // Add form submit listener
+            document.getElementById('signInForm').addEventListener('submit', handleSignIn);
+            
+            updateDebugInfo('Debug page fully initialized');
+            console.log('✅ Debug test page fully initialized');
+        });
+    </script>
+</body>
+</html>

@@ -2296,11 +2296,11 @@
                 firebaseDataManager = new FirebaseDataManager();
                 await firebaseDataManager.initialize();
                 
-                // Override the auth state handler to prevent automatic redirects on landing page
+                // Set up auth state handlers for landing page
                 firebaseDataManager.onUserSignedIn = function(user) {
-                    console.log('👤 User authenticated but staying on landing page:', user.email);
-                    // Do NOT redirect - this is the landing page
-                    // Users must manually click "Go to Dashboard" or login
+                    console.log('👤 User authenticated on landing page:', user.email);
+                    // Allow manual redirects from login form
+                    // Auto-redirect is handled by the login form submit handler
                 };
                 
                 firebaseDataManager.onUserSignedOut = function() {
@@ -2568,19 +2568,42 @@
                         const result = await firebaseDataManager.signIn(email, password);
                         
                         if (result.success) {
+                            console.log('✅ Sign in successful, getting user profile...');
+                            
                             // Get user profile
                             const userProfile = await firebaseDataManager.getUserProfile(result.user.uid);
+                            console.log('👤 User profile result:', userProfile);
                             
                             hideLoginModal();
-                            showAuthSuccess('Signed in successfully!');
+                            showAuthSuccess('Signed in successfully! Redirecting...');
                             
-                            setTimeout(() => {
-                                if (userProfile.success && userProfile.data.role === 'teacher') {
-                                    window.location.href = 'pages/teacher-dashboard.html';
+                            // Immediate redirect with better error handling
+                            if (userProfile.success && userProfile.data && userProfile.data.role) {
+                                const role = userProfile.data.role;
+                                console.log(`🎯 User role detected: ${role}`);
+                                
+                                let redirectUrl = '';
+                                if (role === 'teacher') {
+                                    redirectUrl = 'pages/teacher-dashboard.html';
+                                    console.log('🎯 Redirecting to teacher dashboard');
+                                } else if (role === 'student') {
+                                    redirectUrl = 'pages/student-dashboard.html';
+                                    console.log('🎯 Redirecting to student dashboard');
                                 } else {
-                                    window.location.href = 'pages/student-dashboard.html';
+                                    console.error('❌ Unknown role:', role);
+                                    showAuthError(`Unknown user role: ${role}. Please contact support.`);
+                                    return;
                                 }
-                            }, 2000);
+                                
+                                // Redirect after a short delay to show success message
+                                setTimeout(() => {
+                                    console.log(`🚀 Redirecting to: ${redirectUrl}`);
+                                    window.location.href = redirectUrl;
+                                }, 1000);
+                            } else {
+                                console.error('❌ No valid role found, user profile:', userProfile);
+                                showAuthError('Unable to determine user role. Please contact support.');
+                            }
                         } else {
                             showAuthError('❌ Sign in failed: ' + result.error);
                         }
