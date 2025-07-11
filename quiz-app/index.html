@@ -31,7 +31,7 @@
     
     <!-- Firebase Configuration Scripts -->
     <script src="js/firebase-config.js"></script>
-    <script src="js/firebase-data-manager.js"></script>
+    <script src="js/firebase-data-manager-v8.js"></script>
     <style>
         /* Professional SaaS Landing Page */
         :root {
@@ -1965,6 +1965,10 @@
                 <!-- Modern Sign Up Form Section -->
                 <div id="signUpSection" class="auth-form-section" style="display: none;">
                     <h3><i class="fas fa-user-plus"></i> Join GestureQuiz</h3>
+                    
+                    <div id="authErrorMessageSignUp" class="error-message" style="display: none;"></div>
+                    <div id="authSuccessMessageSignUp" class="success-message" style="display: none;"></div>
+                    
                     <form id="signUpForm">
                         <div class="form-group">
                             <label for="signUpFirstName">First Name *</label>
@@ -2448,19 +2452,40 @@
                 signUpForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
                     
-                    const name = document.getElementById('signUpName').value.trim();
+                    // Get form data from new structure
+                    const firstName = document.getElementById('signUpFirstName').value.trim();
+                    const lastName = document.getElementById('signUpLastName').value.trim();
                     const email = document.getElementById('signUpEmail').value.trim();
                     const password = document.getElementById('signUpPassword').value;
-                    const role = document.getElementById('signUpRole').value;
+                    const confirmPassword = document.getElementById('signUpConfirmPassword').value;
                     
-                    if (!name || !email || !password || !role) {
-                        alert('Please fill in all fields.');
+                    // Get selected role from role cards
+                    const selectedRoleCard = document.querySelector('.role-option.selected');
+                    const role = selectedRoleCard ? selectedRoleCard.getAttribute('data-role') : '';
+                    
+                    // Validation
+                    if (!firstName || !lastName || !email || !password || !confirmPassword || !role) {
+                        showAuthError('Please fill in all required fields.');
+                        return;
+                    }
+                    
+                    if (password !== confirmPassword) {
+                        showAuthError('Passwords do not match.');
                         return;
                     }
                     
                     if (password.length < 6) {
-                        alert('Password must be at least 6 characters long.');
+                        showAuthError('Password must be at least 6 characters long.');
                         return;
+                    }
+                    
+                    // Role-specific validation
+                    if (role === 'student') {
+                        const grade = document.getElementById('grade').value;
+                        if (!grade) {
+                            showAuthError('Please select your grade level.');
+                            return;
+                        }
                     }
                     
                     try {
@@ -2470,22 +2495,37 @@
                         submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
                         submitButton.disabled = true;
                         
-                        // Create user with Firebase
-                        const result = await firebaseDataManager.createAccount(email, password, {
-
-                            name: name,
+                        // Prepare user data
+                        const userData = {
+                            firstName: firstName,
+                            lastName: lastName,
+                            fullName: `${firstName} ${lastName}`,
                             role: role,
                             createdAt: new Date().toISOString()
-                        });
+                        };
+                        
+                        // Add role-specific data
+                        if (role === 'teacher') {
+                            const schoolName = document.getElementById('schoolName').value.trim();
+                            const department = document.getElementById('department').value.trim();
+                            if (schoolName) userData.schoolName = schoolName;
+                            if (department) userData.department = department;
+                        } else if (role === 'student') {
+                            const grade = document.getElementById('grade').value;
+                            userData.gradeLevel = grade;
+                        }
+                        
+                        // Create user with Firebase
+                        const result = await firebaseDataManager.createAccount(email, password, userData);
                         
                         if (result.success) {
-                            alert('✅ Account created successfully! You can now sign in.');
+                            showAuthSuccess('✅ Account created successfully! You can now sign in.');
                             showSignInForm();
                             
                             // Clear form
                             signUpForm.reset();
                         } else {
-                            alert('❌ Registration failed: ' + result.error);
+                            showAuthError('❌ Registration failed: ' + result.error);
                         }
                         
                         // Restore button
@@ -2494,7 +2534,7 @@
                         
                     } catch (error) {
                         console.error('Registration error:', error);
-                        alert('❌ Registration failed. Please try again.');
+                        showAuthError('❌ Registration failed. Please try again.');
                         
                         // Restore button
                         const submitButton = e.target.querySelector('button[type="submit"]');
@@ -2513,7 +2553,7 @@
                     const password = document.getElementById('signInPassword').value;
                     
                     if (!email || !password) {
-                        alert('Please enter both email and password.');
+                        showAuthError('Please enter both email and password.');
                         return;
                     }
                     
@@ -2528,21 +2568,21 @@
                         const result = await firebaseDataManager.signIn(email, password);
                         
                         if (result.success) {
-                            // Get user data
-                            const userData = await firebaseDataManager.getUserData(result.user.uid);
+                            // Get user profile
+                            const userProfile = await firebaseDataManager.getUserProfile(result.user.uid);
                             
                             hideLoginModal();
-                            showLoadingScreen();
+                            showAuthSuccess('Signed in successfully!');
                             
                             setTimeout(() => {
-                                if (userData.role === 'teacher') {
+                                if (userProfile.success && userProfile.data.role === 'teacher') {
                                     window.location.href = 'pages/teacher-dashboard.html';
                                 } else {
                                     window.location.href = 'pages/student-dashboard.html';
                                 }
                             }, 2000);
                         } else {
-                            alert('❌ Sign in failed: ' + result.error);
+                            showAuthError('❌ Sign in failed: ' + result.error);
                         }
                         
                         // Restore button
@@ -2551,7 +2591,7 @@
                         
                     } catch (error) {
                         console.error('Sign in error:', error);
-                        alert('❌ Sign in failed. Please check your credentials.');
+                        showAuthError('❌ Sign in failed. Please check your credentials.');
                         
                         // Restore button
                         const submitButton = e.target.querySelector('button[type="submit"]');
@@ -2698,6 +2738,7 @@
         }
 
         function showAuthError(message) {
+            // Show error in sign-in section
             const errorElement = document.getElementById('authErrorMessage');
             if (errorElement) {
                 errorElement.textContent = message;
@@ -2706,15 +2747,36 @@
                     errorElement.style.display = 'none';
                 }, 5000);
             }
+            
+            // Show error in sign-up section
+            const errorElementSignUp = document.getElementById('authErrorMessageSignUp');
+            if (errorElementSignUp) {
+                errorElementSignUp.textContent = message;
+                errorElementSignUp.style.display = 'block';
+                setTimeout(() => {
+                    errorElementSignUp.style.display = 'none';
+                }, 5000);
+            }
         }
 
         function showAuthSuccess(message) {
+            // Show success in sign-in section
             const successElement = document.getElementById('authSuccessMessage');
             if (successElement) {
                 successElement.textContent = message;
                 successElement.style.display = 'block';
                 setTimeout(() => {
                     successElement.style.display = 'none';
+                }, 3000);
+            }
+            
+            // Show success in sign-up section
+            const successElementSignUp = document.getElementById('authSuccessMessageSignUp');
+            if (successElementSignUp) {
+                successElementSignUp.textContent = message;
+                successElementSignUp.style.display = 'block';
+                setTimeout(() => {
+                    successElementSignUp.style.display = 'none';
                 }, 3000);
             }
         }

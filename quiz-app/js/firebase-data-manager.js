@@ -13,41 +13,43 @@ class FirebaseDataManager {
         this.isInitialized = false;
         this.isOnlineMode = true;
         
-        // Initialize Firebase
-        this.initialize();
+        // Callback functions
+        this.onUserSignedIn = null;
+        this.onUserSignedOut = null;
     }
 
     async initialize() {
         try {
-            // Import Firebase modules
-            const { initializeApp } = await import('https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js');
-            const { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js');
-            const { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot } = await import('https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js');
-            const { getStorage, ref, uploadBytes, getDownloadURL, deleteObject, listAll } = await import('https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js');
+            // Wait for Firebase v8 to be available
+            if (typeof firebase === 'undefined') {
+                throw new Error('Firebase v8 not loaded');
+            }
 
-            // Initialize Firebase
-            this.app = initializeApp(firebaseConfig);
-            this.auth = getAuth(this.app);
-            this.db = getFirestore(this.app);
-            this.storage = getStorage(this.app);
+            // Use Firebase v8 services from global scope
+            this.auth = firebase.auth();
+            this.db = firebase.firestore();
+            this.storage = firebase.storage();
 
-            // Store Firebase methods
-            this.firebase = {
-                signInWithEmailAndPassword,
-                createUserWithEmailAndPassword,
-                signOut,
-                onAuthStateChanged,
-                doc,
-                setDoc,
-                getDoc,
-                collection,
-                query,
-                where,
-                getDocs,
-                addDoc,
-                updateDoc,
-                deleteDoc,
-                onSnapshot,
+            console.log('🔥 FirebaseDataManager initialized with v8');
+
+            // Set up auth state listener
+            this.auth.onAuthStateChanged((user) => {
+                this.currentUser = user;
+                if (user) {
+                    console.log('👤 User signed in:', user.email);
+                    if (this.onUserSignedIn) {
+                        this.onUserSignedIn(user);
+                    }
+                } else {
+                    console.log('👤 User signed out');
+                    if (this.onUserSignedOut) {
+                        this.onUserSignedOut();
+                    }
+                }
+            });
+
+            this.isInitialized = true;
+            return true;
                 ref,
                 uploadBytes,
                 getDownloadURL,
