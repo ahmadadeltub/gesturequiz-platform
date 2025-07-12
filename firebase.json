@@ -12,12 +12,13 @@
       "ahmad/",
       "src/js/",
       ".github/",
-      "*.log"
+      "*.log",
+      "quiz-app/"
     ],
     "rewrites": [
       {
         "source": "**",
-        "destination": "/quiz-app/index.html"
+        "destination": "/index.html"
       }
     ],
     "headers": [

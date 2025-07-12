@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Management - GestureQuiz</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-600: #2563eb;
+            --primary-100: #dbeafe;
+            --accent-500: #ec4899;
+            --success-500: #22c55e;
+            --warning-500: #f59e0b;
+            --danger-500: #ef4444;
+            --neutral-100: #f5f5f5;
+            --neutral-200: #e5e5e5;
+            --neutral-600: #525252;
+            --neutral-700: #404040;
+            --neutral-800: #262626;
+            --neutral-900: #171717;
+            --space-4: 1rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --radius-lg: 0.5rem;
+            --radius-xl: 0.75rem;
+            --radius-2xl: 1rem;
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #eff6ff 0%, #fef7ff 100%);
+            color: var(--neutral-800);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.9);
+            padding: var(--space-4) 0;
+            box-shadow: var(--shadow-lg);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 var(--space-6);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--neutral-900);
+        }
+
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--space-8) var(--space-6);
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: var(--space-8);
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--neutral-900);
+            margin-bottom: var(--space-4);
+        }
+
+        .section {
+            background: white;
+            padding: var(--space-8);
+            border-radius: var(--radius-2xl);
+            box-shadow: var(--shadow-lg);
+            margin-bottom: var(--space-8);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--neutral-900);
+            margin-bottom: var(--space-6);
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+
+        .btn {
+            padding: var(--space-4) var(--space-6);
+            border: none;
+            border-radius: var(--radius-lg);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            text-decoration: none;
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--neutral-700);
+            border: 2px solid var(--neutral-200);
+        }
+
+        .btn-outline:hover {
+            background: var(--neutral-100);
+        }
+
+        .btn-primary {
+            background: var(--primary-600);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .coming-soon {
+            text-align: center;
+            padding: var(--space-8) var(--space-6);
+            color: var(--neutral-600);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-6);
+            margin: var(--space-6) 0;
+        }
+
+        .feature-card {
+            background: var(--neutral-100);
+            padding: var(--space-6);
+            border-radius: var(--radius-xl);
+            text-align: center;
+            border: 2px solid var(--neutral-200);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--primary-600);
+            margin-bottom: var(--space-4);
+        }
+
+        .feature-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--neutral-900);
+            margin-bottom: var(--space-2);
+        }
+
+        .feature-description {
+            color: var(--neutral-600);
+            margin-bottom: var(--space-4);
+        }
+
+        .feature-status {
+            background: var(--warning-500);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-lg);
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .dev-icon {
+            font-size: 4rem;
+            color: var(--primary-600);
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .dev-text {
+            margin: 1rem 0;
+        }
+
+        .dev-list {
+            text-align: left;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .dev-button-container {
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-clipboard-list"></i>
+                Quiz Management
+            </div>
+            
+            <button class="btn btn-outline" onclick="goToDashboard()">
+                <i class="fas fa-arrow-left"></i>
+                Back to Dashboard
+            </button>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Quiz Management</h1>
+            <p>Create, manage, and analyze your gesture-based quizzes</p>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">
+                <i class="fas fa-tools"></i>
+                Quiz Management Features
+            </h2>
+            <div class="coming-soon">
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-plus-circle"></i>
+                        </div>
+                        <h3 class="feature-title">Create Quizzes</h3>
+                        <p class="feature-description">Build interactive gesture-based quizzes with multiple question types</p>
+                        <span class="feature-status">Coming Soon</span>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <h3 class="feature-title">Edit & Manage</h3>
+                        <p class="feature-description">Modify existing quizzes and manage quiz settings</p>
+                        <span class="feature-status">Coming Soon</span>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-share"></i>
+                        </div>
+                        <h3 class="feature-title">Publish & Share</h3>
+                        <p class="feature-description">Share quizzes with students and track participation</p>
+                        <span class="feature-status">Coming Soon</span>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <h3 class="feature-title">Analytics</h3>
+                        <p class="feature-description">View detailed performance analytics and student results</p>
+                        <span class="feature-status">Coming Soon</span>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-hand-paper"></i>
+                        </div>
+                        <h3 class="feature-title">Gesture Recognition</h3>
+                        <p class="feature-description">Advanced gesture detection for interactive learning</p>
+                        <span class="feature-status">Coming Soon</span>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h3 class="feature-title">Mobile Support</h3>
+                        <p class="feature-description">Full mobile and tablet compatibility for all devices</p>
+                        <span class="feature-status">Coming Soon</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">
+                <i class="fas fa-info-circle"></i>
+                Development Status
+            </h2>
+            <div class="coming-soon">
+                <i class="fas fa-code dev-icon"></i>
+                <h3>Quiz Management System In Development</h3>
+                <p class="dev-text">We're working hard to bring you a comprehensive quiz management system with the following features:</p>
+                <ul class="dev-list">
+                    <li>✅ User authentication and authorization</li>
+                    <li>✅ Class management system</li>
+                    <li>✅ Teacher and student dashboards</li>
+                    <li>🔄 Quiz creation and editing tools</li>
+                    <li>🔄 Gesture recognition integration</li>
+                    <li>🔄 Real-time quiz analytics</li>
+                    <li>🔄 Student progress tracking</li>
+                    <li>🔄 Mobile-responsive design</li>
+                </ul>
+                <p class="dev-button-container">
+                    <button class="btn btn-primary" onclick="requestNotification()">
+                        <i class="fas fa-bell"></i>
+                        Notify Me When Ready
+                    </button>
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function goToDashboard() {
+            window.location.href = 'teacher-dashboard.html';
+        }
+
+        function requestNotification() {
+            alert('Thanks for your interest! We\'ll notify you when the quiz management system is ready. For now, you can use the class management features to organize your students.');
+        }
+    </script>
+</body>
+</html>
