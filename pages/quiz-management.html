@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz Management - GestureQuiz</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase Config -->
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/firebase-data-manager-v8.js"></script>
     <style>
         :root {
             --primary-600: #2563eb;
@@ -205,6 +214,309 @@
         .dev-button-container {
             margin-top: 2rem;
         }
+
+        /* Quiz Management Specific Styles */
+        .quiz-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: var(--space-6);
+            margin: var(--space-6) 0;
+        }
+
+        .quiz-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--neutral-200);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .quiz-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .quiz-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--space-4);
+        }
+
+        .quiz-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--neutral-900);
+            margin-bottom: 0.5rem;
+        }
+
+        .quiz-description {
+            color: var(--neutral-600);
+            font-size: 0.9rem;
+            margin-bottom: var(--space-4);
+        }
+
+        .quiz-meta {
+            display: flex;
+            gap: var(--space-4);
+            margin-bottom: var(--space-4);
+            font-size: 0.85rem;
+            color: var(--neutral-600);
+        }
+
+        .quiz-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .quiz-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .status-badge {
+            position: absolute;
+            top: var(--space-4);
+            right: var(--space-4);
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-lg);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-published {
+            background: var(--success-500);
+            color: white;
+        }
+
+        .status-draft {
+            background: var(--warning-500);
+            color: white;
+        }
+
+        .status-archived {
+            background: var(--neutral-600);
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: var(--space-8);
+            color: var(--neutral-600);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            color: var(--neutral-400);
+            margin-bottom: var(--space-4);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: var(--space-8);
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-6);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--neutral-900);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--neutral-600);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: var(--radius-lg);
+            transition: all 0.3s ease;
+        }
+
+        .close-modal:hover {
+            background: var(--neutral-100);
+            color: var(--neutral-900);
+        }
+
+        .form-group {
+            margin-bottom: var(--space-6);
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: var(--neutral-700);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: var(--space-4);
+            border: 2px solid var(--neutral-200);
+            border-radius: var(--radius-lg);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary-600);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .question-builder {
+            border: 2px dashed var(--neutral-200);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            margin: var(--space-4) 0;
+        }
+
+        .question-item {
+            background: var(--neutral-100);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            margin-bottom: var(--space-4);
+            border: 1px solid var(--neutral-200);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-2);
+        }
+
+        .question-type {
+            background: var(--primary-600);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-lg);
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .btn-danger {
+            background: var(--danger-500);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-success {
+            background: var(--success-500);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #16a34a;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: var(--space-4) var(--space-6);
+            border-radius: var(--radius-lg);
+            color: white;
+            font-weight: 600;
+            z-index: 1001;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification-success {
+            background: var(--success-500);
+        }
+
+        .notification-error {
+            background: var(--danger-500);
+        }
+
+        .notification-warning {
+            background: var(--warning-500);
+        }
+
+        .filters {
+            display: flex;
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .filter-select {
+            min-width: 150px;
+        }
+
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -225,109 +537,857 @@
     <main class="main-content">
         <div class="page-header">
             <h1 class="page-title">Quiz Management</h1>
-            <p>Create, manage, and analyze your gesture-based quizzes</p>
+            <p>Create, manage, and publish your gesture-based quizzes</p>
         </div>
 
+        <!-- Filters and Search -->
+        <div class="filters">
+            <input type="text" class="form-input search-input" id="searchQuizzes" placeholder="Search quizzes...">
+            <select class="form-select filter-select" id="statusFilter" title="Filter by status">
+                <option value="">All Status</option>
+                <option value="published">Published</option>
+                <option value="draft">Draft</option>
+                <option value="archived">Archived</option>
+            </select>
+            <button class="btn btn-primary" onclick="openCreateQuizModal()">
+                <i class="fas fa-plus"></i>
+                Create Quiz
+            </button>
+        </div>
+
+        <!-- Quiz Grid -->
         <div class="section">
             <h2 class="section-title">
-                <i class="fas fa-tools"></i>
-                Quiz Management Features
+                <i class="fas fa-list"></i>
+                Your Quizzes
             </h2>
-            <div class="coming-soon">
-                <div class="feature-grid">
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-plus-circle"></i>
-                        </div>
-                        <h3 class="feature-title">Create Quizzes</h3>
-                        <p class="feature-description">Build interactive gesture-based quizzes with multiple question types</p>
-                        <span class="feature-status">Coming Soon</span>
-                    </div>
-                    
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-edit"></i>
-                        </div>
-                        <h3 class="feature-title">Edit & Manage</h3>
-                        <p class="feature-description">Modify existing quizzes and manage quiz settings</p>
-                        <span class="feature-status">Coming Soon</span>
-                    </div>
-                    
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-share"></i>
-                        </div>
-                        <h3 class="feature-title">Publish & Share</h3>
-                        <p class="feature-description">Share quizzes with students and track participation</p>
-                        <span class="feature-status">Coming Soon</span>
-                    </div>
-                    
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-chart-bar"></i>
-                        </div>
-                        <h3 class="feature-title">Analytics</h3>
-                        <p class="feature-description">View detailed performance analytics and student results</p>
-                        <span class="feature-status">Coming Soon</span>
-                    </div>
-                    
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-hand-paper"></i>
-                        </div>
-                        <h3 class="feature-title">Gesture Recognition</h3>
-                        <p class="feature-description">Advanced gesture detection for interactive learning</p>
-                        <span class="feature-status">Coming Soon</span>
-                    </div>
-                    
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-mobile-alt"></i>
-                        </div>
-                        <h3 class="feature-title">Mobile Support</h3>
-                        <p class="feature-description">Full mobile and tablet compatibility for all devices</p>
-                        <span class="feature-status">Coming Soon</span>
-                    </div>
-                </div>
+            
+            <div id="quizGrid" class="quiz-grid">
+                <!-- Quizzes will be loaded here -->
             </div>
-        </div>
 
-        <div class="section">
-            <h2 class="section-title">
-                <i class="fas fa-info-circle"></i>
-                Development Status
-            </h2>
-            <div class="coming-soon">
-                <i class="fas fa-code dev-icon"></i>
-                <h3>Quiz Management System In Development</h3>
-                <p class="dev-text">We're working hard to bring you a comprehensive quiz management system with the following features:</p>
-                <ul class="dev-list">
-                    <li>✅ User authentication and authorization</li>
-                    <li>✅ Class management system</li>
-                    <li>✅ Teacher and student dashboards</li>
-                    <li>🔄 Quiz creation and editing tools</li>
-                    <li>🔄 Gesture recognition integration</li>
-                    <li>🔄 Real-time quiz analytics</li>
-                    <li>🔄 Student progress tracking</li>
-                    <li>🔄 Mobile-responsive design</li>
-                </ul>
-                <p class="dev-button-container">
-                    <button class="btn btn-primary" onclick="requestNotification()">
-                        <i class="fas fa-bell"></i>
-                        Notify Me When Ready
-                    </button>
-                </p>
+            <div id="emptyState" class="empty-state hidden">
+                <i class="fas fa-clipboard-list empty-state-icon"></i>
+                <h3>No Quizzes Yet</h3>
+                <p>Create your first quiz to get started with gesture-based learning!</p>
+                <button class="btn btn-primary" onclick="openCreateQuizModal()">
+                    <i class="fas fa-plus"></i>
+                    Create Your First Quiz
+                </button>
             </div>
         </div>
     </main>
 
+    <!-- Create/Edit Quiz Modal -->
+    <div id="quizModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Create New Quiz</h2>
+                <button class="close-modal" onclick="closeQuizModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="quizForm">
+                <div class="form-group">
+                    <label class="form-label" for="quizTitle">Quiz Title</label>
+                    <input type="text" class="form-input" id="quizTitle" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="quizDescription">Description</label>
+                    <textarea class="form-textarea" id="quizDescription" placeholder="Describe what this quiz covers..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="quizClass">Assign to Class</label>
+                    <select class="form-select" id="quizClass">
+                        <option value="">Select a class (optional)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="quizDifficulty">Difficulty Level</label>
+                    <select class="form-select" id="quizDifficulty" required>
+                        <option value="">Select difficulty</option>
+                        <option value="easy">Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="quizTimeLimit">Time Limit (minutes)</label>
+                    <input type="number" class="form-input" id="quizTimeLimit" min="1" max="180" value="30">
+                </div>
+
+                <!-- Question Builder -->
+                <div class="form-group">
+                    <label class="form-label">Questions</label>
+                    <div class="question-builder">
+                        <div id="questionsList">
+                            <!-- Questions will be added here -->
+                        </div>
+                        <button type="button" class="btn btn-outline" onclick="addQuestion()">
+                            <i class="fas fa-plus"></i>
+                            Add Question
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="quiz-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeQuizModal()">Cancel</button>
+                    <button type="button" class="btn btn-outline" onclick="saveQuizAsDraft()">Save as Draft</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        <span id="submitButtonText">Create Quiz</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
+        let currentQuizId = null;
+        let questions = [];
+        let quizzes = [];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthentication();
+            loadQuizzes();
+            loadClasses();
+            setupEventListeners();
+        });
+
+        function checkAuthentication() {
+            // Check if user is authenticated
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            if (!currentUser.uid && !currentUser.email) {
+                window.location.href = '../index.html';
+                return;
+            }
+        }
+
+        function setupEventListeners() {
+            // Search functionality
+            document.getElementById('searchQuizzes').addEventListener('input', filterQuizzes);
+            document.getElementById('statusFilter').addEventListener('change', filterQuizzes);
+            
+            // Form submission
+            document.getElementById('quizForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveQuiz();
+            });
+        }
+
+        async function loadQuizzes() {
+            try {
+                console.log('🔄 Loading quizzes from Firebase...');
+                const currentUser = getCurrentUser();
+                
+                if (!currentUser) {
+                    console.error('❌ No authenticated user found');
+                    return;
+                }
+
+                // Initialize Firebase if needed
+                if (!window.firebaseDataManager || !window.firebaseDataManager.isInitialized) {
+                    console.log('🔄 Initializing Firebase...');
+                    await initializeFirebase();
+                }
+
+                // Load quizzes from Firestore
+                const db = firebase.firestore();
+                const quizzesSnapshot = await db.collection('quizzes')
+                    .where('teacherId', '==', currentUser.uid)
+                    .orderBy('updatedAt', 'desc')
+                    .get();
+                
+                quizzes = [];
+                quizzesSnapshot.forEach(doc => {
+                    quizzes.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                console.log('✅ Loaded', quizzes.length, 'quizzes from Firebase');
+                
+                // If no quizzes exist, add sample data
+                if (quizzes.length === 0) {
+                    await createSampleQuizzes(currentUser.uid);
+                }
+                
+                renderQuizzes(quizzes);
+                
+            } catch (error) {
+                console.error('❌ Error loading quizzes:', error);
+                showNotification('Error loading quizzes: ' + error.message, 'error');
+                
+                // Fallback to empty state
+                quizzes = [];
+                renderQuizzes(quizzes);
+            }
+        }
+
+        async function createSampleQuizzes(teacherId) {
+            try {
+                console.log('🔄 Creating sample quizzes...');
+                const db = firebase.firestore();
+                const sampleQuizzes = getSampleQuizzes();
+                
+                for (const quiz of sampleQuizzes) {
+                    quiz.teacherId = teacherId;
+                    await db.collection('quizzes').add(quiz);
+                }
+                
+                console.log('✅ Sample quizzes created');
+                
+                // Reload quizzes
+                await loadQuizzes();
+                
+            } catch (error) {
+                console.error('❌ Error creating sample quizzes:', error);
+            }
+        }
+
+        function getSampleQuizzes() {
+            return [
+                {
+                    id: 'quiz_' + Date.now() + '_1',
+                    title: 'Basic Hand Gestures',
+                    description: 'Learn fundamental hand gestures for communication',
+                    status: 'published',
+                    difficulty: 'easy',
+                    timeLimit: 15,
+                    classId: '',
+                    questions: [
+                        {
+                            id: 'q1',
+                            type: 'gesture',
+                            question: 'Show the gesture for "Hello"',
+                            gesture: 'wave',
+                            points: 10
+                        },
+                        {
+                            id: 'q2',
+                            type: 'gesture',
+                            question: 'Demonstrate the "Thumbs Up" gesture',
+                            gesture: 'thumbs_up',
+                            points: 10
+                        }
+                    ],
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                },
+                {
+                    id: 'quiz_' + Date.now() + '_2',
+                    title: 'Advanced Communication Gestures',
+                    description: 'Master complex gestures for advanced communication',
+                    status: 'draft',
+                    difficulty: 'hard',
+                    timeLimit: 45,
+                    classId: '',
+                    questions: [
+                        {
+                            id: 'q1',
+                            type: 'gesture',
+                            question: 'Perform the gesture sequence for "Thank you very much"',
+                            gesture: 'complex_thanks',
+                            points: 20
+                        }
+                    ],
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                }
+            ];
+        }
+
+        function renderQuizzes(quizzesToRender) {
+            const quizGrid = document.getElementById('quizGrid');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (quizzesToRender.length === 0) {
+                quizGrid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            quizGrid.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            
+            quizGrid.innerHTML = quizzesToRender.map(quiz => `
+                <div class="quiz-card">
+                    <div class="status-badge status-${quiz.status}">${quiz.status}</div>
+                    <div class="quiz-card-header">
+                        <div>
+                            <h3 class="quiz-title">${quiz.title}</h3>
+                            <p class="quiz-description">${quiz.description}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="quiz-meta">
+                        <span>
+                            <i class="fas fa-clock"></i>
+                            ${quiz.timeLimit} min
+                        </span>
+                        <span>
+                            <i class="fas fa-layer-group"></i>
+                            ${quiz.difficulty}
+                        </span>
+                        <span>
+                            <i class="fas fa-question-circle"></i>
+                            ${quiz.questions?.length || 0} questions
+                        </span>
+                    </div>
+                    
+                    <div class="quiz-actions">
+                        <button class="btn btn-outline btn-small" onclick="editQuiz('${quiz.id}')">
+                            <i class="fas fa-edit"></i>
+                            Edit
+                        </button>
+                        <button class="btn btn-outline btn-small" onclick="duplicateQuiz('${quiz.id}')">
+                            <i class="fas fa-copy"></i>
+                            Duplicate
+                        </button>
+                        <button class="btn btn-outline btn-small" onclick="previewQuiz('${quiz.id}')">
+                            <i class="fas fa-eye"></i>
+                            Preview
+                        </button>
+                        ${quiz.status === 'draft' ? 
+                            `<button class="btn btn-success btn-small" onclick="publishQuiz('${quiz.id}')">
+                                <i class="fas fa-upload"></i>
+                                Publish
+                            </button>` : 
+                            `<button class="btn btn-outline btn-small" onclick="unpublishQuiz('${quiz.id}')">
+                                <i class="fas fa-download"></i>
+                                Unpublish
+                            </button>`
+                        }
+                        <button class="btn btn-danger btn-small" onclick="deleteQuiz('${quiz.id}')">
+                            <i class="fas fa-trash"></i>
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterQuizzes() {
+            const searchTerm = document.getElementById('searchQuizzes').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            
+            let filtered = quizzes.filter(quiz => {
+                const matchesSearch = quiz.title.toLowerCase().includes(searchTerm) || 
+                                    quiz.description.toLowerCase().includes(searchTerm);
+                const matchesStatus = !statusFilter || quiz.status === statusFilter;
+                
+                return matchesSearch && matchesStatus;
+            });
+            
+            renderQuizzes(filtered);
+        }
+
+        function openCreateQuizModal() {
+            currentQuizId = null;
+            questions = [];
+            document.getElementById('modalTitle').textContent = 'Create New Quiz';
+            document.getElementById('submitButtonText').textContent = 'Create Quiz';
+            document.getElementById('quizForm').reset();
+            document.getElementById('questionsList').innerHTML = '';
+            document.getElementById('quizModal').classList.add('active');
+        }
+
+        function closeQuizModal() {
+            document.getElementById('quizModal').classList.remove('active');
+            currentQuizId = null;
+            questions = [];
+        }
+
+        function addQuestion() {
+            const questionId = 'q_' + Date.now();
+            const questionHTML = `
+                <div class="question-item" data-id="${questionId}">
+                    <div class="question-header">
+                        <span class="question-type">Gesture</span>
+                        <button type="button" class="btn btn-danger btn-small" onclick="removeQuestion('${questionId}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Question Text</label>
+                        <input type="text" class="form-input" placeholder="Enter your question..." onchange="updateQuestion('${questionId}', 'question', this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Expected Gesture</label>
+                        <select class="form-select" onchange="updateQuestion('${questionId}', 'gesture', this.value)">
+                            <option value="">Select gesture</option>
+                            <option value="wave">Wave</option>
+                            <option value="thumbs_up">Thumbs Up</option>
+                            <option value="thumbs_down">Thumbs Down</option>
+                            <option value="peace">Peace Sign</option>
+                            <option value="point">Point</option>
+                            <option value="ok">OK Sign</option>
+                            <option value="stop">Stop</option>
+                            <option value="come_here">Come Here</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Points</label>
+                        <input type="number" class="form-input" value="10" min="1" max="100" onchange="updateQuestion('${questionId}', 'points', this.value)">
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('questionsList').insertAdjacentHTML('beforeend', questionHTML);
+            
+            // Add question to array
+            questions.push({
+                id: questionId,
+                type: 'gesture',
+                question: '',
+                gesture: '',
+                points: 10
+            });
+        }
+
+        function removeQuestion(questionId) {
+            document.querySelector(`[data-id="${questionId}"]`).remove();
+            questions = questions.filter(q => q.id !== questionId);
+        }
+
+        function updateQuestion(questionId, field, value) {
+            const question = questions.find(q => q.id === questionId);
+            if (question) {
+                question[field] = field === 'points' ? parseInt(value) : value;
+            }
+        }
+
+        async function saveQuiz() {
+            try {
+                const title = document.getElementById('quizTitle').value;
+                const description = document.getElementById('quizDescription').value;
+                const classId = document.getElementById('quizClass').value;
+                const difficulty = document.getElementById('quizDifficulty').value;
+                const timeLimit = parseInt(document.getElementById('quizTimeLimit').value);
+                
+                if (!title || !difficulty || questions.length === 0) {
+                    showNotification('Please fill in all required fields and add at least one question', 'error');
+                    return;
+                }
+                
+                const currentUser = getCurrentUser();
+                const now = new Date().toISOString();
+                
+                const quizData = {
+                    title,
+                    description,
+                    classId,
+                    difficulty,
+                    timeLimit,
+                    questions: [...questions],
+                    status: 'published',
+                    updatedAt: now,
+                    teacherId: currentUser.uid
+                };
+
+                // Add createdAt for new quizzes
+                if (!currentQuizId) {
+                    quizData.createdAt = now;
+                }
+                
+                const db = firebase.firestore();
+                
+                if (currentQuizId) {
+                    // Update existing quiz
+                    await db.collection('quizzes').doc(currentQuizId).update(quizData);
+                    console.log('✅ Quiz updated in Firebase');
+                    
+                    // Update local array
+                    const index = quizzes.findIndex(q => q.id === currentQuizId);
+                    if (index !== -1) {
+                        quizzes[index] = { id: currentQuizId, ...quizData };
+                    }
+                } else {
+                    // Create new quiz
+                    const docRef = await db.collection('quizzes').add(quizData);
+                    console.log('✅ Quiz created in Firebase with ID:', docRef.id);
+                    
+                    // Add to local array
+                    quizzes.unshift({ id: docRef.id, ...quizData });
+                }
+                
+                showNotification('Quiz saved successfully!', 'success');
+                closeQuizModal();
+                renderQuizzes(quizzes);
+                
+            } catch (error) {
+                console.error('❌ Error saving quiz:', error);
+                showNotification('Error saving quiz: ' + error.message, 'error');
+            }
+        }
+
+        async function saveQuizAsDraft() {
+            try {
+                const title = document.getElementById('quizTitle').value;
+                
+                if (!title) {
+                    showNotification('Please enter a quiz title', 'error');
+                    return;
+                }
+                
+                const currentUser = getCurrentUser();
+                const now = new Date().toISOString();
+                
+                const quizData = {
+                    title,
+                    description: document.getElementById('quizDescription').value,
+                    classId: document.getElementById('quizClass').value,
+                    difficulty: document.getElementById('quizDifficulty').value || 'easy',
+                    timeLimit: parseInt(document.getElementById('quizTimeLimit').value) || 30,
+                    questions: [...questions],
+                    status: 'draft',
+                    updatedAt: now,
+                    teacherId: currentUser.uid
+                };
+
+                // Add createdAt for new quizzes
+                if (!currentQuizId) {
+                    quizData.createdAt = now;
+                }
+                
+                const db = firebase.firestore();
+                
+                if (currentQuizId) {
+                    // Update existing quiz
+                    await db.collection('quizzes').doc(currentQuizId).update(quizData);
+                    console.log('✅ Draft updated in Firebase');
+                    
+                    // Update local array
+                    const index = quizzes.findIndex(q => q.id === currentQuizId);
+                    if (index !== -1) {
+                        quizzes[index] = { id: currentQuizId, ...quizData };
+                    }
+                } else {
+                    // Create new draft
+                    const docRef = await db.collection('quizzes').add(quizData);
+                    console.log('✅ Draft created in Firebase with ID:', docRef.id);
+                    
+                    // Add to local array
+                    quizzes.unshift({ id: docRef.id, ...quizData });
+                }
+                
+                showNotification('Quiz saved as draft!', 'success');
+                closeQuizModal();
+                renderQuizzes(quizzes);
+                
+            } catch (error) {
+                console.error('❌ Error saving draft:', error);
+                showNotification('Error saving draft: ' + error.message, 'error');
+            }
+        }
+
+        function editQuiz(quizId) {
+            const quiz = quizzes.find(q => q.id === quizId);
+            if (!quiz) return;
+            
+            currentQuizId = quizId;
+            questions = [...quiz.questions];
+            
+            document.getElementById('modalTitle').textContent = 'Edit Quiz';
+            document.getElementById('submitButtonText').textContent = 'Update Quiz';
+            document.getElementById('quizTitle').value = quiz.title;
+            document.getElementById('quizDescription').value = quiz.description;
+            document.getElementById('quizClass').value = quiz.classId || '';
+            document.getElementById('quizDifficulty').value = quiz.difficulty;
+            document.getElementById('quizTimeLimit').value = quiz.timeLimit;
+            
+            // Render questions
+            const questionsList = document.getElementById('questionsList');
+            questionsList.innerHTML = quiz.questions.map(q => `
+                <div class="question-item" data-id="${q.id}">
+                    <div class="question-header">
+                        <span class="question-type">Gesture</span>
+                        <button type="button" class="btn btn-danger btn-small" onclick="removeQuestion('${q.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Question Text</label>
+                        <input type="text" class="form-input" value="${q.question}" onchange="updateQuestion('${q.id}', 'question', this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Expected Gesture</label>
+                        <select class="form-select" onchange="updateQuestion('${q.id}', 'gesture', this.value)">
+                            <option value="">Select gesture</option>
+                            <option value="wave" ${q.gesture === 'wave' ? 'selected' : ''}>Wave</option>
+                            <option value="thumbs_up" ${q.gesture === 'thumbs_up' ? 'selected' : ''}>Thumbs Up</option>
+                            <option value="thumbs_down" ${q.gesture === 'thumbs_down' ? 'selected' : ''}>Thumbs Down</option>
+                            <option value="peace" ${q.gesture === 'peace' ? 'selected' : ''}>Peace Sign</option>
+                            <option value="point" ${q.gesture === 'point' ? 'selected' : ''}>Point</option>
+                            <option value="ok" ${q.gesture === 'ok' ? 'selected' : ''}>OK Sign</option>
+                            <option value="stop" ${q.gesture === 'stop' ? 'selected' : ''}>Stop</option>
+                            <option value="come_here" ${q.gesture === 'come_here' ? 'selected' : ''}>Come Here</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Points</label>
+                        <input type="number" class="form-input" value="${q.points}" min="1" max="100" onchange="updateQuestion('${q.id}', 'points', this.value)">
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('quizModal').classList.add('active');
+        }
+
+        async function duplicateQuiz(quizId) {
+            try {
+                const quiz = quizzes.find(q => q.id === quizId);
+                if (!quiz) return;
+                
+                const newQuiz = {
+                    ...quiz,
+                    title: quiz.title + ' (Copy)',
+                    status: 'draft',
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+                
+                // Remove the old ID before saving to Firebase
+                delete newQuiz.id;
+                
+                const db = firebase.firestore();
+                const docRef = await db.collection('quizzes').add(newQuiz);
+                
+                // Add to local array
+                quizzes.unshift({ id: docRef.id, ...newQuiz });
+                
+                showNotification('Quiz duplicated successfully!', 'success');
+                renderQuizzes(quizzes);
+                
+            } catch (error) {
+                console.error('❌ Error duplicating quiz:', error);
+                showNotification('Error duplicating quiz: ' + error.message, 'error');
+            }
+        }
+
+        async function publishQuiz(quizId) {
+            try {
+                const quiz = quizzes.find(q => q.id === quizId);
+                if (!quiz) return;
+                
+                const db = firebase.firestore();
+                await db.collection('quizzes').doc(quizId).update({
+                    status: 'published',
+                    updatedAt: new Date().toISOString()
+                });
+                
+                // Update local array
+                quiz.status = 'published';
+                quiz.updatedAt = new Date().toISOString();
+                
+                showNotification('Quiz published successfully!', 'success');
+                renderQuizzes(quizzes);
+                
+            } catch (error) {
+                console.error('❌ Error publishing quiz:', error);
+                showNotification('Error publishing quiz: ' + error.message, 'error');
+            }
+        }
+
+        async function unpublishQuiz(quizId) {
+            try {
+                const quiz = quizzes.find(q => q.id === quizId);
+                if (!quiz) return;
+                
+                const db = firebase.firestore();
+                await db.collection('quizzes').doc(quizId).update({
+                    status: 'draft',
+                    updatedAt: new Date().toISOString()
+                });
+                
+                // Update local array
+                quiz.status = 'draft';
+                quiz.updatedAt = new Date().toISOString();
+                
+                showNotification('Quiz unpublished successfully!', 'success');
+                renderQuizzes(quizzes);
+                
+            } catch (error) {
+                console.error('❌ Error unpublishing quiz:', error);
+                showNotification('Error unpublishing quiz: ' + error.message, 'error');
+            }
+        }
+
+        async function deleteQuiz(quizId) {
+            if (!confirm('Are you sure you want to delete this quiz? This action cannot be undone.')) {
+                return;
+            }
+            
+            try {
+                const db = firebase.firestore();
+                await db.collection('quizzes').doc(quizId).delete();
+                
+                // Remove from local array
+                quizzes = quizzes.filter(q => q.id !== quizId);
+                
+                showNotification('Quiz deleted successfully!', 'success');
+                renderQuizzes(quizzes);
+                
+            } catch (error) {
+                console.error('❌ Error deleting quiz:', error);
+                showNotification('Error deleting quiz: ' + error.message, 'error');
+            }
+        }
+
+        async function loadClasses() {
+            try {
+                const currentUser = getCurrentUser();
+                
+                // Load classes from Firebase
+                const db = firebase.firestore();
+                const classesSnapshot = await db.collection('classes')
+                    .where('teacherId', '==', currentUser.uid)
+                    .get();
+                
+                const classes = [];
+                classesSnapshot.forEach(doc => {
+                    classes.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                const classSelect = document.getElementById('quizClass');
+                classSelect.innerHTML = '<option value="">Select a class (optional)</option>';
+                
+                classes.forEach(cls => {
+                    const option = document.createElement('option');
+                    option.value = cls.id;
+                    option.textContent = cls.name;
+                    classSelect.appendChild(option);
+                });
+                
+            } catch (error) {
+                console.error('❌ Error loading classes:', error);
+            }
+        }
+
+        function previewQuiz(quizId) {
+            const quiz = quizzes.find(q => q.id === quizId);
+            if (!quiz) return;
+            
+            // Store quiz data for preview
+            sessionStorage.setItem('previewQuiz', JSON.stringify(quiz));
+            
+            // Open in new tab
+            window.open('../quiz-app/index.html?preview=' + quizId, '_blank');
+        }
+
+        function getCurrentUser() {
+            // Try Firebase Auth first
+            if (typeof firebase !== 'undefined' && firebase.auth) {
+                const authUser = firebase.auth().currentUser;
+                if (authUser) {
+                    return authUser;
+                }
+            }
+            
+            // Fallback to localStorage
+            return JSON.parse(localStorage.getItem('currentUser') || '{}');
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
         function goToDashboard() {
             window.location.href = 'teacher-dashboard.html';
         }
 
-        function requestNotification() {
-            alert('Thanks for your interest! We\'ll notify you when the quiz management system is ready. For now, you can use the class management features to organize your students.');
+        // Global functions for student access to published quizzes
+        window.getPublishedQuizzes = async function() {
+            try {
+                const db = firebase.firestore();
+                const snapshot = await db.collection('quizzes')
+                    .where('status', '==', 'published')
+                    .orderBy('updatedAt', 'desc')
+                    .get();
+                
+                const publishedQuizzes = [];
+                snapshot.forEach(doc => {
+                    publishedQuizzes.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                return publishedQuizzes;
+            } catch (error) {
+                console.error('❌ Error loading published quizzes:', error);
+                return [];
+            }
+        };
+
+        window.getQuizById = async function(quizId) {
+            try {
+                const db = firebase.firestore();
+                const doc = await db.collection('quizzes').doc(quizId).get();
+                
+                if (doc.exists) {
+                    return {
+                        id: doc.id,
+                        ...doc.data()
+                    };
+                } else {
+                    return null;
+                }
+            } catch (error) {
+                console.error('❌ Error loading quiz:', error);
+                return null;
+            }
+        };
+
+        // Initialize Firebase connection
+        async function initializeFirebase() {
+            try {
+                if (typeof firebase === 'undefined') {
+                    throw new Error('Firebase not loaded');
+                }
+                
+                if (!firebase.apps.length) {
+                    throw new Error('Firebase not initialized');
+                }
+                
+                // Ensure user is authenticated
+                const user = firebase.auth().currentUser;
+                if (!user) {
+                    throw new Error('User not authenticated');
+                }
+                
+                console.log('✅ Firebase initialized for user:', user.uid);
+                return true;
+                
+            } catch (error) {
+                console.error('❌ Firebase initialization failed:', error);
+                throw error;
+            }
         }
     </script>
 </body>
