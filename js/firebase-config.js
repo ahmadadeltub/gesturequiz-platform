@@ -1,11 +1,12 @@
 // Firebase Configuration for GestureQuiz Platform - NEW PROJECT
 const firebaseConfig = {
-  apiKey: "AIzaSyDCpgF2BH3Y6Yx9Ge-MWhXtLPGOqZR36bk",
-  authDomain: "quizgames-e1fd5.firebaseapp.com",
-  projectId: "quizgames-e1fd5",
-  storageBucket: "quizgames-e1fd5.firebasestorage.app",
-  messagingSenderId: "736137904050",
-  appId: "1:736137904050:web:10b4b504b2f6cf4d3d0d21"
+  apiKey: "AIzaSyAt4ByDMxZFT00a-zESwNHS8uv3DY08uhg",
+  authDomain: "gesturequiz-platform-live.firebaseapp.com",
+  projectId: "gesturequiz-platform-live",
+  storageBucket: "gesturequiz-platform-live.firebasestorage.app",
+  messagingSenderId: "794242095954",
+  appId: "1:794242095954:web:85868edc63c96d37ea388b",
+  measurementId: "G-Y7WPTJRVG6"
 };
 
 // Initialize Firebase when script loads
