@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard - GestureQuiz</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            /* Modern Color Palette */
+            --primary-50: #eff6ff;
+            --primary-100: #dbeafe;
+            --primary-200: #bfdbfe;
+            --primary-300: #93c5fd;
+            --primary-400: #60a5fa;
+            --primary-500: #3b82f6;
+            --primary-600: #2563eb;
+            --primary-700: #1d4ed8;
+            --primary-800: #1e40af;
+            --primary-900: #1e3a8a;
+
+            --accent-50: #f0f9ff;
+            --accent-100: #e0f2fe;
+            --accent-200: #bae6fd;
+            --accent-300: #7dd3fc;
+            --accent-400: #38bdf8;
+            --accent-500: #0ea5e9;
+            --accent-600: #0284c7;
+            --accent-700: #0369a1;
+            --accent-800: #075985;
+            --accent-900: #0c4a6e;
+
+            --success-50: #f0fdf4;
+            --success-500: #22c55e;
+            --success-600: #16a34a;
+
+            --warning-50: #fffbeb;
+            --warning-500: #f59e0b;
+            --warning-600: #d97706;
+
+            --danger-50: #fef2f2;
+            --danger-500: #ef4444;
+            --danger-600: #dc2626;
+
+            --neutral-50: #f9fafb;
+            --neutral-100: #f3f4f6;
+            --neutral-200: #e5e7eb;
+            --neutral-300: #d1d5db;
+            --neutral-400: #9ca3af;
+            --neutral-500: #6b7280;
+            --neutral-600: #4b5563;
+            --neutral-700: #374151;
+            --neutral-800: #1f2937;
+            --neutral-900: #111827;
+
+            /* Spacing */
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-5: 1.25rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --space-10: 2.5rem;
+            --space-12: 3rem;
+            --space-16: 4rem;
+            --space-20: 5rem;
+
+            /* Border Radius */
+            --radius-sm: 0.125rem;
+            --radius-md: 0.375rem;
+            --radius-lg: 0.5rem;
+            --radius-xl: 0.75rem;
+            --radius-2xl: 1rem;
+            --radius-3xl: 1.5rem;
+            --radius-full: 9999px;
+
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+            /* Transitions */
+            --transition-base: all 0.3s ease;
+            --transition-colors: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--primary-50) 0%, var(--accent-50) 100%);
+            color: var(--neutral-800);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-bottom: 1px solid var(--neutral-200);
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--space-4) var(--space-6);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--primary-600);
+            text-decoration: none;
+        }
+
+        .logo i {
+            font-size: 1.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: var(--space-6);
+        }
+
+        .nav-links a {
+            color: var(--neutral-600);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition-colors);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-600);
+        }
+
+        .nav-links a.active {
+            color: var(--primary-600);
+            background: var(--primary-50);
+            padding: var(--space-2) var(--space-3);
+            border-radius: var(--radius-lg);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-2) var(--space-3);
+            background: var(--neutral-50);
+            border-radius: var(--radius-lg);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--primary-600);
+            color: white;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            padding: var(--space-3) var(--space-4);
+            border-radius: var(--radius-xl);
+            font-weight: 500;
+            font-size: 0.9rem;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .btn-primary {
+            background: var(--primary-600);
+            color: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-700);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--neutral-700);
+            border: 1px solid var(--neutral-200);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-outline:hover {
+            background: var(--neutral-50);
+            border-color: var(--primary-600);
+            color: var(--primary-600);
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--space-8) var(--space-6);
+        }
+
+        .page-header {
+            margin-bottom: var(--space-8);
+        }
+
+        .welcome-section {
+            background: white;
+            border-radius: var(--radius-2xl);
+            padding: var(--space-8);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--neutral-100);
+            margin-bottom: var(--space-8);
+        }
+
+        .welcome-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .welcome-text {
+            flex: 1;
+        }
+
+        .welcome-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--neutral-900);
+            margin-bottom: var(--space-2);
+        }
+
+        .welcome-subtitle {
+            font-size: 1.1rem;
+            color: var(--neutral-600);
+            margin-bottom: var(--space-4);
+        }
+
+        .welcome-actions {
+            display: flex;
+            gap: var(--space-3);
+        }
+
+        .welcome-illustration {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--primary-100), var(--accent-100));
+            border-radius: var(--radius-3xl);
+            font-size: 3rem;
+            color: var(--primary-600);
+        }
+
+        /* Quick Stats */
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-6);
+            margin-bottom: var(--space-8);
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--radius-2xl);
+            padding: var(--space-6);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--neutral-100);
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--primary-100);
+            color: var(--primary-600);
+            border-radius: var(--radius-xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-icon.success {
+            background: var(--success-50);
+            color: var(--success-600);
+        }
+
+        .stat-icon.warning {
+            background: var(--warning-50);
+            color: var(--warning-600);
+        }
+
+        .stat-icon.accent {
+            background: var(--accent-100);
+            color: var(--accent-600);
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--neutral-900);
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--neutral-600);
+            margin-top: var(--space-1);
+        }
+
+        /* Main Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: var(--space-8);
+        }
+
+        .main-section {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-8);
+        }
+
+        .sidebar-section {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-6);
+        }
+
+        /* Cards */
+        .dashboard-card {
+            background: white;
+            border-radius: var(--radius-2xl);
+            padding: var(--space-8);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--neutral-100);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-6);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--neutral-900);
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-100);
+            color: var(--primary-600);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Recent Activity */
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            padding: var(--space-4);
+            background: var(--neutral-50);
+            border-radius: var(--radius-lg);
+        }
+
+        .activity-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--primary-100);
+            color: var(--primary-600);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            color: var(--neutral-900);
+            margin-bottom: var(--space-1);
+        }
+
+        .activity-meta {
+            font-size: 0.8rem;
+            color: var(--neutral-500);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-4);
+        }
+
+        .action-btn {
+            padding: var(--space-4);
+            background: var(--primary-50);
+            border: 1px solid var(--primary-200);
+            border-radius: var(--radius-lg);
+            text-decoration: none;
+            color: var(--primary-700);
+            text-align: center;
+            transition: var(--transition-base);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .action-btn:hover {
+            background: var(--primary-100);
+            border-color: var(--primary-300);
+            color: var(--primary-800);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .action-btn i {
+            font-size: 1.5rem;
+        }
+
+        .action-btn span {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: var(--space-12) var(--space-4);
+            color: var(--neutral-500);
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: var(--space-4);
+            color: var(--neutral-300);
+        }
+
+        .empty-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: var(--space-2);
+        }
+
+        .empty-description {
+            margin-bottom: var(--space-4);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                padding: var(--space-4);
+            }
+
+            .main-content {
+                padding: var(--space-6) var(--space-4);
+            }
+
+            .welcome-content {
+                flex-direction: column;
+                text-align: center;
+                gap: var(--space-6);
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .quick-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="../index.html" class="logo">
+                <i class="fas fa-hand-paper"></i>
+                GestureQuiz
+            </a>
+            
+            <nav class="nav-links">
+                <a href="teacher-dashboard.html" class="active">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </a>
+                <a href="quiz-management.html">
+                    <i class="fas fa-clipboard-list"></i>
+                    Quizzes
+                </a>
+                <a href="class-management.html">
+                    <i class="fas fa-chalkboard"></i>
+                    Classes
+                </a>
+                <a href="analytics.html">
+                    <i class="fas fa-chart-line"></i>
+                    Analytics
+                </a>
+            </nav>
+            
+            <div class="header-actions">
+                <div class="user-info" id="userInfo">
+                    <div class="user-avatar" id="userAvatar">T</div>
+                    <span id="userName">Teacher</span>
+                </div>
+                <button class="btn btn-outline" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <div class="welcome-content">
+                <div class="welcome-text">
+                    <h1 class="welcome-title">Welcome back, <span id="welcomeName">Teacher</span>!</h1>
+                    <p class="welcome-subtitle">Manage your classes, create engaging quizzes, and track student progress.</p>
+                    <div class="welcome-actions">
+                        <a href="quiz-management.html" class="btn btn-primary">
+                            <i class="fas fa-plus"></i>
+                            Create New Quiz
+                        </a>
+                        <a href="class-management.html" class="btn btn-outline">
+                            <i class="fas fa-users"></i>
+                            Manage Classes
+                        </a>
+                    </div>
+                </div>
+                <div class="welcome-illustration">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="quick-stats">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value" id="totalQuizzes">0</div>
+                    <div class="stat-label">Total Quizzes</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon success">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value" id="totalStudents">0</div>
+                    <div class="stat-label">Active Students</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon warning">
+                    <i class="fas fa-chalkboard"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value" id="totalClasses">0</div>
+                    <div class="stat-label">Classes</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon accent">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value" id="averageScore">0%</div>
+                    <div class="stat-label">Average Score</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Main Section -->
+            <div class="main-section">
+                <!-- Recent Activity -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <div class="card-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            Recent Activity
+                        </h2>
+                        <a href="analytics.html" class="btn btn-outline btn-sm">View All</a>
+                    </div>
+                    
+                    <div class="activity-list" id="recentActivity">
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <h3 class="empty-title">No recent activity</h3>
+                            <p class="empty-description">Create your first quiz to see activity here.</p>
+                            <a href="quiz-management.html" class="btn btn-primary">
+                                <i class="fas fa-plus"></i>
+                                Create Quiz
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar Section -->
+            <div class="sidebar-section">
+                <!-- Quick Actions -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <div class="card-icon">
+                                <i class="fas fa-rocket"></i>
+                            </div>
+                            Quick Actions
+                        </h2>
+                    </div>
+                    
+                    <div class="quick-actions">
+                        <a href="quiz-management.html" class="action-btn">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>New Quiz</span>
+                        </a>
+                        
+                        <a href="class-management.html" class="action-btn">
+                            <i class="fas fa-chalkboard"></i>
+                            <span>Manage Classes</span>
+                        </a>
+                        
+                        <a href="analytics.html" class="action-btn">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>View Analytics</span>
+                        </a>
+                        
+                        <a href="student-dashboard.html" class="action-btn">
+                            <i class="fas fa-eye"></i>
+                            <span>Student View</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Help & Tips -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <div class="card-icon">
+                                <i class="fas fa-lightbulb"></i>
+                            </div>
+                            Getting Started
+                        </h2>
+                    </div>
+                    
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Create Your First Class</div>
+                                <div class="activity-meta">Organize students into classes for better management</div>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-clipboard-list"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Build Interactive Quizzes</div>
+                                <div class="activity-meta">Create engaging assessments with multiple choice questions</div>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Track Student Progress</div>
+                                <div class="activity-meta">Monitor performance with detailed analytics</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAt4ByDMxZFT00a-zESwNHS8uv3DY08uhg",
+            authDomain: "gesturequiz-platform-live.firebaseapp.com",
+            projectId: "gesturequiz-platform-live",
+            storageBucket: "gesturequiz-platform-live.firebasestorage.app",
+            messagingSenderId: "794242095954",
+            appId: "1:794242095954:web:85868edc63c96d37ea388b",
+            measurementId: "G-Y7WPTJRVG6"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Global variables
+        let currentUser = null;
+
+        // Authentication check
+        function checkAuthentication() {
+            const storedUser = localStorage.getItem('currentUser');
+            if (storedUser) {
+                try {
+                    const userData = JSON.parse(storedUser);
+                    if (userData.role === 'teacher') {
+                        currentUser = userData;
+                        updateUserInfo();
+                        loadDashboardData();
+                        return;
+                    }
+                } catch (error) {
+                    console.error('Error parsing stored user:', error);
+                }
+            }
+            
+            // Redirect to login if no valid teacher session
+            window.location.href = '../index.html';
+        }
+
+        // Update user info in header
+        function updateUserInfo() {
+            if (currentUser) {
+                const userName = currentUser.displayName || currentUser.email || 'Teacher';
+                const userAvatar = userName.charAt(0).toUpperCase();
+                
+                document.getElementById('userName').textContent = userName;
+                document.getElementById('userAvatar').textContent = userAvatar;
+                document.getElementById('welcomeName').textContent = userName;
+            }
+        }
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                await Promise.all([
+                    loadQuickStats(),
+                    loadRecentActivity()
+                ]);
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        // Load quick stats
+        async function loadQuickStats() {
+            try {
+                // Get quizzes count
+                const quizzesSnapshot = await db.collection('quizzes')
+                    .where('teacherId', '==', currentUser.uid)
+                    .get();
+                
+                const totalQuizzes = quizzesSnapshot.size;
+                document.getElementById('totalQuizzes').textContent = totalQuizzes;
+
+                // Get classes count
+                const classesSnapshot = await db.collection('classes')
+                    .where('teacherId', '==', currentUser.uid)
+                    .get();
+                
+                const totalClasses = classesSnapshot.size;
+                document.getElementById('totalClasses').textContent = totalClasses;
+
+                // Get students count (unique students across all classes)
+                const studentsSet = new Set();
+                classesSnapshot.forEach(doc => {
+                    const classData = doc.data();
+                    if (classData.students) {
+                        classData.students.forEach(studentId => studentsSet.add(studentId));
+                    }
+                });
+                
+                const totalStudents = studentsSet.size;
+                document.getElementById('totalStudents').textContent = totalStudents;
+
+                // Get average score from quiz results
+                const resultsSnapshot = await db.collection('quizResults')
+                    .where('teacherId', '==', currentUser.uid)
+                    .get();
+
+                let averageScore = 0;
+                if (!resultsSnapshot.empty) {
+                    const scores = [];
+                    resultsSnapshot.forEach(doc => {
+                        const result = doc.data();
+                        if (result.score !== undefined) {
+                            scores.push(result.score);
+                        }
+                    });
+                    
+                    if (scores.length > 0) {
+                        averageScore = Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length);
+                    }
+                }
+                
+                document.getElementById('averageScore').textContent = averageScore + '%';
+
+            } catch (error) {
+                console.error('Error loading quick stats:', error);
+            }
+        }
+
+        // Load recent activity
+        async function loadRecentActivity() {
+            try {
+                const recentResults = await db.collection('quizResults')
+                    .where('teacherId', '==', currentUser.uid)
+                    .orderBy('submittedAt', 'desc')
+                    .limit(5)
+                    .get();
+
+                const activityContainer = document.getElementById('recentActivity');
+
+                if (recentResults.empty) {
+                    activityContainer.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <h3 class="empty-title">No recent activity</h3>
+                            <p class="empty-description">Create your first quiz to see activity here.</p>
+                            <a href="quiz-management.html" class="btn btn-primary">
+                                <i class="fas fa-plus"></i>
+                                Create Quiz
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                recentResults.forEach(doc => {
+                    const result = doc.data();
+                    const submittedAt = result.submittedAt?.toDate() || new Date();
+                    const timeAgo = formatTimeAgo(submittedAt);
+                    const score = result.score || 0;
+                    
+                    html += `
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">${result.studentName || 'Student'} completed "${result.quizTitle}"</div>
+                                <div class="activity-meta">Score: ${score}% • ${timeAgo}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                activityContainer.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error loading recent activity:', error);
+            }
+        }
+
+        // Format time ago
+        function formatTimeAgo(date) {
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+
+            if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`;
+            if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+            if (minutes > 0) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+            return 'Just now';
+        }
+
+        // Logout function
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('currentUser');
+                firebase.auth().signOut().then(() => {
+                    window.location.href = '../index.html';
+                }).catch((error) => {
+                    console.error('Error signing out:', error);
+                    window.location.href = '../index.html';
+                });
+            }
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthentication();
+        });
+    </script>
+</body>
+</html>
