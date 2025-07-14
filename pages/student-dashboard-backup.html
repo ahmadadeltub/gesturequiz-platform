@@ -1,0 +1,1907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - GestureQuiz</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Modern Color Palette */
+            --primary-50: #eff6ff;
+            --primary-100: #dbeafe;
+            --primary-200: #bfdbfe;
+            --primary-300: #93c5fd;
+            --primary-400: #60a5fa;
+            --primary-500: #3b82f6;
+            --primary-600: #2563eb;
+            --primary-700: #1d4ed8;
+            --primary-800: #1e40af;
+            --primary-900: #1e3a8a;
+
+            --accent-50: #f0f9ff;
+            --accent-100: #e0f2fe;
+            --accent-200: #bae6fd;
+            --accent-300: #7dd3fc;
+            --accent-400: #38bdf8;
+            --accent-500: #0ea5e9;
+            --accent-600: #0284c7;
+            --accent-700: #0369a1;
+            --accent-800: #075985;
+            --accent-900: #0c4a6e;
+
+            --success-50: #f0fdf4;
+            --success-500: #22c55e;
+            --success-600: #16a34a;
+
+            --warning-50: #fffbeb;
+            --warning-500: #f59e0b;
+            --warning-600: #d97706;
+
+            --danger-50: #fef2f2;
+            --danger-500: #ef4444;
+            --danger-600: #dc2626;
+
+            --neutral-50: #f9fafb;
+            --neutral-100: #f3f4f6;
+            --neutral-200: #e5e7eb;
+            --neutral-300: #d1d5db;
+            --neutral-400: #9ca3af;
+            --neutral-500: #6b7280;
+            --neutral-600: #4b5563;
+            --neutral-700: #374151;
+            --neutral-800: #1f2937;
+            --neutral-900: #111827;
+            /* Spacing */
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-5: 1.25rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --space-10: 2.5rem;
+            --space-12: 3rem;
+            --space-16: 4rem;
+            --space-20: 5rem;
+
+            /* Border Radius */
+            --radius-sm: 0.125rem;
+            --radius-md: 0.375rem;
+            --radius-lg: 0.5rem;
+            --radius-xl: 0.75rem;
+            --radius-2xl: 1rem;
+            --radius-3xl: 1.5rem;
+            --radius-full: 9999px;
+
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+            /* Transitions */
+            --transition-base: all 0.3s ease;
+            --transition-colors: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--gradient-primary);
+            min-height: 100vh;
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: var(--space-4) 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--space-6);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            box-shadow: var(--shadow-md);
+        }
+
+        .logout-btn {
+            background: var(--error-color);
+            color: white;
+            border: none;
+            padding: var(--space-2) var(--space-4);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition-colors);
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--space-8) var(--space-6);
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: var(--space-12);
+        }
+
+        .header h1 {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: var(--space-4);
+        }
+
+        .header p {
+            font-size: 1.125rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-6);
+            margin-bottom: var(--space-12);
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: var(--radius-2xl);
+            padding: var(--space-6);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: var(--transition-base);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-500), var(--accent-600));
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            box-shadow: var(--shadow-md);
+            cursor: pointer;
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            cursor: pointer;
+            transition: color var(--transition-fast);
+        }
+
+        .profile-info:hover {
+            color: var(--primary-600);
+        }
+
+        .profile-name {
+            font-weight: 600;
+            color: var(--neutral-900);
+            font-size: 0.95rem;
+        }
+
+        .profile-role {
+            font-size: 0.85rem;
+            color: var(--neutral-600);
+            background: var(--accent-50);
+            padding: var(--space-1) var(--space-2);
+            border-radius: var(--radius-sm);
+            margin-top: var(--space-1);
+        }
+
+        .auth-status {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            transition: all var(--transition-base);
+        }
+
+        .auth-status.syncing {
+            background: var(--warning-100);
+            color: var(--warning-700);
+            border: 1px solid var(--warning-200);
+        }
+
+        .auth-status.authenticated {
+            background: var(--success-100);
+            color: var(--success-700);
+            border: 1px solid var(--success-200);
+        }
+
+        .auth-status.ready {
+            background: var(--primary-100);
+            color: var(--primary-700);
+            border: 1px solid var(--primary-200);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-3) var(--space-5);
+            border-radius: var(--radius-xl);
+            font-weight: 500;
+            font-size: 0.9rem;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-600), var(--accent-500));
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--neutral-700);
+            border: 1px solid var(--neutral-200);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-outline:hover {
+            background: var(--neutral-50);
+            border-color: var(--primary-600);
+            color: var(--primary-600);
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--space-8) var(--space-6);
+        }
+
+        .welcome-section {
+            text-align: center;
+            margin: var(--space-6) var(--space-6) var(--space-12) var(--space-6);
+            padding: var(--space-12) var(--space-8);
+            background: linear-gradient(135deg, var(--primary-50) 0%, var(--accent-50) 100%);
+            border-radius: var(--radius-3xl);
+            border: 1px solid var(--neutral-200);
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--primary-600), var(--accent-500));
+            opacity: 0.03;
+            z-index: 0;
+        }
+
+        .welcome-title {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--neutral-900);
+            margin-bottom: var(--space-4);
+            background: linear-gradient(135deg, var(--primary-600), var(--accent-500));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            z-index: 1;
+        }
+
+        .welcome-subtitle {
+            font-size: 1.25rem;
+            color: var(--neutral-600);
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-6);
+            margin-bottom: var(--space-12);
+        }
+
+        .stat-card {
+            background: white;
+            padding: var(--space-8);
+            border-radius: var(--radius-3xl);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--neutral-200);
+            transition: all var(--transition-base);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, var(--primary-600), var(--accent-500));
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-4);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary-100), var(--accent-100));
+            border-radius: var(--radius-xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-600);
+            font-size: 1.5rem;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--neutral-900);
+            margin-bottom: var(--space-2);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.95rem;
+            color: var(--neutral-600);
+            font-weight: 500;
+            margin-bottom: var(--space-3);
+        }
+
+        .stat-change {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: 0.85rem;
+            color: var(--success-600);
+            margin-top: var(--space-2);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            margin-bottom: var(--space-12);
+        }
+
+        .quick-actions-title {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: var(--space-6);
+        }
+
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-6);
+        }
+
+        .action-button {
+            background: white;
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-3xl);
+            padding: var(--space-8);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .action-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .action-button:hover::before {
+            left: 100%;
+        }
+
+        .action-button:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--primary-600);
+        }
+
+        .action-button i {
+            font-size: 2.5rem;
+            margin-bottom: var(--space-4);
+            background: linear-gradient(135deg, var(--primary-600), var(--accent-500));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .action-button h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: var(--space-2);
+            color: var(--neutral-900);
+        }
+
+        .action-button p {
+            color: var(--neutral-600);
+            font-size: 0.9rem;
+        }
+
+        /* Recent Section */
+        .recent-section {
+            margin-bottom: var(--space-12);
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: var(--space-6);
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--neutral-600);
+            padding: var(--space-12) var(--space-6);
+            border-radius: var(--radius-3xl);
+            background: white;
+            border: 1px solid var(--neutral-200);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--neutral-400);
+            margin-bottom: var(--space-4);
+            display: block;
+        }
+
+        .empty-state h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: var(--space-2);
+            color: var(--neutral-900);
+        }
+
+        .empty-state p {
+            font-size: 0.95rem;
+            max-width: 400px;
+            margin: 0 auto;
+            color: var(--neutral-600);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            -webkit-backdrop-filter: blur(4px);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            position: relative;
+            background: white;
+            border-radius: var(--radius-3xl);
+            box-shadow: var(--shadow-2xl);
+            border: 1px solid var(--neutral-200);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-content.large {
+            max-width: 800px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-6) var(--space-6) 0;
+            margin-bottom: var(--space-6);
+        }
+
+        .modal-title {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--neutral-900);
+        }
+
+        .close-btn {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            border: none;
+            background: var(--neutral-100);
+            color: var(--neutral-600);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .close-btn:hover {
+            background: var(--neutral-200);
+            color: var(--neutral-800);
+        }
+
+        .modal-body {
+            padding: 0 var(--space-6) var(--space-6);
+        }
+
+        .form-group {
+            margin-bottom: var(--space-5);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: var(--space-2);
+            font-weight: 600;
+            color: var(--neutral-700);
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: var(--space-3) var(--space-4);
+            border: 2px solid var(--neutral-200);
+            border-radius: var(--radius-lg);
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-600);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+        }
+
+        .form-help {
+            display: block;
+            margin-top: var(--space-2);
+            font-size: 0.85rem;
+            color: var(--neutral-500);
+        }
+
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: var(--space-3);
+        }
+
+        .avatar-option {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            border: 2px solid var(--neutral-200);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .avatar-option:hover {
+            border-color: var(--primary-600);
+            transform: scale(1.05);
+        }
+
+        .avatar-option.selected {
+            border-color: var(--primary-600);
+            background: var(--primary-50);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: var(--space-3);
+            justify-content: flex-end;
+            margin-top: var(--space-6);
+        }
+
+        .btn-secondary {
+            background: var(--neutral-100);
+            color: var(--neutral-700);
+        }
+
+        .btn-secondary:hover {
+            background: var(--neutral-200);
+        }
+
+        /* Authentication Status Indicator */
+        .auth-status {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            transition: all var(--transition-base);
+        }
+
+        .auth-status.syncing {
+            background: var(--warning-100);
+            color: var(--warning-700);
+            border: 1px solid var(--warning-200);
+        }
+
+        .auth-status.authenticated {
+            background: var(--success-100);
+            color: var(--success-700);
+            border: 1px solid var(--success-200);
+        }
+
+        .auth-status.ready {
+            background: var(--primary-100);
+            color: var(--primary-700);
+            border: 1px solid var(--primary-200);
+        }
+
+        /* Notification Styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            max-width: 350px;
+            padding: var(--space-4) var(--space-5);
+            border-radius: var(--radius-lg);
+            color: white;
+            font-weight: 500;
+            z-index: 10000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, var(--success-500), var(--success-600));
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, var(--danger-500), var(--danger-600));
+        }
+
+        .notification.warning {
+            background: linear-gradient(135deg, var(--warning-500), var(--warning-600));
+        }
+
+        .notification.info {
+            background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+        }
+
+        /* ...existing code... */
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="../index.html" class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                GestureQuiz
+            </a>
+            
+            <nav class="header-nav">
+                <div class="user-profile">
+                    <div class="profile-avatar" id="userAvatar">👤</div>
+                    <div class="profile-info" onclick="showEditProfileModal()">
+                        <div class="profile-name" id="profileName">Student</div>
+                        <div class="profile-role">Student <span id="authStatus" class="auth-status syncing">⏳ Syncing...</span></div>
+                    </div>
+                    <button class="btn btn-outline" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="welcome-section">
+            <h1 class="welcome-title" id="welcomeText">Welcome to Your Dashboard</h1>
+            <p class="welcome-subtitle">Discover engaging quizzes, track your progress, and enhance your learning with interactive experiences</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                </div>
+                <div class="stat-number" id="totalClasses">0</div>
+                <div class="stat-label">Enrolled Classes</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>Your active classes</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-clipboard-check"></i>
+                    </div>
+                </div>
+                <div class="stat-number" id="totalQuizzes">0</div>
+                <div class="stat-label">Available Quizzes</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>Ready to take</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                </div>
+                <div class="stat-number" id="completedQuizzes">0</div>
+                <div class="stat-label">Completed Quizzes</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-check"></i>
+                    <span>Great progress!</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+                <div class="stat-number" id="averageScore">0%</div>
+                <div class="stat-label">Average Score</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-star"></i>
+                    <span>Keep improving!</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <h2 class="quick-actions-title">
+                <i class="fas fa-rocket"></i>
+                Quick Actions
+            </h2>
+            <div class="quick-actions-grid">
+                <div class="action-button" onclick="showJoinClassModal()">
+                    <i class="fas fa-plus-circle"></i>
+                    <h3>Join a Class</h3>
+                    <p>Enter a class code to join your teacher's class</p>
+                </div>
+                
+                <div class="action-button" onclick="showAvailableQuizzes()">
+                    <i class="fas fa-play-circle"></i>
+                    <h3>Take a Quiz</h3>
+                    <p>Start an available quiz from your enrolled classes</p>
+                </div>
+                
+                <div class="action-button" onclick="showMyResults()">
+                    <i class="fas fa-chart-bar"></i>
+                    <h3>View Results</h3>
+                    <p>Check your quiz scores and performance analytics</p>
+                </div>
+                
+                <div class="action-button" onclick="showEditProfileModal()">
+                    <i class="fas fa-user-edit"></i>
+                    <h3>Edit Profile</h3>
+                    <p>Update your personal information and preferences</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="recent-section">
+            <h2 class="section-title">
+                <i class="fas fa-clock"></i>
+                Recent Activity
+            </h2>
+            <div id="recentActivity">
+                <div class="empty-state">
+                    <i class="fas fa-clipboard-list"></i>
+                    <h3>No recent activity</h3>
+                    <p>Your recent quiz attempts and class activities will appear here</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Join Class Modal -->
+    <div id="joinClassModal" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">
+                    <i class="fas fa-plus-circle"></i>
+                    Join a Class
+                </h2>
+                <button class="close-btn" onclick="closeJoinClassModal()" title="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="classCodeInput">Class Code</label>
+                    <input 
+                        type="text" 
+                        id="classCodeInput" 
+                        placeholder="Enter 6-character class code"
+                        maxlength="6"
+                        oninput="formatClassCode(this)"
+                        class="form-input"
+                    >
+                    <small class="form-help">Ask your teacher for the class code</small>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" onclick="closeJoinClassModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="joinClass()">
+                        <span id="joinBtnText">Join Class</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Edit Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">
+                    <i class="fas fa-user-edit"></i>
+                    Edit Profile
+                </h2>
+                <button class="close-btn" onclick="closeProfileModal()" title="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="profileNameInput">Display Name</label>
+                    <input 
+                        type="text" 
+                        id="profileNameInput" 
+                        placeholder="Enter your name"
+                        class="form-input"
+                    >
+                </div>
+                <div class="form-group">
+                    <label>Choose Avatar</label>
+                    <div id="avatarGrid" class="avatar-grid">
+                        <!-- Avatar options will be generated here -->
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" onclick="closeProfileModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="saveProfile()">
+                        <span id="saveBtnText">Save Changes</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Available Quizzes Modal -->
+    <div id="quizzesModal" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h2 class="modal-title">
+                    <i class="fas fa-clipboard-list"></i>
+                    Available Quizzes
+                </h2>
+                <button class="close-btn" onclick="closeQuizzesModal()" title="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="quizzesList">
+                    <!-- Quizzes will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- My Results Modal -->
+    <div id="resultsModal" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h2 class="modal-title">
+                    <i class="fas fa-trophy"></i>
+                    My Results
+                </h2>
+                <button class="close-btn" onclick="closeResultsModal()" title="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="resultsList">
+                    <!-- Results will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDHKNR0ZsAqBp_jLqc5P4QjFz7BJ6QJFLw",
+            authDomain: "gesturequiz-platform-live.firebaseapp.com",
+            projectId: "gesturequiz-platform-live",
+            storageBucket: "gesturequiz-platform-live.firebasestorage.app",
+            messagingSenderId: "236693732947",
+            appId: "1:236693732947:web:7cc0d1c0b28d0b81c3a54c"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // CRITICAL: Set authentication persistence to LOCAL
+        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).then(() => {
+            console.log('✅ Firebase auth persistence set to LOCAL');
+        }).catch((error) => {
+            console.error('❌ Failed to set auth persistence:', error);
+        });
+
+        // Wait for Firebase to be ready
+        firebase.auth().useDeviceLanguage();
+        
+        // Enable offline persistence for better reliability
+        db.enablePersistence({ synchronizeTabs: true }).catch(function(err) {
+            if (err.code == 'failed-precondition') {
+                console.log('📱 Multiple tabs open, persistence can only be enabled in one tab at a time.');
+            } else if (err.code == 'unimplemented') {
+                console.log('🌐 The current browser does not support offline persistence');
+            }
+        });
+
+        console.log('🔥 Firebase initialized and configured');
+        console.log('🌐 Environment: Production');
+        console.log('⏰ Dashboard initialization time:', new Date().toLocaleTimeString());
+
+        // Dashboard variables
+        let currentUser = null;
+        let isAuthChecked = false;
+        let authCheckTimeout = null;
+        let selectedAvatar = "👤";
+        let dashboardLoadTime = Date.now();
+
+        // Available avatars
+        const availableAvatars = [
+            "👤", "😊", "😎", "🤓", "😇", "🙂", "😄", "😁", "🥳", "🤗",
+            "👨‍🎓", "👩‍🎓", "👨‍💻", "👩‍💻", "👨‍🏫", "👩‍🏫", "🧑‍🎨", "👨‍🔬", "👩‍🔬", "🤖"
+        ];
+
+        // Enhanced function to ensure user is authenticated
+        async function ensureAuthentication() {
+            console.log('🔐 Ensuring user authentication...');
+            
+            // Check Firebase auth first
+            let authUser = firebase.auth().currentUser;
+            
+            if (authUser) {
+                console.log('✅ Firebase auth user found:', authUser.uid);
+                return authUser;
+            }
+            
+            // Try to wait for auth state if not immediately available
+            console.log('⏳ Waiting for Firebase auth state restoration...');
+            authUser = await new Promise((resolve) => {
+                const timeout = setTimeout(() => {
+                    console.log('⏰ Auth restoration timeout');
+                    resolve(null);
+                }, 15000); // Extended timeout for auth restoration
+                
+                const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
+                    clearTimeout(timeout);
+                    unsubscribe();
+                    if (user) {
+                        console.log('✅ Firebase auth state received:', user.uid);
+                    } else {
+                        console.log('❌ Firebase auth state: no user');
+                    }
+                    resolve(user);
+                });
+            });
+            
+            if (authUser) {
+                console.log('✅ Firebase auth successful after waiting:', authUser.uid);
+                return authUser;
+            }
+            
+            // If still no Firebase auth, check stored session and prompt for re-login
+            const storedUser = localStorage.getItem('currentUser');
+            if (storedUser) {
+                try {
+                    const userData = JSON.parse(storedUser);
+                    if (userData.email && userData.role === 'student') {
+                        console.log('⚠️ Found stored user but no Firebase auth session');
+                        console.log('📧 Stored email:', userData.email);
+                        
+                        // Show user-friendly message and redirect to login
+                        showNotification('🔑 Your session has expired. Please log in again to save changes.', 'warning');
+                        
+                        // Add login redirect button
+                        setTimeout(() => {
+                            const loginButton = document.createElement('button');
+                            loginButton.textContent = '🔑 Go to Login';
+                            loginButton.className = 'btn btn-primary';
+                            loginButton.style.cssText = 'position: fixed; top: 80px; right: 20px; z-index: 10000; animation: pulse 2s infinite;';
+                            loginButton.onclick = () => {
+                                // Store current page for redirect after login
+                                localStorage.setItem('redirectAfterLogin', window.location.href);
+                                window.location.href = '../index.html';
+                            };
+                            document.body.appendChild(loginButton);
+                        }, 1000);
+                        
+                        throw new Error('Session expired - please log in again');
+                    }
+                } catch (e) {
+                    console.error('Failed to parse stored user:', e);
+                }
+            }
+            
+            // No stored user data - definitely need to login
+            throw new Error('User not authenticated - please log in to save changes');
+        }
+
+        // Check for auto-redirect parameter (simplified)
+        const urlParams = new URLSearchParams(window.location.search);
+        const autoRedirectTime = urlParams.get('autoRedirect');
+        
+        // Dashboard initialization (no auto-redirect conflicts)
+
+        // Enhanced authentication check with Firebase auth state waiting (same as teacher dashboard)
+        async function initializeAuthentication() {
+            console.log('🔄 Student Dashboard - Initializing authentication...');
+            
+            // Check if Firebase is available and initialized
+            if (typeof firebase === 'undefined' || !firebase.auth || !firebase.firestore) {
+                console.error('❌ Firebase not available - redirecting to login');
+                window.location.href = '../index.html';
+                return;
+            }
+            
+            // Update auth status indicator
+            let authStatus = document.getElementById('authStatus');
+            if (authStatus) {
+                authStatus.textContent = '⏳ Syncing...';
+                authStatus.className = 'auth-status syncing';
+            }
+            
+            // CRITICAL: Wait for Firebase auth to restore session from LOCAL persistence
+            console.log('🔄 Waiting for Firebase auth state restoration...');
+            
+            let authUser = await new Promise((resolve) => {
+                // Set a longer timeout for auth state restoration
+                const timeout = setTimeout(() => {
+                    console.log('⏰ Auth restoration timeout - no user found');
+                    resolve(null);
+                }, 20000); // Even longer timeout for auth restoration
+                
+                // Check if user is already available immediately
+                const currentUser = firebase.auth().currentUser;
+                if (currentUser) {
+                    clearTimeout(timeout);
+                    console.log('✅ Auth user already available:', currentUser.uid);
+                    resolve(currentUser);
+                    return;
+                }
+                
+                // Wait for auth state changed event
+                let hasResolved = false;
+                const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
+                    if (hasResolved) return; // Prevent multiple resolves
+                    
+                    clearTimeout(timeout);
+                    unsubscribe();
+                    hasResolved = true;
+                    
+                    if (user) {
+                        console.log('✅ Firebase auth state restored:', user.uid);
+                        console.log('📧 User email:', user.email);
+                    } else {
+                        console.log('❌ No authenticated user found in auth state');
+                    }
+                    resolve(user);
+                });
+            });
+            
+            // If no Firebase auth, check stored session and attempt to restore Firebase auth
+            if (!authUser) {
+                const storedUser = localStorage.getItem('currentUser');
+                if (storedUser) {
+                    try {
+                        const userData = JSON.parse(storedUser);
+                        const timeSinceLogin = Date.now() - new Date(userData.loginTime).getTime();
+                        
+                        if (userData.role === 'student' && timeSinceLogin < 86400000) { // 24 hours
+                            console.log('🔄 Using stored session data for authentication');
+                            console.log('📧 Stored user email:', userData.email);
+                            
+                            // Initialize dashboard with stored user data temporarily
+                            currentUser = userData;
+                            
+                            // Update UI immediately with stored data
+                            updateProfileDisplay(userData.fullName || userData.email, userData.avatar || selectedAvatar);
+                            loadDashboardData();
+                            
+                            // Update auth status
+                            if (authStatus) {
+                                authStatus.textContent = '✅ Authenticated';
+                                authStatus.className = 'auth-status authenticated';
+                            }
+                            
+                            // Show notification about session restoration
+                            showNotification('✅ Session restored successfully!', 'success');
+                            
+                            console.log('✅ Dashboard initialized with stored session');
+                            return; // Don't redirect, use stored session
+                        } else {
+                            console.log('⚠️ Stored session expired or invalid role');
+                        }
+                    } catch (error) {
+                        console.error('❌ Invalid stored session:', error);
+                    }
+                }
+                
+                console.error('❌ No valid authentication found - redirecting to login');
+                localStorage.removeItem('currentUser');
+                window.location.href = '../index.html';
+                return;
+            }
+            
+            console.log('✅ Authenticated user found:', authUser.uid);
+            
+            // Update auth status indicator
+            const authStatusEl = document.getElementById('authStatus');
+            if (authStatusEl) {
+                authStatusEl.textContent = '✅ Ready';
+                authStatusEl.className = 'auth-status ready';
+            }
+            
+            // Initialize with Firebase authenticated user
+            await initializeWithFirebaseUser(authUser);
+        }
+        
+        async function initializeWithFirebaseUser(authUser) {
+            try {
+                // Get user profile data from Firestore
+                const db = firebase.firestore();
+                const userDoc = await db.collection('users').doc(authUser.uid).get();
+                
+                let userData;
+                if (userDoc.exists) {
+                    userData = userDoc.data();
+                    console.log('📄 User data loaded from Firestore:', userData);
+                } else {
+                    // Create default profile in Firestore if it doesn't exist
+                    console.log('🆕 Creating default profile in Firestore...');
+                    userData = {
+                        fullName: authUser.displayName || authUser.email.split('@')[0],
+                        displayName: authUser.displayName || authUser.email.split('@')[0],
+                        email: authUser.email,
+                        avatar: '👤',
+                        role: 'student',
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    };
+                    
+                    await db.collection('users').doc(authUser.uid).set(userData);
+                    console.log('✅ Default profile created in Firestore');
+                }
+                
+                // Combine auth data with profile data
+                const completeUserData = {
+                    uid: authUser.uid,
+                    email: authUser.email,
+                    fullName: userData.fullName || userData.displayName || authUser.email.split('@')[0],
+                    displayName: userData.displayName || userData.fullName || authUser.email.split('@')[0],
+                    avatar: userData.avatar || '👤',
+                    role: 'student',
+                    loginTime: new Date().toISOString(),
+                    isFirebaseUser: true,
+                    ...userData
+                };
+                
+                console.log('�‍🎓 Complete student data prepared:', completeUserData);
+                
+                // Store in localStorage for session persistence
+                localStorage.setItem('currentUser', JSON.stringify(completeUserData));
+                
+                // Set global user
+                currentUser = authUser;
+                isAuthChecked = true;
+                
+                // Update UI with Firebase data
+                updateProfileDisplay(completeUserData.displayName, completeUserData.avatar);
+                selectedAvatar = completeUserData.avatar;
+                generateAvatarOptions();
+                loadDashboardData();
+                
+                console.log('✅ Student dashboard initialized successfully with Firestore integration');
+                
+            } catch (error) {
+                console.error('❌ Error initializing with Firebase user:', error);
+                
+                // Enhanced error handling
+                if (error.code === 'permission-denied') {
+                    console.error('🔒 Firestore permission denied - check security rules');
+                    showNotification('Database permission error. Please contact support.', 'error');
+                } else if (error.code === 'unavailable') {
+                    console.error('🌐 Firestore unavailable - network issues');
+                    showNotification('Database temporarily unavailable. Please try again.', 'error');
+                }
+                
+                // Fallback to basic display
+                const displayName = authUser.email.split('@')[0];
+                updateProfileDisplay(displayName, '👤');
+                generateAvatarOptions();
+                loadDashboardData();
+                
+                // Update stored session with limited data
+                const basicUserData = {
+                    uid: authUser.uid,
+                    email: authUser.email,
+                    fullName: displayName,
+                    displayName: displayName,
+                    avatar: '👤',
+                    role: 'student',
+                    loginTime: new Date().toISOString(),
+                    isFirebaseUser: true,
+                    firestoreConnected: false,
+                    lastError: error.message
+                };
+                localStorage.setItem('currentUser', JSON.stringify(basicUserData));
+            }
+        }
+        
+        async function initializeWithStoredSession(userData) {
+            console.log('📦 Initializing with stored session data...');
+            
+            // Update auth status indicator to show limited mode
+            const authStatusLimited = document.getElementById('authStatus');
+            if (authStatusLimited) {
+                authStatusLimited.textContent = '⚠️ Limited';
+                authStatusLimited.className = 'auth-status syncing';
+            }
+            
+            // Create temporary user object
+            currentUser = {
+                uid: userData.uid,
+                email: userData.email,
+                displayName: userData.fullName || userData.displayName
+            };
+            
+            isAuthChecked = true;
+            
+            // Update UI with stored data
+            updateProfileDisplay(userData.displayName || userData.fullName, userData.avatar || '👤');
+            selectedAvatar = userData.avatar || '👤';
+            generateAvatarOptions();
+            loadDashboardData();
+            
+            // Try to reconnect to Firebase in background
+            setTimeout(async () => {
+                try {
+                    console.log('🔄 Attempting Firebase reconnection...');
+                    const authUser = firebase.auth().currentUser;
+                    if (authUser) {
+                        console.log('✅ Firebase reconnected successfully');
+                        await initializeWithFirebaseUser(authUser);
+                    }
+                } catch (error) {
+                    console.log('⚠️ Firebase reconnection failed:', error);
+                }
+            }, 2000);
+        }
+        
+        // Initialize authentication when page loads
+        document.addEventListener('DOMContentLoaded', initializeAuthentication);
+        
+        // Legacy auth state handler for compatibility (simplified)
+        auth.onAuthStateChanged(function(user) {
+            if (user && !isAuthChecked) {
+                console.log('🔄 Legacy auth state change detected:', user.email);
+                initializeWithFirebaseUser(user);
+            }
+        });
+
+        // Update profile display
+        function updateProfileDisplay(name, avatar) {
+            var nameElement = document.getElementById('profileName');
+            var avatarElement = document.getElementById('userAvatar');
+            var welcomeElement = document.getElementById('welcomeText');
+            
+            if (nameElement) nameElement.textContent = name;
+            if (avatarElement) avatarElement.textContent = avatar;
+            if (welcomeElement) welcomeElement.textContent = `Welcome back, ${name}!`;
+        }
+
+        // Load dashboard data
+        function loadDashboardData() {
+            // Load statistics (placeholder for now)
+            document.getElementById('totalClasses').textContent = '0';
+            document.getElementById('totalQuizzes').textContent = '0';
+            document.getElementById('completedQuizzes').textContent = '0';
+            document.getElementById('averageScore').textContent = '0%';
+        }
+
+        // Modal Functions
+        function showJoinClassModal() {
+            document.getElementById('joinClassModal').classList.add('active');
+            document.getElementById('classCodeInput').focus();
+        }
+
+        function closeJoinClassModal() {
+            document.getElementById('joinClassModal').classList.remove('active');
+            document.getElementById('classCodeInput').value = '';
+        }
+
+        function showEditProfileModal() {
+            var modal = document.getElementById('profileModal');
+            var nameInput = document.getElementById('profileNameInput');
+            
+            // Pre-fill current name
+            var currentName = document.getElementById('profileName').textContent;
+            nameInput.value = currentName;
+            
+            generateAvatarOptions();
+            modal.classList.add('active');
+            nameInput.focus();
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profileModal').classList.remove('active');
+        }
+
+        function showAvailableQuizzes() {
+            document.getElementById('quizzesModal').classList.add('active');
+            loadAvailableQuizzes();
+        }
+
+        function closeQuizzesModal() {
+            document.getElementById('quizzesModal').classList.remove('active');
+        }
+
+        function showMyResults() {
+            document.getElementById('resultsModal').classList.add('active');
+            loadMyResults();
+        }
+
+        function closeResultsModal() {
+            document.getElementById('resultsModal').classList.remove('active');
+        }
+
+        // Generate Avatar Options
+        function generateAvatarOptions() {
+            var avatarGrid = document.getElementById('avatarGrid');
+            if (!avatarGrid) return;
+            
+            avatarGrid.innerHTML = '';
+            
+            availableAvatars.forEach(function(avatar) {
+                var option = document.createElement('div');
+                option.className = 'avatar-option';
+                option.textContent = avatar;
+                option.onclick = function() {
+                    selectAvatar(avatar);
+                };
+                
+                if (avatar === selectedAvatar) {
+                    option.classList.add('selected');
+                }
+                
+                avatarGrid.appendChild(option);
+            });
+        }
+
+        // Select Avatar
+        function selectAvatar(avatar) {
+            selectedAvatar = avatar;
+            var options = document.querySelectorAll('.avatar-option');
+            options.forEach(function(option) {
+                option.classList.remove('selected');
+                if (option.textContent === avatar) {
+                    option.classList.add('selected');
+                }
+            });
+        }
+
+        // Format Class Code Input
+        function formatClassCode(input) {
+            var value = input.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+            input.value = value;
+        }
+
+        // Join Class Function
+        function joinClass() {
+            var classCode = document.getElementById('classCodeInput').value.trim();
+            
+            if (!classCode) {
+                showNotification('Please enter a class code', 'error');
+                return;
+            }
+            
+            if (classCode.length !== 6) {
+                showNotification('Class code must be 6 characters', 'error');
+                return;
+            }
+            
+            var joinBtn = document.getElementById('joinBtnText');
+            var originalText = joinBtn.textContent;
+            joinBtn.textContent = 'Joining...';
+            
+            // Simulate joining class (replace with actual implementation)
+            setTimeout(function() {
+                showNotification('Successfully joined class!', 'success');
+                closeJoinClassModal();
+                joinBtn.textContent = originalText;
+                loadDashboardData(); // Refresh data
+            }, 1000);
+        }
+
+        // Enhanced Save Profile Function with Direct Firestore Integration
+        async function saveProfile() {
+            const newName = document.getElementById('profileNameInput').value.trim();
+            
+            if (!newName) {
+                showNotification('Please enter a name', 'error');
+                return;
+            }
+            
+            const saveBtn = document.getElementById('saveBtnText');
+            const originalText = saveBtn.textContent;
+            saveBtn.textContent = 'Saving...';
+            
+            // Update auth status to show saving in progress
+            const authStatusSaving = document.getElementById('authStatus');
+            const originalAuthText = authStatusSaving ? authStatusSaving.textContent : '';
+            if (authStatusSaving) {
+                authStatusSaving.textContent = '💾 Saving...';
+                authStatusSaving.className = 'auth-status syncing';
+            }
+            
+            try {
+                console.log('🚀 Starting profile save process...');
+                console.log('📝 New name:', newName);
+                console.log('🎭 Selected avatar:', selectedAvatar);
+                
+                // Step 1: Ensure Firebase is ready
+                if (!firebase || !firebase.auth || !firebase.firestore) {
+                    throw new Error('Firebase not initialized properly');
+                }
+                
+                // Step 2: Get authenticated user with enhanced checking
+                console.log('� Getting authenticated user...');
+                const authUser = await ensureAuthentication();
+                
+                console.log('✅ Authenticated user confirmed:', authUser.uid);
+                console.log('� User email:', authUser.email);
+                
+                // Step 3: Prepare profile data for Firestore
+                const profileData = {
+                    displayName: newName,
+                    fullName: newName,
+                    avatar: selectedAvatar,
+                    email: authUser.email,
+                    role: 'student',
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastProfileUpdate: new Date().toISOString()
+                };
+                
+                console.log('📊 Profile data prepared:', profileData);
+                
+                // Step 4: Save to Firestore with proper error handling
+                const db = firebase.firestore();
+                const userRef = db.collection('users').doc(authUser.uid);
+                
+                console.log('💾 Saving to Firestore...');
+                
+                // Use set with merge to ensure document exists
+                await userRef.set(profileData, { merge: true });
+                
+                console.log('✅ Profile saved successfully to Firestore');
+                
+                // Step 5: Verify the save by reading back the data
+                const savedDoc = await userRef.get();
+                if (savedDoc.exists) {
+                    const savedData = savedDoc.data();
+                    console.log('✅ Verification: Data saved correctly:', savedData);
+                    
+                    // Update localStorage with the verified Firestore data
+                    const storedUser = localStorage.getItem('currentUser');
+                    if (storedUser) {
+                        try {
+                            const userData = JSON.parse(storedUser);
+                            userData.fullName = newName;
+                            userData.displayName = newName;
+                            userData.avatar = selectedAvatar;
+                            userData.updatedAt = new Date().toISOString();
+                            userData.lastSyncedAt = new Date().toISOString();
+                            localStorage.setItem('currentUser', JSON.stringify(userData));
+                            console.log('💾 Updated localStorage with synced data');
+                        } catch (e) {
+                            console.log('⚠️ Could not update localStorage:', e);
+                        }
+                    }
+                } else {
+                    console.error('❌ Verification failed: Document not found after save');
+                }
+                
+                // Step 6: Update UI
+                updateProfileDisplay(newName, selectedAvatar);
+                showNotification('Profile saved to Firebase successfully! ✅', 'success');
+                closeProfileModal();
+                
+                // Restore auth status
+                if (authStatusSaving) {
+                    authStatusSaving.textContent = '✅ Ready';
+                    authStatusSaving.className = 'auth-status ready';
+                }
+                
+            } catch (error) {
+                console.error('❌ Error saving profile to Firebase:', error);
+                
+                // Restore auth status on error
+                if (authStatusSaving) {
+                    authStatusSaving.textContent = originalAuthText || '⚠️ Error';
+                    authStatusSaving.className = 'auth-status syncing';
+                }
+                
+                // Provide specific error messages
+                if (error.message.includes('Authentication timeout') || error.message.includes('not authenticated') || error.message.includes('log in again')) {
+                    showNotification('� Please log in again to save your profile', 'warning');
+                    
+                    // Add login button to the notification
+                    setTimeout(() => {
+                        const loginButton = document.createElement('button');
+                        loginButton.textContent = '🔑 Go to Login';
+                        loginButton.className = 'btn btn-primary';
+                        loginButton.style.cssText = 'position: fixed; top: 100px; right: 20px; z-index: 10000;';
+                        loginButton.onclick = () => {
+                            window.location.href = '../index.html';
+                        };
+                        document.body.appendChild(loginButton);
+                    }, 1000);
+                    
+                } else if (error.code === 'permission-denied') {
+                    showNotification('🔑 Authentication required. Please log in again to save changes.', 'error');
+                    
+                    // For permission denied, also show login button
+                    setTimeout(() => {
+                        const loginButton = document.createElement('button');
+                        loginButton.textContent = '🔑 Login Required';
+                        loginButton.className = 'btn btn-primary';
+                        loginButton.style.cssText = 'position: fixed; top: 100px; right: 20px; z-index: 10000; animation: pulse 2s infinite;';
+                        loginButton.onclick = () => {
+                            window.location.href = '../index.html';
+                        };
+                        document.body.appendChild(loginButton);
+                        
+                        setTimeout(() => {
+                            if (loginButton.parentNode) {
+                                loginButton.parentNode.removeChild(loginButton);
+                            }
+                        }, 15000);
+                    }, 500);
+                    
+                } else if (error.code === 'unavailable') {
+                    showNotification('Firebase is temporarily unavailable. Please try again in a moment.', 'error');
+                } else {
+                    showNotification(`Firebase error: ${error.message}`, 'error');
+                }
+                
+                console.log('🔍 Detailed error information:');
+                console.log('Error code:', error.code);
+                console.log('Error message:', error.message);
+                console.log('Firebase auth current user:', firebase.auth().currentUser);
+                
+            } finally {
+                saveBtn.textContent = originalText;
+            }
+        }
+
+        // Load Available Quizzes
+        function loadAvailableQuizzes() {
+            var quizzesList = document.getElementById('quizzesList');
+            quizzesList.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-clipboard-list"></i>
+                    <h3>No quizzes available</h3>
+                    <p>Join a class to see available quizzes</p>
+                </div>
+            `;
+        }
+
+        // Load My Results
+        function loadMyResults() {
+            var resultsList = document.getElementById('resultsList');
+            resultsList.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-trophy"></i>
+                    <h3>No quiz results yet</h3>
+                    <p>Complete some quizzes to see your results here</p>
+                </div>
+            `;
+        }
+
+        // Logout Function
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('currentUser');
+                auth.signOut().then(function() {
+                    window.location.href = '../index.html';
+                }).catch(function(error) {
+                    console.error('Logout error:', error);
+                    window.location.href = '../index.html';
+                });
+            }
+        }
+
+        // Show Notification Function
+        function showNotification(message, type) {
+            // Create notification element
+            var notification = document.createElement('div');
+            notification.className = `notification ${type || 'info'}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Animate in
+            setTimeout(function() {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            // Animate out and remove
+            setTimeout(function() {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(function() {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 4000);
+        }
+
+        // Close modals when clicking outside
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal-overlay')) {
+                var modals = document.querySelectorAll('.modal.active');
+                modals.forEach(function(modal) {
+                    modal.classList.remove('active');
+                });
+            }
+        });
+
+        // Close modals with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                var modals = document.querySelectorAll('.modal.active');
+                modals.forEach(function(modal) {
+                    modal.classList.remove('active');
+                });
+            }
+        });
+
+        // Enhanced session verification and restoration
+        function verifyAndRestoreSession() {
+            const storedUser = localStorage.getItem('currentUser');
+            if (!storedUser) {
+                console.log('❌ No stored session found');
+                return false;
+            }
+
+            try {
+                const userData = JSON.parse(storedUser);
+                const timeSinceLogin = Date.now() - new Date(userData.loginTime).getTime();
+                
+                // Check if session is still valid (24 hours)
+                if (timeSinceLogin > 86400000) {
+                    console.log('⚠️ Session expired (older than 24 hours)');
+                    localStorage.removeItem('currentUser');
+                    return false;
+                }
+                
+                // Check if it's a student session
+                if (userData.role !== 'student') {
+                    console.log('⚠️ Not a student session');
+                    return false;
+                }
+                
+                console.log('✅ Valid session found for student:', userData.email);
+                return userData;
+            } catch (error) {
+                console.error('❌ Invalid session data:', error);
+                localStorage.removeItem('currentUser');
+                return false;
+            }
+        }
+
+        // Quick session check for immediate UI update
+        function quickSessionCheck() {
+            const validSession = verifyAndRestoreSession();
+            if (validSession) {
+                // Update UI immediately with cached data
+                updateProfileDisplay(validSession.fullName || validSession.email, validSession.avatar || '👤');
+                selectedAvatar = validSession.avatar || '👤';
+                
+                // Update auth status
+                const authStatus = document.getElementById('authStatus');
+                if (authStatus) {
+                    authStatus.textContent = '✅ Authenticated';
+                    authStatus.className = 'auth-status authenticated';
+                }
+                
+                console.log('⚡ Quick session restoration complete');
+                return true;
+            }
+            return false;
+        }
+
+        // Run quick session check immediately when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Running quick session check...');
+            const hasSession = quickSessionCheck();
+            
+            if (hasSession) {
+                console.log('⚡ Session found - proceeding with full authentication');
+            } else {
+                console.log('❌ No valid session - will need to authenticate');
+            }
+        });
+
+        // ...existing code...
+    </script>
+</body>
+</html>

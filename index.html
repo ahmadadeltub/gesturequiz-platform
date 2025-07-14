@@ -2209,11 +2209,153 @@
                 await firebaseDataManager.initialize();
                 
                 // Set up auth state handlers for landing page  
-                firebaseDataManager.onUserSignedIn = function(user) {
-                    console.log('� Auth state changed - User signed in:', user.email);
+                firebaseDataManager.onUserSignedIn = async function(user) {
+                    console.log('🔄 Auth state changed - User signed in:', user.email);
                     console.log('🔔 Current page:', window.location.href);
-                    // Don't auto-redirect from auth state change on landing page
-                    // Manual redirects happen in form submit handlers only
+                    
+                    // Check if user already has a profile and redirect automatically
+                    try {
+                        console.log('🔍 Checking existing user profile for auto-redirect...');
+                        console.log('🔍 User UID:', user.uid);
+                        console.log('🔍 FirebaseDataManager ready:', !!firebaseDataManager);
+                        
+                        // Add timeout to prevent hanging
+                        const profilePromise = firebaseDataManager.getUserProfile(user.uid);
+                        const timeoutPromise = new Promise((resolve) => {
+                            setTimeout(() => {
+                                resolve({ success: false, error: 'Profile check timeout after 10 seconds' });
+                            }, 10000);
+                        });
+                        
+                        const userProfile = await Promise.race([profilePromise, timeoutPromise]);
+                        console.log('📋 User profile result:', userProfile);
+                        
+                        if (userProfile.success && userProfile.data && userProfile.data.role) {
+                            const role = userProfile.data.role;
+                            console.log(`🎯 Existing user with role: ${role} - Auto-redirecting...`);
+                            
+                            // Store user session in localStorage
+                            const currentUser = {
+                                uid: user.uid,
+                                email: user.email,
+                                role: role,
+                                fullName: userProfile.data.fullName || userProfile.data.displayName || user.email.split('@')[0],
+                                loginTime: new Date().toISOString(),
+                                isFirebaseUser: true
+                            };
+                            
+                            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                            console.log('💾 Stored existing user session:', currentUser);
+                            
+                            // Auto-redirect based on role
+                            let redirectUrl = '';
+                            if (role === 'teacher') {
+                                redirectUrl = './pages/teacher-dashboard.html';
+                                console.log('🎯 Auto-redirecting teacher to dashboard');
+                            } else if (role === 'student') {
+                                redirectUrl = './pages/student-dashboard.html';
+                                console.log('🎯 Auto-redirecting student to dashboard');
+                            }
+                            
+                            if (redirectUrl) {
+                                console.log(`🚀 AUTO-REDIRECTING to: ${redirectUrl}`);
+                                // Add timestamp to help dashboard recognize auto-redirect
+                                const redirectUrlWithParam = `${redirectUrl}?autoRedirect=${Date.now()}`;
+                                console.log(`🔗 Redirect URL with timestamp: ${redirectUrlWithParam}`);
+                                window.location.href = redirectUrlWithParam;
+                                return;
+                            }
+                        } else {
+                            console.log('⚠️ User has no profile, creating default profile...');
+                            
+                            // Create default profile based on email
+                            let defaultRole = 'student'; // Default to student
+                            let displayName = user.email.split('@')[0];
+                            
+                            // Check if this is a teacher account based on email
+                            if (user.email.includes('teacher') || user.email.includes('admin')) {
+                                defaultRole = 'teacher';
+                            }
+                            
+                            console.log(`🆕 Creating ${defaultRole} profile for ${user.email}`);
+                            
+                            // Create user profile
+                            const createResult = await firebaseDataManager.createUserProfile(user.uid, {
+                                email: user.email,
+                                role: defaultRole,
+                                displayName: displayName,
+                                firstName: displayName,
+                                lastName: '',
+                                avatar: '👤',
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+                            
+                            if (createResult.success) {
+                                console.log('✅ Created profile successfully, redirecting...');
+                                
+                                // Store user session
+                                const currentUser = {
+                                    uid: user.uid,
+                                    email: user.email,
+                                    role: defaultRole,
+                                    fullName: displayName,
+                                    loginTime: new Date().toISOString(),
+                                    isFirebaseUser: true
+                                };
+                                
+                                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                                
+                                // Redirect based on role
+                                let redirectUrl = defaultRole === 'teacher' ? './pages/teacher-dashboard.html' : './pages/student-dashboard.html';
+                                const redirectUrlWithParam = `${redirectUrl}?autoRedirect=${Date.now()}`;
+                                console.log(`🚀 REDIRECTING NEW USER to: ${redirectUrlWithParam}`);
+                                window.location.href = redirectUrlWithParam;
+                                return;
+                            } else {
+                                console.error('❌ Failed to create user profile:', createResult.error);
+                                console.log('⚠️ Staying on landing page - profile creation failed');
+                            }
+                        }
+                    } catch (error) {
+                        console.error('❌ Error checking user profile for auto-redirect:', error);
+                        console.log('⚠️ Staying on landing page due to profile check error');
+                        
+                        // Fallback - create a basic profile if error persists
+                        try {
+                            console.log('🔄 Attempting fallback profile creation...');
+                            const fallbackProfile = {
+                                email: user.email,
+                                role: 'student',
+                                displayName: user.email.split('@')[0],
+                                firstName: user.email.split('@')[0],
+                                lastName: '',
+                                avatar: '👤',
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                            };
+                            
+                            const fallbackResult = await firebaseDataManager.createUserProfile(user.uid, fallbackProfile);
+                            if (fallbackResult.success) {
+                                console.log('✅ Fallback profile created, redirecting...');
+                                
+                                const currentUser = {
+                                    uid: user.uid,
+                                    email: user.email,
+                                    role: 'student',
+                                    fullName: user.email.split('@')[0],
+                                    loginTime: new Date().toISOString(),
+                                    isFirebaseUser: true
+                                };
+                                
+                                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                                const redirectUrlWithParam = `./pages/student-dashboard.html?autoRedirect=${Date.now()}`;
+                                console.log(`🚀 FALLBACK REDIRECT to: ${redirectUrlWithParam}`);
+                                window.location.href = redirectUrlWithParam;
+                                return;
+                            }
+                        } catch (fallbackError) {
+                            console.error('❌ Fallback profile creation failed:', fallbackError);
+                        }
+                    }
                 };
                 
                 firebaseDataManager.onUserSignedOut = function() {
@@ -2352,6 +2494,16 @@
         }
         // Handle Sign Up with Firebase
         document.addEventListener('DOMContentLoaded', async function() {
+            // Check if user was redirected due to session expiration
+            const redirectAfterLogin = localStorage.getItem('redirectAfterLogin');
+            if (redirectAfterLogin) {
+                // Show message about session expiration
+                setTimeout(() => {
+                    showAuthError('🔑 Your session has expired. Please log in again to continue.');
+                    showSignInForm(); // Auto-show the sign in form
+                }, 500);
+            }
+            
             // Initialize Firebase
             const firebaseReady = await initializeFirebase();
             if (!firebaseReady) {
@@ -2515,6 +2667,15 @@
                                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                                 console.log('💾 Stored user session in localStorage:', currentUser);
                                 
+                                // Check if there's a redirect URL stored from expired session
+                                const redirectAfterLogin = localStorage.getItem('redirectAfterLogin');
+                                if (redirectAfterLogin) {
+                                    console.log('🔄 Found redirect URL after login:', redirectAfterLogin);
+                                    localStorage.removeItem('redirectAfterLogin'); // Clear it
+                                    window.location.href = redirectAfterLogin;
+                                    return;
+                                }
+                                
                                 // Determine redirect URL based on current environment
                                 let redirectUrl = '';
                                 if (role === 'teacher') {
@@ -2534,14 +2695,60 @@
                                 }
                                 
                                 // IMMEDIATE REDIRECT - Don't restore button, don't hide modal, just redirect
-                                console.log(`🚀 REDIRECTING IMMEDIATELY to: ${redirectUrl}`);
+                                const redirectUrlWithParam = `${redirectUrl}?autoRedirect=${Date.now()}`;
+                                console.log(`🚀 REDIRECTING IMMEDIATELY to: ${redirectUrlWithParam}`);
                                 console.log(`🔍 Current URL: ${window.location.href}`);
-                                window.location.href = redirectUrl; // Use href for relative navigation
+                                window.location.href = redirectUrlWithParam; // Use href for relative navigation
                                 return; // Exit immediately after redirect
                                 
                             } else {
-                                console.error('❌ No valid role found, user profile:', userProfile);
-                                showAuthError('Unable to determine user role. Please try signing in again.');
+                                // No user profile found or no role - create default student profile for test accounts
+                                console.log('⚠️ No user profile found, creating default profile...');
+                                
+                                let defaultRole = 'student'; // Default to student
+                                let displayName = result.user.email.split('@')[0];
+                                
+                                // Check if this is a teacher account based on email
+                                if (result.user.email.includes('teacher') || result.user.email.includes('admin')) {
+                                    defaultRole = 'teacher';
+                                }
+                                
+                                // Create user profile
+                                const createProfileResult = await firebaseDataManager.createUserProfile(result.user.uid, {
+                                    email: result.user.email,
+                                    role: defaultRole,
+                                    displayName: displayName,
+                                    firstName: displayName,
+                                    lastName: '',
+                                    avatar: '👤',
+                                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                                });
+                                
+                                if (createProfileResult.success) {
+                                    console.log('✅ Created default user profile with role:', defaultRole);
+                                    
+                                    // Store user session
+                                    const currentUser = {
+                                        uid: result.user.uid,
+                                        email: result.user.email,
+                                        role: defaultRole,
+                                        fullName: displayName,
+                                        loginTime: new Date().toISOString(),
+                                        isFirebaseUser: true
+                                    };
+                                    
+                                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                                    
+                                    // Redirect based on role
+                                    let redirectUrl = defaultRole === 'teacher' ? './pages/teacher-dashboard.html' : './pages/student-dashboard.html';
+                                    const redirectUrlWithParam = `${redirectUrl}?autoRedirect=${Date.now()}`;
+                                    console.log(`🚀 REDIRECTING NEW USER to: ${redirectUrlWithParam}`);
+                                    window.location.href = redirectUrlWithParam;
+                                    return;
+                                } else {
+                                    console.error('❌ Failed to create user profile:', createProfileResult.error);
+                                    showAuthError('Unable to create user profile. Please try again.');
+                                }
                             }
                         } else {
                             showAuthError('❌ Sign in failed: ' + result.error);

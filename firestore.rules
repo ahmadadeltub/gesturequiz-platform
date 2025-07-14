@@ -15,16 +15,40 @@ service cloud.firestore {
     }
     
     // Allow authenticated users to manage quizzes they created
+    // Students can read published quizzes from any teacher
     match /quizzes/{quizId} {
       allow create: if request.auth != null;
-      allow read, update, delete: if request.auth != null && 
+      allow read: if request.auth != null && 
+        (request.auth.uid == resource.data.createdBy || 
+         request.auth.uid == resource.data.teacherId ||
+         resource.data.status == 'published');
+      allow update, delete: if request.auth != null && 
         (request.auth.uid == resource.data.createdBy || request.auth.uid == resource.data.teacherId);
+    }
+    
+    // Allow authenticated users to manage quiz submissions
+    match /quiz_submissions/{submissionId} {
+      allow create: if request.auth != null;
+      allow read, update: if request.auth != null && 
+        (request.auth.uid == resource.data.studentId || 
+         request.auth.uid == resource.data.teacherId);
     }
     
     // Allow authenticated users to manage their own submissions
     match /submissions/{submissionId} {
       allow create: if request.auth != null;
       allow read, update: if request.auth != null && 
+        (request.auth.uid == resource.data.userId || request.auth.uid == resource.data.studentId);
+    }
+    
+    // Allow authenticated users to manage enrollments
+    match /enrollments/{enrollmentId} {
+      allow create: if request.auth != null;
+      allow read: if request.auth != null && 
+        (request.auth.uid == resource.data.userId || 
+         request.auth.uid == resource.data.studentId ||
+         request.auth.uid == resource.data.teacherId);
+      allow update, delete: if request.auth != null && 
         (request.auth.uid == resource.data.userId || request.auth.uid == resource.data.studentId);
     }
     

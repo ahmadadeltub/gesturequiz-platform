@@ -27,6 +27,13 @@ function initializeFirebaseWhenReady() {
       const db = firebase.firestore();
       const storage = firebase.storage();
       
+      // CRITICAL: Set authentication persistence to LOCAL for better session management
+      auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).then(() => {
+        console.log('✅ Firebase auth persistence set to LOCAL - sessions will persist');
+      }).catch((error) => {
+        console.error('❌ Failed to set auth persistence:', error);
+      });
+      
       // Initialize analytics if available
       if (firebase.analytics) {
         const analytics = firebase.analytics();

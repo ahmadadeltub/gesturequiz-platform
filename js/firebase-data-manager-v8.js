@@ -120,7 +120,7 @@ class FirebaseDataManager {
             return { success: true };
         } catch (error) {
             console.error('❌ Failed to create user profile:', error);
-            throw error;
+            return { success: false, error: error.message };
         }
     }
 
